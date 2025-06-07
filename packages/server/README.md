@@ -60,7 +60,7 @@ interface HtmlResourceBlock {
 
 It's rendered in the client with the `<HtmlResource>` React component.
 
-The HTML method is limited, and the external app method isn't secure enough for untrusted 3rd party sites. We need a better method. Some ideas we should explore: RSC, remotedom, etc.
+`HtmlResource` on the client now supports a `secure` render mode that sanitizes HTML with DOMPurify rather than embedding it in an iframe. This is the recommended approach for untrusted content. The project will continue to explore RSC and Remote DOM as longer-term solutions.
 
 ### UI Action
 

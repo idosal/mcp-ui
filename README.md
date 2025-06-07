@@ -9,6 +9,7 @@
   <a href="#-what-is-mcp-ui">What's mcp-ui?</a> •
   <a href="#-installation">Installation</a> •
   <a href="#-quickstart">Quickstart</a> •
+  <a href="#-json-schema-generator">JSON Schema Generator</a> •
   <a href="#-core-concepts">Core Concepts</a> •
   <a href="#-examples">Examples</a> •
   <a href="#-roadmap">Roadmap</a> •
@@ -60,7 +61,7 @@ interface HtmlResourceBlock {
 
 It's rendered in the client with the `<HtmlResource>` React component.
 
-The HTML method is limited, and the external app method isn't secure enough for untrusted 3rd party sites. We need a better method. Some ideas we should explore: RSC, remotedom, etc.
+`HtmlResource` now supports an experimental `secure` render mode that sanitizes the HTML with DOMPurify instead of using an iframe. This avoids the security pitfalls of embedding untrusted sites. Future improvements may leverage React Server Components or Remote DOM for even better isolation.
 
 ### UI Action
 
@@ -127,6 +128,27 @@ yarn add @mcp-ui/server @mcp-ui/client
    ```
 
 3. **Enjoy** interactive MCP UIs — no extra configuration required.
+## 🧩 JSON Schema Generator
+
+Generate simple React forms from JSON Schema using the `generateUI` API.
+
+```tsx
+import { generateUI } from "@mcp-ui/generator";
+
+const schema = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    age: { type: "number" },
+    color: { type: "string", enum: ["red", "green"] },
+  },
+};
+
+export default function MyForm() {
+  return generateUI(schema);
+}
+```
+
 
 ## 🌍 Examples
 
@@ -152,6 +174,10 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action.
 - [ ] Support additional client-side libraries (e.g., Vue)
 - [ ] Expand UI Action API (beyond tool calls)
 - [ ] Do more with Resources and Sampling
+
+## 🌙 Документация на русском
+
+- [План трансформации проекта](docs/src/ru/transformation-plan.md)
 
 ## 🤝 Contributing
 

@@ -1,26 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UiActionResult } from '../types';
+import DOMPurify from 'dompurify';
+
 
 export interface RenderHtmlResourceProps {
   resource: Partial<Resource>;
   onUiAction?: (result: UiActionResult) => Promise<unknown>;
   style?: React.CSSProperties;
+  /**
+   * Choose how the HTML should be rendered. Defaults to `iframe`.
+   * `secure` renders sanitized HTML directly without an iframe.
+   */
+  renderMode?: 'iframe' | 'secure';
 }
 
 export const HtmlResource: React.FC<RenderHtmlResourceProps> = ({
   resource,
   onUiAction,
   style,
+  renderMode = 'iframe',
 }) => {
   const [htmlString, setHtmlString] = useState<string | null>(null);
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
   const [iframeRenderMode, setIframeRenderMode] = useState<'srcDoc' | 'src'>(
     'srcDoc',
   );
+  const [secureHtml, setSecureHtml] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const secureContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const processResource = async () => {
@@ -28,6 +37,7 @@ export const HtmlResource: React.FC<RenderHtmlResourceProps> = ({
       setError(null);
       setHtmlString(null);
       setIframeSrc(null);
+      setSecureHtml(null);
       setIframeRenderMode('srcDoc'); // Default to srcDoc
 
       // Backwards compatibility: if URI starts with ui-app://, treat as URL content
@@ -40,10 +50,44 @@ export const HtmlResource: React.FC<RenderHtmlResourceProps> = ({
         return;
       }
 
-      if (effectiveMimeType === 'text/uri-list') {
-        // Handle URL content (external apps)
-        // Note: While text/uri-list format supports multiple URLs, MCP-UI requires a single URL.
-        // If multiple URLs are provided, only the first will be used and others will be logged as warnings.
+
+      if (renderMode === 'secure') {
+        if (
+          resource.uri &&
+          !resource.uri.startsWith('ui://') &&
+          !resource.uri.startsWith('data:')
+        ) {
+          setError('Secure renderer only supports inline ui:// HTML content.');
+          setIsLoading(false);
+          return;
+        }
+
+        let html = '';
+        if (typeof resource.text === 'string') {
+          html = resource.text;
+        } else if (typeof resource.blob === 'string') {
+          try {
+            html = new TextDecoder().decode(
+              Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
+            );
+          } catch (e) {
+            console.error('Error decoding base64 blob for HTML content:', e);
+            setError('Error decoding HTML content from blob.');
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          setError('Secure renderer requires text or blob HTML content.');
+          setIsLoading(false);
+          return;
+        }
+
+        setSecureHtml(DOMPurify.sanitize(html));
+        setIsLoading(false);
+        return;
+      }
+
+      if (resource.uri?.startsWith('ui-app://')) {
         setIframeRenderMode('src');
         let urlContent = '';
         
@@ -121,7 +165,7 @@ export const HtmlResource: React.FC<RenderHtmlResourceProps> = ({
     };
 
     processResource();
-  }, [resource]);
+  }, [resource, renderMode]);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
@@ -146,10 +190,53 @@ export const HtmlResource: React.FC<RenderHtmlResourceProps> = ({
     return () => window.removeEventListener('message', handleMessage);
   }, [onUiAction]);
 
+  useEffect(() => {
+    if (renderMode !== 'secure' || !onUiAction) return;
+
+    const handler = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const tool = target.getAttribute('data-tool');
+      if (tool) {
+        const paramsAttr = target.getAttribute('data-params');
+        let params: Record<string, unknown> = {};
+        if (paramsAttr) {
+          try {
+            params = JSON.parse(paramsAttr);
+          } catch {
+            params = {};
+          }
+        }
+        onUiAction(tool, params).catch((err) => {
+          console.error('Error from onUiAction in RenderHtmlResource:', err);
+        });
+      }
+    };
+
+    const container = secureContainerRef.current;
+    container?.addEventListener('click', handler);
+    return () => container?.removeEventListener('click', handler);
+  }, [onUiAction, renderMode, secureHtml]);
+
   if (isLoading) return <p>Loading HTML content...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
-  if (iframeRenderMode === 'srcDoc') {
+  if (renderMode === 'secure') {
+    if (secureHtml === null || secureHtml === undefined) {
+      if (!isLoading && !error) {
+        return <p className="text-orange-500">No HTML content to display.</p>;
+      }
+      return null;
+    }
+    return (
+      <div
+        ref={secureContainerRef}
+        data-testid="html-resource-secure"
+        dangerouslySetInnerHTML={{ __html: secureHtml }}
+        style={{ width: '100%', minHeight: 200, ...style }}
+      />
+    );
+  } else if (iframeRenderMode === 'srcDoc') {
     if (htmlString === null || htmlString === undefined) {
       if (!isLoading && !error) {
         return <p className="text-orange-500">No HTML content to display.</p>;

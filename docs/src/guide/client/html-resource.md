@@ -11,6 +11,7 @@ export interface HtmlResourceProps {
   resource: Partial<Resource>;
   onUiAction?: (result: UiActionResult) => Promise<any>;
   style?: React.CSSProperties;
+  renderMode?: 'iframe' | 'secure';
 }
 ```
 
@@ -25,6 +26,9 @@ export interface HtmlResourceProps {
   ```
   If you don't provide a callback for a specific type, the default handler will be used.
 - **`style`** (optional): Custom styles for the iframe.
+- **`renderMode`** (optional): `'iframe'` (default) or `'secure'`. Secure mode
+  sanitizes the HTML and renders it directly without an iframe. Actions are
+  triggered by elements with `data-tool` and optional `data-params` attributes.
 
 ## How It Works
 
@@ -53,54 +57,15 @@ By default, the iframe stretches to 100% width and is at least 200px tall. You c
 
 See [Client SDK Usage & Examples](./usage-examples.md).
 
-## Recommended Usage Pattern
+## Secure Renderer (Experimental)
 
-Client-side hosts should check for the `ui://` URI scheme first to identify MCP-UI resources, rather than checking mimeType:
-
-```tsx
-function App({ mcpResource }) {
-  if (
-    mcpResource.type === 'resource' &&
-    mcpResource.resource.uri?.startsWith('ui://')
-  ) {
-    return (
-      <HtmlResource
-        resource={mcpResource.resource}
-        onUiAction={(tool, params) => {
-          console.log('Action:', tool, params);
-          return { status: 'ok' };
-        }}
-      />
-    );
-  }
-  return <p>Unsupported resource</p>;
-}
-```
-
-This pattern allows the `HtmlResource` component to handle mimeType-based rendering internally, making your code more future-proof as new content types (like `application/javascript`) are added.
-
-## Backwards Compatibility
-
-The `HtmlResource` component maintains backwards compatibility with the legacy `ui-app://` URI scheme:
-
-- **Legacy Support**: Resources with `ui-app://` URIs are automatically treated as URL content (equivalent to `mimeType: 'text/uri-list'`) even when they have the historically incorrect `mimeType: 'text/html'`
-- **Automatic Detection**: The component detects legacy URIs and processes them correctly without requiring code changes
-- **MimeType Override**: Ignores the incorrect `text/html` mimeType and treats content as URLs
-- **Migration Encouragement**: A warning is logged when legacy URIs are detected, encouraging server updates
-- **Seamless Transition**: Existing clients continue working with older servers during migration periods
-
-### Legacy URI Handling
-
-```tsx
-// Both patterns work identically:
-// Legacy (automatically detected and corrected):
-<HtmlResource resource={{ uri: 'ui-app://widget/123', mimeType: 'text/html', text: 'https://example.com/widget' }} />
-// Modern (recommended):
-<HtmlResource resource={{ uri: 'ui://widget/123', mimeType: 'text/uri-list', text: 'https://example.com/widget' }} />
-```
+When `renderMode` is set to `"secure"`, the HTML is sanitized using
+[`DOMPurify`](https://github.com/cure53/DOMPurify) and injected directly into the
+page. No iframe is used. Interactive elements should emit actions by including a
+`data-tool` attribute and an optional `data-params` JSON string.
 
 ## Security Notes
 
-- **`sandbox` attribute**: Restricts what the iframe can do. `allow-scripts` is needed for interactivity. `allow-same-origin` is external apps. Caution - the external app method isn's not a secure way to render untrusted code. We're working on new methods to alleviate security concerns.
-- **`postMessage` origin**: When sending messages from the iframe, always specify the target origin for safety. The component listens globally, so your iframe content should be explicit.
-- **Content Sanitization**: HTML is rendered as-is. If you don't fully trust the source, sanitize the HTML before passing it in, or rely on the iframe's sandboxing.
+- **`sandbox` attribute**: Restricts what the iframe can do. `allow-scripts` is needed for interactivity. `allow-same-origin` is only used for `ui-app://` URLs.
+- **`postMessage` origin**: When sending messages from the iframe, always specify the target origin for safety.
+- **Content Sanitization**: In `secure` mode the HTML is sanitized with DOMPurify before rendering. In `iframe` mode the HTML is rendered as-is and relies on the iframe's sandboxing.

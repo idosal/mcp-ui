@@ -12,7 +12,7 @@ This guide will walk you through setting up your development environment and usi
 1.  **Clone the Monorepo**:
 
     ```bash
-    git clone https://github.com/idosal/mcp-ui.git # TODO: Update this link
+    git clone https://github.com/idosal/mcp-ui.git
     cd mcp-ui
     ```
 
