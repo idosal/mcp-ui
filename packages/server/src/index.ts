@@ -5,7 +5,10 @@
 
 // Import types first
 import {
+  Base64BlobContent,
   CreateHtmlResourceOptions,
+  HtmlTextContent,
+  MimeType,
   UiActionResult,
   UiActionResultLink,
   UiActionResultNotification,
@@ -14,15 +17,10 @@ import {
   UiActionResultToolCall,
 } from './types.js';
 
-export interface HtmlResourceBlock {
+export type HtmlResourceBlock = {
   type: 'resource';
-  resource: {
-    uri: string; // Primary identifier. Starts with "ui://"
-    mimeType: 'text/html' | 'text/uri-list'; // text/html for rawHtml content, text/uri-list for externalUrl content
-    text?: string; // HTML content (for mimeType `text/html`), or iframe URL (for mimeType `text/uri-list`)
-    blob?: string; // Base64 encoded HTML content (for mimeType `text/html`), or iframe URL (for mimeType `text/uri-list`)
-  };
-}
+  resource: HtmlTextContent | Base64BlobContent;
+};
 
 /**
  * Robustly encodes a UTF-8 string to Base64.
@@ -68,7 +66,7 @@ export function createHtmlResource(
   options: CreateHtmlResourceOptions,
 ): HtmlResourceBlock {
   let actualContentString: string;
-  let mimeType: 'text/html' | 'text/uri-list';
+  let mimeType: MimeType;
 
   if (options.content.type === 'rawHtml') {
     if (!options.uri.startsWith('ui://')) {
@@ -104,18 +102,29 @@ export function createHtmlResource(
     );
   }
 
-  const resource: HtmlResourceBlock['resource'] = {
-    uri: options.uri,
-    mimeType: mimeType,
-  };
+  let resource: HtmlResourceBlock['resource'];
 
   switch (options.delivery) {
     case 'text':
-      resource.text = actualContentString;
+      resource = {
+        uri: options.uri,
+        mimeType: mimeType,
+        text: actualContentString,
+      };
       break;
     case 'blob':
-      resource.blob = robustUtf8ToBase64(actualContentString);
+      resource = {
+        uri: options.uri,
+        mimeType: mimeType,
+        blob: robustUtf8ToBase64(actualContentString),
+      };
       break;
+    default:
+      // Exhaustive check
+      (() => {
+        const exhaustiveCheck: never = options.delivery;
+        throw new Error(`Invalid delivery type: ${exhaustiveCheck}`);
+      })();
   }
 
   return {
@@ -166,9 +175,7 @@ export function uiActionResultToolCall(
   };
 }
 
-export function uiActionResultPrompt(
-  prompt: string,
-): UiActionResultPrompt {
+export function uiActionResultPrompt(prompt: string): UiActionResultPrompt {
   return {
     type: 'prompt',
     payload: {
@@ -202,7 +209,7 @@ export function uiActionResultIntent(
 export function uiActionResultNotification(
   message: string,
 ): UiActionResultNotification {
-  return {  
+  return {
     type: 'notification',
     payload: {
       message,
