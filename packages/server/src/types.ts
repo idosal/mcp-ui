@@ -76,9 +76,19 @@ export type UIActionResultNotification = {
   };
 };
 
+export type UIActionResultRequestInfo = {
+  type: 'requestInfo';
+  payload: {
+    requestId: string;
+    requestContext: string;
+    params?: Record<string, unknown>;
+  };
+};
+
 export type UIActionResult =
   | UIActionResultToolCall
   | UIActionResultPrompt
   | UIActionResultLink
   | UIActionResultIntent
-  | UIActionResultNotification;
+  | UIActionResultNotification
+  | UIActionResultRequestInfo;

@@ -23,16 +23,28 @@ export const HTMLResourceRenderer = React.forwardRef<
   );
 
   useEffect(() => {
-    function handleMessage(event: MessageEvent) {
+    async function handleMessage(event: MessageEvent) {
       // Only process the message if it came from this specific iframe
       if (iframeRef.current && event.source === iframeRef.current.contentWindow) {
         const uiActionResult = event.data as UIActionResult;
         if (!uiActionResult) {
           return;
         }
-        onUIAction?.(uiActionResult)?.catch((err) => {
+        try {
+          const response = await onUIAction?.(uiActionResult);
+          if (uiActionResult.type === 'requestInfo') {
+            const { requestId } = uiActionResult.payload;
+            event.source?.postMessage({
+              type: 'requestInfoResponse',
+              payload: {
+                requestId,
+                response,
+              },
+            });
+          }
+        } catch (err) {
           console.error('Error handling UI action result in HTMLResourceRenderer:', err);
-        });
+        }
       }
     }
     window.addEventListener('message', handleMessage);
