@@ -88,6 +88,7 @@ It accepts the following props:
 - **`htmlProps`**: Optional props for the internal `<HTMLResourceRenderer>`
   - **`style`**: Optional custom styles for the iframe
   - **`iframeProps`**: Optional props passed to the iframe element
+  - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
 - **`remoteDomProps`**: Optional props for the internal `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: remote element definitions for Remote DOM resources.

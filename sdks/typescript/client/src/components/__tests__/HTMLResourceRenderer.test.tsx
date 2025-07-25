@@ -1,6 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { HTMLResourceRenderer, HTMLResourceRendererProps } from '../HTMLResourceRenderer';
+import {
+  HTMLResourceRenderer,
+  HTMLResourceRendererProps,
+  ReservedUrlParams,
+} from '../HTMLResourceRenderer';
 import { vi } from 'vitest';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 import { UIActionResult } from '../../types.js';
@@ -321,6 +325,37 @@ describe('HTMLResource iframe communication', () => {
 
     expect(localMockOnUIAction).not.toHaveBeenCalled();
     expect(mockOnUIAction).not.toHaveBeenCalled(); // also check the describe-scoped one
+  });
+
+  it('should hang the proper query params in the iframe src', async () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+    };
+    const iframeRenderData = { foo: 'bar' };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        iframeRenderData={iframeRenderData}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.src).toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
+  });
+
+  it('shouldnt hang the query param if there is no render data', async () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer resource={resource} iframeProps={{ ref }} iframeRenderData={undefined} />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.src).not.toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
   });
 });
 

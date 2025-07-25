@@ -139,7 +139,14 @@ export const InternalMessageType = {
   UI_ACTION_RECEIVED: 'ui-action-received',
   UI_ACTION_RESPONSE: 'ui-action-response',
   UI_ACTION_ERROR: 'ui-action-error',
+
+  UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
+  UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
 };
+
+export const ReservedUrlParams = {
+  WAIT_FOR_RENDER_DATA: 'waitForRenderData',
+} as const;
 
 export function uiActionResultToolCall(
   toolName: string,

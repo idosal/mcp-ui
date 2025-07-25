@@ -50,6 +50,7 @@ interface UIResourceRendererProps {
   - **`proxy`**: Optional. A URL to a static "proxy" script for rendering external URLs. See [Using a Proxy for External URLs](./using-a-proxy.md) for details.
   - **`iframeProps`**: Optional props passed to iframe elements (for HTML/URL resources)
     - **`ref`**: Optional React ref to access the underlying iframe element
+  - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
 - **`remoteDomProps`**: Optional props for the `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: Optional remote element definitions for Remote DOM resources. REQUIRED for Remote DOM snippets.
@@ -136,6 +137,63 @@ function App({ mcpResource }) {
   }}
   onUIAction={handleUIAction}
 />
+```
+
+### Passing Render-Time Data to Iframes
+
+The `iframeRenderData` prop allows you to send a data payload to an iframe as it renders. This is useful for initializing the iframe with dynamic data from the parent application.
+
+When `iframeRenderData` is provided:
+1. The iframe's URL will automatically include `?waitForRenderData=true`. The iframe's internal script can use this to know it should wait for data instead of immediately rendering.
+2. The data is sent to the iframe via `postMessage` using a dual-mechanism approach to ensure reliable delivery:
+    - **On Load**: A `ui-lifecycle-iframe-render-data` message is sent as soon as the iframe's `onLoad` event fires.
+    - **On Ready**: If the iframe sends a `ui-lifecycle-iframe-ready` message, the parent will respond with the same `ui-lifecycle-iframe-render-data` payload.
+
+This ensures the data is delivered whether the iframe is ready immediately or needs to perform setup work first.
+
+```tsx
+<UIResourceRenderer
+  resource={mcpResource.resource}
+  htmlProps={{
+    iframeRenderData: {
+      theme: 'dark',
+      user: { id: '123', name: 'John Doe' }
+    }
+  }}
+  onUIAction={handleUIAction}
+/>
+```
+
+Inside the iframe, you can listen for this data:
+
+```javascript
+// In the iframe's script
+
+// If the iframe needs to do async work, it can tell the parent when it's ready
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('waitForRenderData') === 'true') {
+  let customRenderData = null;
+
+  // The parent will send this message on load or when we notify it we're ready
+  window.addEventListener('message', (event) => {
+    // Add origin checks for security
+    if (event.data.type === 'ui-lifecycle-iframe-render-data') {
+      // If the iframe has already received data, we don't need to do anything
+      if(customRenderData) {
+        return;
+      } else {
+        customRenderData = event.data.payload.renderData;
+        // Now you can render the UI with the received data
+        renderUI(renderData);
+      }
+    }
+  });
+  // We can let the parent know we're ready to receive data
+  window.parent.postMessage({ type: 'ui-lifecycle-iframe-ready' }, '*');
+} else {
+  // If the iframe doesn't need to wait for data, we can render the default UI immediately
+  renderUI();
+}
 ```
 
 ### Accessing the Iframe Element
