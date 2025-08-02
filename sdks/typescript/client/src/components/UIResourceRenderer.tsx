@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 import { ResourceContentType, UIActionResult } from '../types';
 import { HTMLResourceRenderer, HTMLResourceRendererProps } from './HTMLResourceRenderer';

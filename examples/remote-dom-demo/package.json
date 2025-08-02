@@ -18,8 +18,8 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",
     "@remote-dom/react": "^1.2.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

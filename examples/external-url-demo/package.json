@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@mcp-ui/client": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",

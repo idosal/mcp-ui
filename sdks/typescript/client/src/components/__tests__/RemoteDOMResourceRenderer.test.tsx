@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi, type Mock } from 'vitest';
 import { RemoteDOMResourceRenderer } from '../RemoteDOMResourceRenderer';
@@ -5,14 +6,14 @@ import '@testing-library/jest-dom';
 import { basicComponentLibrary } from '../../remote-dom/component-libraries/basic';
 import { RemoteRootRenderer } from '@remote-dom/react/host';
 
-// Mock child components and dependencies
-vi.mock('@remote-dom/react/host', async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...(actual as object),
-    RemoteRootRenderer: vi.fn(() => <div data-testid="remote-root-renderer" />),
-  };
-});
+// Mock child components and dependencies - complete mock to avoid jsx-runtime issues with React 16
+vi.mock('@remote-dom/react/host', () => ({
+  RemoteRootRenderer: vi.fn(() => <div data-testid="remote-root-renderer" />),
+  createRemoteComponentRenderer: vi.fn(() => ({
+    render: vi.fn(),
+  })),
+  RemoteReceiver: vi.fn(),
+}));
 
 vi.mock('../iframe-bundle', () => ({
   IFRAME_SRC_DOC: '<html><body>Mock Iframe Content</body></html>',

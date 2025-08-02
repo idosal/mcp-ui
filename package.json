@@ -30,7 +30,7 @@
     "@semantic-release/release-notes-generator": "^14.0.3",
     "@swc/core": "^1.4.0",
     "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/react": "^14.1.2",
+    "@testing-library/react": "12.1.5",
     "@types/jest": "^29.5.11",
     "@types/node": "^22.15.18",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
