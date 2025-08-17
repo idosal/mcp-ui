@@ -10,6 +10,7 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
+import { getAdditionalResourceProps } from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -106,6 +107,7 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         uri: options.uri,
         mimeType: mimeType as MimeType,
         text: actualContentString,
+        ...getAdditionalResourceProps(options),
       };
       break;
     case 'blob':
@@ -113,6 +115,7 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         uri: options.uri,
         mimeType: mimeType as MimeType,
         blob: robustUtf8ToBase64(actualContentString),
+        ...getAdditionalResourceProps(options),
       };
       break;
     default: {

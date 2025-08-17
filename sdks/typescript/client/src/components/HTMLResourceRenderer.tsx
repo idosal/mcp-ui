@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UIActionResult } from '../types';
+import { UIActionResult, UIMetadataKey } from '../types';
 import { processHTMLResource } from '../utils/processResource';
+import { getUIResourceMetadata } from '../utils/metadataUtils';
 
 export type HTMLResourceRendererProps = {
   resource: Partial<Resource>;
@@ -16,7 +17,7 @@ export type HTMLResourceRendererProps = {
   };
 };
 
-const InternalMessageType = {
+export const InternalMessageType = {
   UI_MESSAGE_RECEIVED: 'ui-message-received',
   UI_MESSAGE_RESPONSE: 'ui-message-response',
 
@@ -48,18 +49,32 @@ export const HTMLResourceRenderer = ({
     [resource, proxy],
   );
 
+  const uiMetadata = useMemo(() => getUIResourceMetadata(resource), [resource]);
+  const preferredFrameSize = uiMetadata[UIMetadataKey.PREFERRED_FRAME_SIZE] ?? ['100%', '100%'];
+  const metadataInitialRenderData = uiMetadata[UIMetadataKey.INITIAL_RENDER_DATA] ?? undefined;
+
+  const initialRenderData = useMemo(() => {
+    if (!iframeRenderData && !metadataInitialRenderData) {
+      return undefined;
+    }
+    return {
+      ...metadataInitialRenderData,
+      ...iframeRenderData,
+    };
+  }, [iframeRenderData, metadataInitialRenderData]);
+
   const iframeSrcToRender = useMemo(() => {
-    if (iframeSrc && iframeRenderData) {
+    if (iframeSrc && initialRenderData) {
       const iframeUrl = new URL(iframeSrc);
       iframeUrl.searchParams.set(ReservedUrlParams.WAIT_FOR_RENDER_DATA, 'true');
       return iframeUrl.toString();
     }
     return iframeSrc;
-  }, [iframeSrc, iframeRenderData]);
+  }, [iframeSrc, initialRenderData]);
 
   const onIframeLoad = useCallback(
     (event: React.SyntheticEvent<HTMLIFrameElement>) => {
-      if (iframeRenderData) {
+      if (initialRenderData) {
         const iframeWindow = event.currentTarget.contentWindow;
         const iframeOrigin = iframeSrcToRender ? new URL(iframeSrcToRender).origin : '*';
         postToFrame(
@@ -68,13 +83,13 @@ export const HTMLResourceRenderer = ({
           iframeOrigin,
           undefined,
           {
-            renderData: iframeRenderData,
+            renderData: initialRenderData,
           },
         );
       }
       iframeProps?.onLoad?.(event);
     },
-    [iframeRenderData, iframeSrcToRender, iframeProps?.onLoad],
+    [initialRenderData, iframeSrcToRender, iframeProps?.onLoad],
   );
 
   useEffect(() => {
@@ -83,14 +98,14 @@ export const HTMLResourceRenderer = ({
       // Only process the message if it came from this specific iframe
       if (iframeRef.current && source === iframeRef.current.contentWindow) {
         // if the iframe is ready, send the render data to the iframe
-        if (data?.type === InternalMessageType.UI_LIFECYCLE_IFRAME_READY && iframeRenderData) {
+        if (data?.type === InternalMessageType.UI_LIFECYCLE_IFRAME_READY && initialRenderData) {
           postToFrame(
             InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
             source,
             origin,
             undefined,
             {
-              renderData: iframeRenderData,
+              renderData: initialRenderData,
             },
           );
           return;
@@ -163,7 +178,7 @@ export const HTMLResourceRenderer = ({
       <iframe
         srcDoc={htmlString}
         sandbox={sandbox}
-        style={{ width: '100%', height: '100%', ...style }}
+        style={{ width: preferredFrameSize[0], height: preferredFrameSize[1], ...style }}
         title="MCP HTML Resource (Embedded Content)"
         {...iframeProps}
         ref={iframeRef}
@@ -182,7 +197,7 @@ export const HTMLResourceRenderer = ({
       <iframe
         src={iframeSrcToRender}
         sandbox={sandbox}
-        style={{ width: '100%', height: '100%', ...style }}
+        style={{ width: preferredFrameSize[0], height: preferredFrameSize[1], ...style }}
         title="MCP HTML Resource (URL)"
         {...iframeProps}
         ref={iframeRef}
@@ -196,7 +211,7 @@ export const HTMLResourceRenderer = ({
 
 HTMLResourceRenderer.displayName = 'HTMLResourceRenderer';
 
-function postToFrame(
+export function postToFrame(
   type: (typeof InternalMessageType)[keyof typeof InternalMessageType],
   source: Window | null,
   origin: string,

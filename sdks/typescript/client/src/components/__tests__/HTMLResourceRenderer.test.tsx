@@ -3,11 +3,12 @@ import '@testing-library/jest-dom';
 import {
   HTMLResourceRenderer,
   HTMLResourceRendererProps,
+  InternalMessageType,
   ReservedUrlParams,
 } from '../HTMLResourceRenderer';
 import { vi } from 'vitest';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UIActionResult } from '../../types.js';
+import { UI_METADATA_PREFIX, UIActionResult } from '../../types.js';
 import React from 'react';
 
 describe('HTMLResource component', () => {
@@ -385,6 +386,36 @@ describe('HTMLResource iframe communication', () => {
     );
     expect(ref.current).toBeInTheDocument();
     expect(ref.current?.src).toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_LIFECYCLE_IFRAME_READY,
+    });
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(
+        {
+          type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+          payload: { renderData: iframeRenderData },
+          messageId: undefined,
+        },
+        '*',
+      );
+    });
+  });
+
+  it('should hang the proper query params in the iframe src from resource metadata', async () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: {
+        [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'],
+        [`${UI_METADATA_PREFIX}initial-render-data`]: { foo: 'baz' },
+      },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(<HTMLResourceRenderer resource={resource} iframeProps={{ ref }} />);
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.src).toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
   });
 
   it('shouldnt hang the query param if there is no render data', async () => {
@@ -394,10 +425,113 @@ describe('HTMLResource iframe communication', () => {
     };
     const ref = React.createRef<HTMLIFrameElement>();
     render(
-      <HTMLResourceRenderer resource={resource} iframeProps={{ ref }} iframeRenderData={undefined} />,
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        iframeRenderData={undefined}
+      />,
     );
     expect(ref.current).toBeInTheDocument();
     expect(ref.current?.src).not.toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
+  });
+});
+
+describe('HTMLResource metadata', () => {
+  it('should respect a preferred-frame-size metadata', () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: { [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'] },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(<HTMLResourceRenderer resource={resource} iframeProps={{ ref }} />);
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.style.width).toBe('100px');
+    expect(ref.current?.style.height).toBe('100px');
+  });
+
+  it('should merge inline style with preferred-frame-size metadata', () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: { [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'] },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        style={{ height: '200px' }}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.style.width).toBe('100px');
+    expect(ref.current?.style.height).toBe('200px');
+  });
+
+  it('should pass correct initial render data to the iframe', () => {
+    const renderData = { foo: 'baz' };
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: { [`${UI_METADATA_PREFIX}initial-render-data`]: renderData },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(<HTMLResourceRenderer resource={resource} iframeProps={{ ref }} />);
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.src).toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_LIFECYCLE_IFRAME_READY,
+    });
+    expect(spy).toHaveBeenCalledWith(
+      {
+        type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+        payload: { renderData },
+        messageId: undefined,
+      },
+      '*',
+    );
+  });
+
+  it('should merge iframeRenderData and metadataInitialRenderData', () => {
+    const iframeRenderData = { priority: 'high', foo: 'bar' };
+    const metadataInitialRenderData = { priority: 'low', baz: 'qux' };
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: { [`${UI_METADATA_PREFIX}initial-render-data`]: metadataInitialRenderData },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        iframeRenderData={iframeRenderData}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.src).toContain(`${ReservedUrlParams.WAIT_FOR_RENDER_DATA}=true`);
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_LIFECYCLE_IFRAME_READY,
+    });
+    expect(spy).toHaveBeenCalledWith(
+      {
+        type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+        payload: {
+          renderData: {
+            priority: 'high',
+            foo: 'bar',
+            baz: 'qux',
+          },
+        },
+        messageId: undefined,
+      },
+      '*',
+    );
   });
 });
 

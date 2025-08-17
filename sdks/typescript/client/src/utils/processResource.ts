@@ -59,7 +59,7 @@ export function processHTMLResource(
         error: 'URL content is empty.',
       };
     }
-    
+
     // Parse uri-list format: URIs separated by newlines, comments start with #
     // MCP-UI requires a single URL - if multiple are found, use first and warn about others
     const lines = urlContent
