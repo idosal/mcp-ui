@@ -28,6 +28,16 @@ For developers using frameworks other than React, a Web Component version is ava
 - **External URLs** (`text/uri-list`): External applications and websites
 - **Remote DOM Resources** (`application/vnd.mcp-ui.remote-dom`): Server-generated UI components using Shopify's remote-dom
 
+## Metadata Integration
+
+The `UIResourceRenderer` automatically detects and uses metadata from resources created with the server SDK's `createUIResource()` function. It looks for MCP-UI specific metadata keys prefixed with `mcpui.dev/ui-` in the resource's `_meta` property:
+
+### Automatic Frame Sizing
+- **`mcpui.dev/ui-preferred-frame-size`**: When present, this metadata is used as the initial size for iframe-based resources, overriding any default sizing behavior.
+
+### Automatic Data Passing
+- **`mcpui.dev/ui-initial-render-data`**: When present, this data is automatically merged with the `iframeRenderData` prop (if provided) and passed to the iframe using the `ui-lifecycle-iframe-render-data` mechanism.
+
 ## Props
 
 ```typescript
@@ -120,6 +130,57 @@ function App({ mcpResource }) {
   return <p>Unsupported resource</p>;
 }
 ```
+
+## Metadata Usage Examples
+
+When a resource is created on the server with metadata, the `UIResourceRenderer` automatically applies the configuration:
+
+```tsx
+// Server-side resource creation (for reference)
+// const serverResource = createUIResource({
+//   uri: 'ui://chart/dashboard',
+//   content: { type: 'externalUrl', iframeUrl: 'https://charts.example.com' },
+//   encoding: 'text',
+//   uiMetadata: {
+//     'preferred-frame-size': [ '800px', '600px' ],
+//     'initial-render-data': { theme: 'dark', userId: '123' }
+//   }
+// });
+
+// Client-side rendering - metadata is automatically applied
+function Dashboard({ mcpResource }) {
+  const handleUIAction = async (result: UIActionResult) => {
+    // Handle UI actions
+    return { status: 'handled' };
+  };
+
+  return (
+    <UIResourceRenderer
+      resource={mcpResource.resource} // Contains metadata from server
+      htmlProps={{
+        // Additional render data can be merged with metadata
+        iframeRenderData: { 
+          sessionId: 'abc123',
+          permissions: ['read', 'write']
+        }
+      }}
+      onUIAction={handleUIAction}
+    />
+  );
+}
+
+// The UIResourceRenderer will:
+// 1. Use ['800px', '600px'] as the initial iframe size
+// 2. Merge server metadata with prop data:
+//    { theme: 'dark', userId: '123', sessionId: 'abc123', permissions: ['read', 'write'] }
+// 3. Pass the combined data to the iframe via ui-lifecycle-iframe-render-data
+```
+
+### Metadata Precedence
+
+When both server metadata and component props provide similar data:
+- **Frame sizing**: Server `preferred-frame-size` is used as the initial size, but can be overridden by component styling
+- **Render data**: Server `initial-render-data` is merged with the `iframeRenderData` prop, with prop values taking precedence for duplicate keys
 
 ## Advanced Usage
 

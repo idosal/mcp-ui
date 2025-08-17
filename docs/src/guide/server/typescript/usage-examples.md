@@ -139,12 +139,121 @@ console.log('Resource 5:', JSON.stringify(resource5, null, 2));
 // of a toolResult in an MCP interaction.
 ```
 
+## Metadata Configuration Examples
+
+The `createUIResource` function supports three types of metadata configuration to enhance your UI resources:
+
+```typescript
+import { createUIResource } from '@mcp-ui/server';
+
+// Example 7: Using standard metadata
+const resourceWithMetadata = createUIResource({
+  uri: 'ui://analytics/dashboard',
+  content: { type: 'rawHtml', htmlString: '<div id="dashboard">Loading...</div>' },
+  encoding: 'text',
+  metadata: {
+    title: 'Analytics Dashboard',
+    description: 'Real-time analytics and metrics',
+    created: '2024-01-15T10:00:00Z',
+    author: 'Analytics Team'
+  }
+});
+console.log('Resource with metadata:', JSON.stringify(resourceWithMetadata, null, 2));
+/* Output includes:
+{
+  "type": "resource",
+  "resource": {
+    "uri": "ui://analytics/dashboard",
+    "mimeType": "text/html",
+    "text": "<div id=\"dashboard\">Loading...</div>",
+    "_meta": {
+      "title": "Analytics Dashboard",
+      "description": "Real-time analytics and metrics",
+      "created": "2024-01-15T10:00:00Z",
+      "author": "Analytics Team"
+    }
+  }
+}
+*/
+
+// Example 8: Using uiMetadata for client-side configuration
+const resourceWithUIMetadata = createUIResource({
+  uri: 'ui://chart/interactive',
+  content: { type: 'externalUrl', iframeUrl: 'https://charts.example.com/widget' },
+  encoding: 'text',
+  uiMetadata: {
+    'preferred-frame-size': ['800px', '600px'],
+    'initial-render-data': { 
+      theme: 'dark', 
+      chartType: 'bar',
+      dataSet: 'quarterly-sales' 
+    },
+    'preferred-context': 'hero'
+  }
+});
+console.log('Resource with UI metadata:', JSON.stringify(resourceWithUIMetadata, null, 2));
+/* Output includes:
+{
+  "type": "resource",
+  "resource": {
+    "uri": "ui://chart/interactive",
+    "mimeType": "text/uri-list",
+    "text": "https://charts.example.com/widget",
+    "_meta": {
+      "mcpui.dev/ui-preferred-frame-size": ["800px", "600px"],
+      "mcpui.dev/ui-initial-render-data": { 
+        "theme": "dark", 
+        "chartType": "bar",
+        "dataSet": "quarterly-sales" 
+      },
+      "mcpui.dev/ui-preferred-context": "hero"
+    }
+  }
+}
+*/
+
+// Example 9: Using resourceProps for additional MCP properties
+const resourceWithProps = createUIResource({
+  uri: 'ui://form/user-profile',
+  content: { type: 'rawHtml', htmlString: '<form id="profile">...</form>' },
+  encoding: 'text',
+  resourceProps: {
+    annotations: {
+      audience: ['developers', 'admins'],
+      priority: 'high'
+    }
+  }
+});
+console.log('Resource with additional props:', JSON.stringify(resourceWithProps, null, 2));
+/* Output includes:
+{
+  "type": "resource",
+  "resource": {
+    "uri": "ui://form/user-profile",
+    "mimeType": "text/html",
+    "text": "<form id=\"profile\">...</form>",
+    "annotations": {
+      "audience": ["developers", "admins"],
+      "priority": "high"
+    }
+  }
+}
+*/
+```
+
+### Metadata Best Practices
+
+- **Use `metadata` for standard MCP resource information** like titles, descriptions, timestamps, and authorship
+- **Use `uiMetadata` for client rendering hints** like preferred sizes, initial data, and context preferences  
+- **Use `resourceProps` for MCP specification properties** like annotations, descriptions at the resource level, and other standard fields
+- **Use consistent `preferred-context` values** across your application (e.g., 'hero', 'sidebar', 'modal', 'inline')
+
 ## Advanced URI List Example
 
 You can provide multiple URLs in the `text/uri-list` format for fallback purposes. However, **MCP-UI requires a single URL** and will only use the first valid URL found:
 
 ```typescript
-// Example 6: Multiple URLs with fallbacks (MCP-UI uses only the first)
+// Example 10: Multiple URLs with fallbacks (MCP-UI uses only the first)
 const multiUrlContent = `# Primary dashboard
 https://dashboard.example.com/main
 
@@ -154,7 +263,7 @@ https://backup.dashboard.example.com/main
 # Emergency fallback (will be logged but not used)  
 https://emergency.dashboard.example.com/main`;
 
-const resource6 = createUIResource({
+const resource = createUIResource({
   uri: 'ui://dashboard-with-fallbacks/session-123',
   content: { type: 'externalUrl', iframeUrl: multiUrlContent },
   encoding: 'text',
