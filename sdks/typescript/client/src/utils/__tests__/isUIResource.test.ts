@@ -5,7 +5,7 @@ describe('isUIResource', () => {
 
     const uiResources = [
         { type: 'resource', resource: { uri: 'ui://test' } },
-        { type: 'resource', resource: { uri: 'ui://test', mimeType: 'text/html', text: 'Hello, world!' } },
+        { type: 'resource', resource: { uri: 'ui://test', mimeType: 'text/html', text: 'Hello, world!' }, arbitraryProp: 'arbitrary' },
         { type: 'resource', resource: { uri: 'ui://test', mimeType: 'text/uri-list', text: 'https://example.com' } },
         { type: 'resource', resource: { uri: 'ui://test', mimeType: 'application/vnd.mcp-ui.remote-dom', text: 'Hello, world!' } },
     ]
