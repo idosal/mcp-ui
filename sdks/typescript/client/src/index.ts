@@ -1,4 +1,5 @@
 export { UIResourceRenderer } from './components/UIResourceRenderer';
+export { isUIResource } from './utils/isUIResource';
 
 // The types needed to create a custom component library
 export type {
