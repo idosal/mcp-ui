@@ -30,9 +30,7 @@ class UIResource(EmbeddedResource):
         )
 
 
-
-
-def create_ui_resource(options: CreateUIResourceOptions) -> UIResource:
+def createUIResource(options_dict: dict) -> UIResource:
     """Create a UIResource.
     
     This is the object that should be included in the 'content' array of a toolResult.
@@ -48,6 +46,7 @@ def create_ui_resource(options: CreateUIResourceOptions) -> UIResource:
         InvalidContentError: If content validation fails
         MCPUIServerError: For other errors
     """
+    options = CreateUIResourceOptions.model_validate(options_dict)
     # Validate URI
     if not options.uri.startswith("ui://"):
         raise InvalidURIError(f"URI must start with 'ui://' but got: {options.uri}")
@@ -60,12 +59,12 @@ def create_ui_resource(options: CreateUIResourceOptions) -> UIResource:
         from .types import RawHtmlPayload
         if not isinstance(content, RawHtmlPayload):
             raise InvalidContentError("Content must be RawHtmlPayload when type is 'rawHtml'")
-        html_string = content.text
-        if not html_string:
+        htmlString = content.htmlString
+        if not htmlString:
             raise InvalidContentError(
-                "content.text must be provided as a non-empty string when content.type is 'rawHtml'"
+                "htmlString must be provided as a non-empty string when content.type is 'rawHtml'"
             )
-        actual_content_string = html_string
+        actual_content_string = htmlString
         mime_type: MimeType = "text/html"
         
     elif content_type == "externalUrl":

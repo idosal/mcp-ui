@@ -21,7 +21,7 @@ UIActionType = Literal["tool", "prompt", "link", "intent", "notify"]
 class RawHtmlPayload(BaseModel):
     """Raw HTML content payload."""
     type: Literal["rawHtml"]
-    text: str
+    htmlString: str
 
 
 class ExternalUrlPayload(BaseModel):
