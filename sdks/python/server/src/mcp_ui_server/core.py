@@ -30,7 +30,7 @@ class UIResource(EmbeddedResource):
         )
 
 
-def createUIResource(options_dict: dict) -> UIResource:
+def create_UIResource(options_dict: dict[str, Any]) -> UIResource:
     """Create a UIResource.
     
     This is the object that should be included in the 'content' array of a toolResult.
@@ -154,10 +154,10 @@ def create_ui_resource_contents(options: CreateUIResourceOptions) -> TextResourc
         from .types import RawHtmlPayload
         if not isinstance(content, RawHtmlPayload):
             raise InvalidContentError("Content must be RawHtmlPayload when type is 'rawHtml'")
-        html_string = content.text
+        html_string = content.htmlString
         if not html_string:
             raise InvalidContentError(
-                "content.text must be provided as a non-empty string when content.type is 'rawHtml'"
+                "content.htmlString must be provided as a non-empty string when content.type is 'rawHtml'"
             )
         actual_content_string = html_string
         mime_type: MimeType = "text/html"

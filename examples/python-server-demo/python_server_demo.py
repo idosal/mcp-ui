@@ -12,7 +12,7 @@ Usage:
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-from mcp_ui_server import create_ui_resource
+from mcp_ui_server import create_UIResource
 from mcp_ui_server.core import UIResource
 from mcp_ui_server.types import (
     CreateUIResourceOptions,
@@ -27,28 +27,28 @@ mcp = FastMCP("python-server-demo")
 @mcp.tool()
 def show_external_url() -> list[UIResource]:
     """Creates a UI resource displaying an external URL (example.com)."""
-    ui_resource = create_ui_resource(CreateUIResourceOptions(
-        uri="ui://greeting",
-        content=ExternalUrlPayload(
-            type="externalUrl",
-            iframeUrl="https://example.com"
-        ),
-        encoding="text"
-    ))
+    ui_resource = create_UIResource({
+        "uri": "ui://greeting",
+        "content": {
+            "type": "externalUrl",
+            "iframeUrl": "https://example.com"
+        },
+        "encoding": "text"
+    })
     return [ui_resource]
 
 
 @mcp.tool()
 def show_raw_html() -> list[UIResource]:
     """Creates a UI resource displaying raw HTML."""
-    ui_resource = create_ui_resource(CreateUIResourceOptions(
-        uri="ui://raw-html-demo",
-        content=RawHtmlPayload(
-            type="rawHtml",
-            text="<h1>Hello from Raw HTML2</h1>"
-        ),
-        encoding="text"
-    ))
+    ui_resource = create_UIResource({
+        "uri": "ui://raw-html-demo",
+        "content": {
+            "type": "rawHtml",
+            "text": "<h1>Hello from Raw HTML2</h1>"
+        },
+        "encoding": "text"
+    })
     return [ui_resource]
 
 
@@ -61,15 +61,15 @@ def show_remote_dom() -> list[UIResource]:
     root.appendChild(p);
     """
 
-    ui_resource = create_ui_resource(CreateUIResourceOptions(
-        uri="ui://remote-dom-demo",
-        content=RemoteDomPayload(
-            type="remoteDom",
-            script=remote_dom_script.strip(),
-            framework="react"
-        ),
-        encoding="text"
-    ))
+    ui_resource = create_UIResource({
+        "uri": "ui://remote-dom-demo",
+        "content": {
+            "type": "remoteDom",
+            "script": remote_dom_script.strip(),
+            "framework": "react"
+        },
+        "encoding": "text"
+    })
 
     return [ui_resource]
 
@@ -134,14 +134,14 @@ def show_action_html() -> list[UIResource]:
     </script>
     """
 
-    ui_resource = create_ui_resource(CreateUIResourceOptions(
-        uri="ui://action-html-demo",
-        content=RawHtmlPayload(
-            type="rawHtml",
-            text=interactive_html
-        ),
-        encoding="text"
-    ))
+    ui_resource = create_UIResource({
+        "uri": "ui://action-html-demo",
+        "content": {
+            "type": "rawHtml",
+            "text": interactive_html
+        },
+        "encoding": "text"
+    })
 
     return [ui_resource]
 
