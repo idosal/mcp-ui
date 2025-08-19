@@ -155,6 +155,7 @@ if __name__ == "__main__":
     if args.http:
         print("🚀 Starting Python MCP server on HTTP (SSE transport)")
         print("📡 Server will use SSE transport settings")
+        mcp.settings.port=args.port
         mcp.run(transport="sse")
     else:
         print("🚀 Starting Python MCP server with stdio transport")
