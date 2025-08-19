@@ -58,43 +58,61 @@ export default withMermaid(
         alt: 'MCP-UI Logo',
       },
 
-      nav: [
-        { text: 'Home', link: '/' },
-        { text: 'Guide', link: '/guide/introduction' },
-        { text: 'Team', link: '/team' },
-        {
-          text: 'Examples',
-          items: [
-            {
-              text: 'Live Demo',
-              link: 'https://scira-mcp-chat-git-main-idosals-projects.vercel.app/',
-            },
-            {
-              text: 'UI Inspector',
-              link: 'https://github.com/idosal/ui-inspector',
-            },
-            { text: 'Server Examples', link: '/guide/server/usage-examples' },
-            { text: 'Client Examples', link: '/guide/client/usage-examples' },
-          ],
-        },
-        {
-          text: 'Packages',
-          items: [
-            {
-              text: '@mcp-ui/client',
-              link: 'https://www.npmjs.com/package/@mcp-ui/client',
-            },
-            {
-              text: '@mcp-ui/server',
-              link: 'https://www.npmjs.com/package/@mcp-ui/server',
-            },
-            {
-              text: 'mcp_ui_server Gem',
-              link: 'https://rubygems.org/gems/mcp_ui_server',
-            },
-          ],
-        },
-      ],
+    nav: [
+      { text: 'Home', link: '/' },
+      { text: 'Guide', link: '/guide/introduction' },
+      { text: 'Team', link: '/team' },
+      {
+        text: 'Examples',
+        items: [
+          {
+            text: 'Live Demo',
+            link: 'https://scira-mcp-chat-git-main-idosals-projects.vercel.app/',
+          },
+          {
+            text: 'UI Inspector',
+            link: 'https://github.com/idosal/ui-inspector',
+          },
+          {
+            text: 'Server Examples',
+            items: [
+              {
+                text: 'TypeScript',
+                link: '/guide/server/typescript/usage-examples',
+              },
+              { text: 'Ruby', link: '/guide/server/ruby/usage-examples' },
+            ],
+          },
+          {
+            text: 'Client Examples',
+            items: [
+              { text: 'React', link: '/guide/client/react-usage-examples' },
+              {
+                text: 'Web Components',
+                link: '/guide/client/wc-usage-examples',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Packages',
+        items: [
+          {
+            text: '@mcp-ui/client',
+            link: 'https://www.npmjs.com/package/@mcp-ui/client',
+          },
+          {
+            text: '@mcp-ui/server',
+            link: 'https://www.npmjs.com/package/@mcp-ui/server',
+          },
+          {
+            text: 'mcp_ui_server Gem',
+            link: 'https://rubygems.org/gems/mcp_ui_server',
+          },
+        ],
+      },
+    ],
 
       sidebar: {
         '/guide/': [
