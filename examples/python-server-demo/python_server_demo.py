@@ -138,7 +138,7 @@ def show_action_html() -> list[UIResource]:
         "uri": "ui://action-html-demo",
         "content": {
             "type": "rawHtml",
-            "text": interactive_html
+            "htmlString": interactive_html
         },
         "encoding": "text"
     })
