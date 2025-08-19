@@ -155,7 +155,8 @@ const resourceWithMetadata = createUIResource({
     title: 'Analytics Dashboard',
     description: 'Real-time analytics and metrics',
     created: '2024-01-15T10:00:00Z',
-    author: 'Analytics Team'
+    author: 'Analytics Team',
+    preferredRenderContext: 'sidebar'
   }
 });
 console.log('Resource with metadata:', JSON.stringify(resourceWithMetadata, null, 2));
@@ -170,7 +171,8 @@ console.log('Resource with metadata:', JSON.stringify(resourceWithMetadata, null
       "title": "Analytics Dashboard",
       "description": "Real-time analytics and metrics",
       "created": "2024-01-15T10:00:00Z",
-      "author": "Analytics Team"
+      "author": "Analytics Team",
+      "preferredRenderContext": "sidebar"
     }
   }
 }
