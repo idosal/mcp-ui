@@ -28,7 +28,6 @@ MCP-UI specific configuration options. These keys are automatically prefixed wit
 
 - **`preferred-frame-size`**: Define the resource's preferred initial frame size (e.g., `{ width: 800, height: 600 }`)
 - **`initial-render-data`**: Provide data that should be passed to the iframe when rendering
-- **`preferred-context`**: Specify the preferred rendering context (e.g., `'hero'`, `'sidebar'`, etc.)
 
 ### `resourceProps`
 Additional properties that are spread directly onto the resource definition, allowing you to add any MCP specification-supported properties like `annotations`.

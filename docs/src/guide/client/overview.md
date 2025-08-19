@@ -78,7 +78,6 @@ const resource = {
     version: '1.0.0',
     'mcpui.dev/ui-preferred-frame-size': ['800px', '600px'],
     'mcpui.dev/ui-initial-render-data': { theme: 'dark' },
-    'mcpui.dev/ui-preferred-context': 'hero',
     author: 'Development Team'
   }
 };
@@ -88,7 +87,6 @@ console.log(uiMetadata);
 // Output: {
 //   'preferred-frame-size': ['800px', '600px'],
 //   'initial-render-data': { theme: 'dark' },
-//   'preferred-context': 'hero'
 // }
 ```
 
@@ -103,8 +101,8 @@ function SmartResourceRenderer({ resource }) {
   const uiMetadata = getUIResourceMetadata(resource);
   
   // Use metadata to make rendering decisions
-  const preferredContext = uiMetadata['preferred-context'];
-  const containerClass = preferredContext === 'hero' ? 'hero-container' : 'default-container';
+  const initialRenderData = uiMetadata['initial-render-data'];
+  const containerClass = initialRenderData.preferredContext === 'hero' ? 'hero-container' : 'default-container';
   
   return (
     <div className={containerClass}>

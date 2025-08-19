@@ -6,14 +6,12 @@ describe('getAdditionalResourceProps', () => {
   it('should return the additional resource props', () => {
     const uiMetadata = {
       'preferred-frame-size': ['100px', '100px'] as [string, string],
-      'preferred-context': 'test',
       'initial-render-data': { test: 'test' },
     };
     const additionalResourceProps = getAdditionalResourceProps({ uiMetadata });
     expect(additionalResourceProps).toEqual({
       _meta: {
         [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'],
-        [`${UI_METADATA_PREFIX}preferred-context`]: 'test',
         [`${UI_METADATA_PREFIX}initial-render-data`]: { test: 'test' },
       },
     });
@@ -22,7 +20,6 @@ describe('getAdditionalResourceProps', () => {
   it('should return the additional resource props with user defined _meta', () => {
     const uiMetadata = {
       'preferred-frame-size': ['100px', '100px'] as [string, string],
-      'preferred-context': 'test',
       'initial-render-data': { test: 'test' },
     };
     const additionalResourceProps = getAdditionalResourceProps({
@@ -34,7 +31,6 @@ describe('getAdditionalResourceProps', () => {
     });
     expect(additionalResourceProps).toEqual({
       _meta: {
-        [`${UI_METADATA_PREFIX}preferred-context`]: 'test',
         [`${UI_METADATA_PREFIX}initial-render-data`]: { test: 'test' },
         foo: 'bar',
         [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['200px', '200px'],

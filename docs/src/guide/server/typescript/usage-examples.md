@@ -188,7 +188,6 @@ const resourceWithUIMetadata = createUIResource({
       chartType: 'bar',
       dataSet: 'quarterly-sales' 
     },
-    'preferred-context': 'hero'
   }
 });
 console.log('Resource with UI metadata:', JSON.stringify(resourceWithUIMetadata, null, 2));
@@ -206,7 +205,6 @@ console.log('Resource with UI metadata:', JSON.stringify(resourceWithUIMetadata,
         "chartType": "bar",
         "dataSet": "quarterly-sales" 
       },
-      "mcpui.dev/ui-preferred-context": "hero"
     }
   }
 }
@@ -246,7 +244,6 @@ console.log('Resource with additional props:', JSON.stringify(resourceWithProps,
 - **Use `metadata` for standard MCP resource information** like titles, descriptions, timestamps, and authorship
 - **Use `uiMetadata` for client rendering hints** like preferred sizes, initial data, and context preferences  
 - **Use `resourceProps` for MCP specification properties** like annotations, descriptions at the resource level, and other standard fields
-- **Use consistent `preferred-context` values** across your application (e.g., 'hero', 'sidebar', 'modal', 'inline')
 
 ## Advanced URI List Example
 
