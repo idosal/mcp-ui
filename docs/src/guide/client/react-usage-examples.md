@@ -21,7 +21,8 @@ import {
   UIActionResult,
   basicComponentLibrary,
   remoteTextDefinition,
-  remoteButtonDefinition
+  remoteButtonDefinition,
+  isUIResource
 } from '@mcp-ui/client';
 
 const remoteDomScript = `
@@ -83,7 +84,8 @@ import {
   UIActionResult,
   basicComponentLibrary,
   remoteTextDefinition,
-  remoteButtonDefinition
+  remoteButtonDefinition,
+  isUIResource
 } from '@mcp-ui/client';
 
 // Simulate fetching an MCP UI resource
@@ -227,6 +229,52 @@ const App: React.FC = () => {
 
 export default App;
 ```
+
+---
+
+## Using the `isUIResource` Utility
+
+Instead of manually checking if content is a UI resource, you can use the `isUIResource()` utility function:
+
+```tsx
+import React from 'react';
+import { UIResourceRenderer, isUIResource } from '@mcp-ui/client';
+
+function ResourceList({ mcpResponses }) {
+  return (
+    <div>
+      {mcpResponses.map((response, index) => {
+        // Use isUIResource instead of manual checking
+        if (isUIResource(response)) {
+          return (
+            <div key={index}>
+              <h3>UI Resource: {response.resource.uri}</h3>
+              <UIResourceRenderer 
+                resource={response.resource} 
+                onUIAction={handleAction}
+              />
+            </div>
+          );
+        }
+        
+        // Handle other response types
+        return (
+          <div key={index}>
+            <p>Non-UI content: {response.type}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+This is equivalent to the manual check:
+```typescript
+response.type === 'resource' && response.resource.uri?.startsWith('ui://')
+```
+
+But provides better type safety and is more concise.
 
 ---
 

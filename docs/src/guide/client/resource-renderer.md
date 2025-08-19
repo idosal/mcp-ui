@@ -86,7 +86,7 @@ See [Custom Component Libraries](./custom-component-libraries.md) for a detailed
 
 ```tsx
 import React from 'react';
-import { UIResourceRenderer, UIActionResult } from '@mcp-ui/client';
+import { UIResourceRenderer, UIActionResult, isUIResource } from '@mcp-ui/client';
 
 function App({ mcpResource }) {
   const handleUIAction = async (result: UIActionResult) => {
@@ -115,10 +115,7 @@ function App({ mcpResource }) {
     return { status: 'handled' };
   };
 
-  if (
-    mcpResource.type === 'resource' &&
-    mcpResource.resource.uri?.startsWith('ui://')
-  ) {
+  if (isUIResource(mcpResource)) {
     return (
       <UIResourceRenderer
         resource={mcpResource.resource}
@@ -181,6 +178,28 @@ function Dashboard({ mcpResource }) {
 When both server metadata and component props provide similar data:
 - **Frame sizing**: Server `preferred-frame-size` is used as the initial size, but can be overridden by component styling
 - **Render data**: Server `initial-render-data` is merged with the `iframeRenderData` prop, with prop values taking precedence for duplicate keys
+
+## Utility Functions
+
+### `isUIResource()`
+
+The `isUIResource()` utility function is a convenient way to check if content from an MCP response is a UI resource. Instead of manually checking:
+
+```typescript
+content.type === 'resource' && content.resource.uri?.startsWith('ui://')
+```
+
+You can simply use:
+
+```typescript
+import { isUIResource } from '@mcp-ui/client';
+
+if (isUIResource(content)) {
+  // This is a UI resource, safe to render
+}
+```
+
+The function provides type narrowing, so TypeScript will understand that `content.resource` is available after the check.
 
 ## Advanced Usage
 
