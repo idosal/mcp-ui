@@ -45,7 +45,7 @@ def show_raw_html() -> list[UIResource]:
         "uri": "ui://raw-html-demo",
         "content": {
             "type": "rawHtml",
-            "text": "<h1>Hello from Raw HTML2</h1>"
+            "htmlString": "<h1>Hello from Raw HTML2</h1>"
         },
         "encoding": "text"
     })
