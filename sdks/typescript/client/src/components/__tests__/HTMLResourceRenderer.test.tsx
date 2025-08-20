@@ -207,6 +207,48 @@ https://example.com/backup
     render(<HTMLResourceRenderer {...props} />);
     expect(screen.getByText('No valid URLs found in uri-list content.')).toBeInTheDocument();
   });
+
+  it('sets default sandbox permissions if none are provided', () => {
+    const props: HTMLResourceRendererProps = {
+      resource: { mimeType: 'text/html', text: '<p>Hello Test</p>' },
+      onUIAction: mockOnUIAction,
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
+    expect(iframe.getAttribute('sandbox')).toBe('allow-scripts');
+  });
+
+  it('sets default sandbox permissions if none are provided - external URL', () => {
+    const props: HTMLResourceRendererProps = {
+      resource: { mimeType: 'text/uri-list', text: 'https://example.com/app' },
+      onUIAction: mockOnUIAction,
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    const iframe = screen.getByTitle('MCP HTML Resource (URL)') as HTMLIFrameElement;
+    expect(iframe.getAttribute('sandbox')).toBe('allow-scripts allow-same-origin');
+  });
+
+  it('uses the sandbox permissions if provided', () => {
+    const props: HTMLResourceRendererProps = {
+      resource: { mimeType: 'text/html', text: '<p>Hello Test</p>' },
+      onUIAction: mockOnUIAction,
+      sandboxPermissions: 'allow-forms',
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
+    expect(iframe.getAttribute('sandbox')).toBe('allow-forms allow-scripts');
+  });
+
+  it('uses the sandbox permissions if provided - external URL', () => {
+    const props: HTMLResourceRendererProps = {
+      resource: { mimeType: 'text/uri-list', text: 'https://example.com/app' },
+      onUIAction: mockOnUIAction,
+      sandboxPermissions: 'allow-forms',
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    const iframe = screen.getByTitle('MCP HTML Resource (URL)') as HTMLIFrameElement;
+    expect(iframe.getAttribute('sandbox')).toBe('allow-forms allow-scripts allow-same-origin');
+  });
 });
 
 describe('HTMLResource iframe communication', () => {

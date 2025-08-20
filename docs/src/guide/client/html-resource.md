@@ -15,6 +15,7 @@ export interface HTMLResourceRendererProps {
   iframeRenderData?: Record<string, unknown>;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   useSrcDoc?: boolean;
+  sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'ref' | 'style'>;
 }
 ```
@@ -42,6 +43,11 @@ The component accepts the following props:
 - **`iframeProps`**: (Optional) Custom props for the iframe.
 - **`autoResizeIframe`**: (Optional) When enabled, the iframe will automatically resize based on messages from the iframe's content. This prop can be a boolean (to enable both width and height resizing) or an object (`{width?: boolean, height?: boolean}`) to control dimensions independently.
 - **`useSrcDoc`**: (Optional) Defaults to `false`. When `false` (default), HTML content is rendered using a blob URL set as the iframe's `src` attribute. When `true`, HTML content is rendered using the `srcDoc` attribute with the raw HTML string. Setting this to `true` can be useful in environments with strict Content Security Policies that block blob URLs.
+- **`sandboxPermissions`**: (Optional) Additional iframe sandbox permissions to add to the defaults. These are merged with:
+  - External URLs (`text/uri-list`): `'allow-scripts allow-same-origin'`
+  - Raw HTML content (`text/html`): `'allow-scripts'`
+  
+  For example, to allow forms in raw HTML: `sandboxPermissions="allow-forms"`
 
 ## How It Works
 
@@ -55,12 +61,14 @@ The component accepts the following props:
       - If using `blob`, it decodes it from Base64.
       - Renders an `<iframe>` with its `src` set to the first valid URL.
       - If a valid URL is passed to the `proxy` prop, it will be used as the source for the iframe, which then renders the external URL in a nested iframe. For example, if `proxy` is `https://my-proxy.com/`, the final URL will be `https://my-proxy.com/?url=<encoded_original_url>`.
-      - Sandbox: `allow-scripts allow-same-origin` (needed for some external sites; be mindful of security).
+      - Default sandbox: `allow-scripts allow-same-origin` (needed for some external sites; be mindful of security).
     - For resources with `mimeType: 'text/html'`:
       - Expects `resource.text` or `resource.blob` to contain HTML.
       - If using `blob`, it decodes it from Base64.
       - Renders an `<iframe>` with its `srcdoc` set to the HTML.
-      - Sandbox: `allow-scripts`.
+      - Default sandbox: `allow-scripts`.
+    
+  **Custom Sandbox Permissions**: You can provide additional permissions via the `sandboxPermissions` prop. These will be added to the default permissions listed above.
 3.  **Listens for Messages**: Adds a global `message` event listener. If an iframe posts a message with `event.data.tool`, your `onUIAction` callback is called.
 
 ## Styling
@@ -105,6 +113,11 @@ This will observe the root `<html>` element and send a message whenever its heig
 
 ## Security Notes
 
-- **`sandbox` attribute**: Restricts what the iframe can do. `allow-scripts` is required for JS execution. In the external URL content type, `allow-same-origin` is needed for external apps. Other than these inclusions, all other capabilities are restricted (e.g., no parent access, top-level navigations, modals, forms, etc.)
+- **`sandbox` attribute**: Restricts what the iframe can do. Default permissions are:
+  - External URLs: `allow-scripts allow-same-origin` (needed for external apps)
+  - Raw HTML: `allow-scripts` (for JavaScript execution)
+  
+  Additional permissions can be granted via the `sandboxPermissions` prop (e.g., `allow-forms`, `allow-modals`). Be cautious when adding permissions as they reduce security isolation.
+  
 - **`postMessage` origin**: When sending messages from the iframe, always specify the target origin for safety. The component listens globally, so your iframe content should be explicit.
 - **Content Sanitization**: HTML is rendered as-is. If you don't fully trust the source, sanitize the HTML before passing it in, or rely on the iframe's sandboxing.

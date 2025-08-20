@@ -11,6 +11,7 @@ export type HTMLResourceRendererProps = {
   iframeRenderData?: Record<string, unknown>;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   useSrcDoc?: boolean;
+  sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
     ref?: React.RefObject<HTMLIFrameElement>;
   };
@@ -38,6 +39,7 @@ export const HTMLResourceRenderer = ({
   iframeRenderData,
   autoResizeIframe,
   useSrcDoc,
+  sandboxPermissions,
   iframeProps,
 }: HTMLResourceRendererProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -149,6 +151,14 @@ export const HTMLResourceRenderer = ({
 
   if (error) return <p className="text-red-500">{error}</p>;
 
+  const sandbox = useMemo(() => {
+    if (iframeRenderMode === 'srcDoc') {
+      // with raw HTML we don't set allow-same-origin for security reasons
+      return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts');
+    }
+    return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts allow-same-origin');
+  }, [sandboxPermissions, iframeRenderMode]);
+
   if (iframeRenderMode === 'srcDoc') {
     if (htmlString === null || htmlString === undefined) {
       if (!error) {
@@ -174,7 +184,7 @@ export const HTMLResourceRenderer = ({
     return (
       <iframe
         {...iframeSrcProp}
-        sandbox="allow-scripts"
+        sandbox={sandbox}
         style={{ width: '100%', height: '100%', ...style }}
         title="MCP HTML Resource (Embedded Content)"
         {...iframeProps}
@@ -193,7 +203,7 @@ export const HTMLResourceRenderer = ({
     return (
       <iframe
         src={iframeSrcToRender}
-        sandbox="allow-scripts allow-same-origin"
+        sandbox={sandbox}
         style={{ width: '100%', height: '100%', ...style }}
         title="MCP HTML Resource (URL)"
         {...iframeProps}
@@ -225,4 +235,11 @@ function postToFrame(
     },
     targetOrigin,
   );
+}
+
+function mergeSandboxPermissions(sandboxPermissions: string, defaultSandboxPermissions: string) {
+  return [...new Set([...sandboxPermissions.split(' '), ...defaultSandboxPermissions.split(' ')])]
+    .filter(Boolean)
+    .map((permission) => permission.trim())
+    .join(' ');
 }

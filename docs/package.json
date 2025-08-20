@@ -9,7 +9,9 @@
     "preview": "vitepress preview src"
   },
   "devDependencies": {
+    "mermaid": "^11.9.0",
     "vitepress": "^1.0.0-rc.44",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vue": "^3.3.0"
   }
 }

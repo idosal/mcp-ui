@@ -91,6 +91,7 @@ It accepts the following props:
 - **`supportedContentTypes`**: Optional array to restrict which content types are allowed (`['rawHtml', 'externalUrl', 'remoteDom']`)
 - **`htmlProps`**: Optional props for the internal `<HTMLResourceRenderer>`
   - **`style`**: Optional custom styles for the iframe
+  - **`sandboxPermissions`**: Optional additional iframe sandbox permissions (added to defaults: `'allow-scripts'` for raw HTML, `'allow-scripts allow-same-origin'` for external URLs)
   - **`iframeProps`**: Optional props passed to the iframe element
 - **`remoteDomProps`**: Optional props for the internal `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)

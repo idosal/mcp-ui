@@ -59,6 +59,9 @@ interface UIResourceRendererProps {
 - **`htmlProps`**: Optional props for the `<HTMLResourceRenderer>`
   - **`style`**: Optional custom styles for iframe-based resources
   - **`proxy`**: Optional. A URL to a static "proxy" script for rendering external URLs. See [Using a Proxy for External URLs](./using-a-proxy.md) for details.
+  - **`sandboxPermissions`**: Optional string to add additional iframe sandbox permissions. These are added to the default sandbox permissions:
+    - For external URLs: `'allow-scripts allow-same-origin'`
+    - For raw HTML iframes: `'allow-scripts'`
   - **`iframeProps`**: Optional props passed to iframe elements (for HTML/URL resources)
     - **`ref`**: Optional React ref to access the underlying iframe element
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
@@ -74,7 +77,7 @@ See [Custom Component Libraries](./custom-component-libraries.md) for a detailed
 
 ```tsx
 import React from 'react';
-import { UIResourceRenderer, UIActionResult } from '@mcp-ui/client';
+import { UIResourceRenderer, UIActionResult, isUIResource } from '@mcp-ui/client';
 
 function App({ mcpResource }) {
   const handleUIAction = async (result: UIActionResult) => {
@@ -103,10 +106,7 @@ function App({ mcpResource }) {
     return { status: 'handled' };
   };
 
-  if (
-    mcpResource.type === 'resource' &&
-    mcpResource.resource.uri?.startsWith('ui://')
-  ) {
+  if (isUIResource(mcpResource)) {
     return (
       <UIResourceRenderer
         resource={mcpResource.resource}
@@ -118,6 +118,28 @@ function App({ mcpResource }) {
   return <p>Unsupported resource</p>;
 }
 ```
+
+## Utility Functions
+
+### `isUIResource()`
+
+The `isUIResource()` utility function is a convenient way to check if content from an MCP response is a UI resource. Instead of manually checking:
+
+```typescript
+content.type === 'resource' && content.resource.uri?.startsWith('ui://')
+```
+
+You can simply use:
+
+```typescript
+import { isUIResource } from '@mcp-ui/client';
+
+if (isUIResource(content)) {
+  // This is a UI resource, safe to render
+}
+```
+
+The function provides type narrowing, so TypeScript will understand that `content.resource` is available after the check.
 
 ## Advanced Usage
 
