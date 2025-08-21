@@ -20,13 +20,13 @@ uv add mcp-ui-server
 
 ## Basic Usage
 
-The core function is `create_UIResource`.
+The core function is `create_ui_resource`.
 
 ```python
-from mcp_ui_server import create_UIResource
+from mcp_ui_server import create_ui_resource
 
 # Example 1: Direct HTML, delivered as text
-resource1 = create_UIResource({
+resource1 = create_ui_resource({
     "uri": "ui://my-component/instance-1",
     "content": {
         "type": "rawHtml", 
@@ -47,7 +47,7 @@ print("Resource 1:", resource1.model_dump_json(indent=2))
 # }
 
 # Example 2: Direct HTML, delivered as a Base64 blob
-resource2 = create_UIResource({
+resource2 = create_ui_resource({
     "uri": "ui://my-component/instance-2",
     "content": {
         "type": "rawHtml", 
@@ -69,7 +69,7 @@ print("Resource 2 (blob will be Base64):", resource2.model_dump_json(indent=2))
 
 # Example 3: External URL, text encoding
 dashboard_url = "https://my.analytics.com/dashboard/123"
-resource3 = create_UIResource({
+resource3 = create_ui_resource({
     "uri": "ui://analytics-dashboard/main",
     "content": {
         "type": "externalUrl", 
@@ -91,7 +91,7 @@ print("Resource 3:", resource3.model_dump_json(indent=2))
 
 # Example 4: External URL, blob encoding (URL is Base64 encoded)
 chart_api_url = "https://charts.example.com/api?type=pie&data=1,2,3"
-resource4 = create_UIResource({
+resource4 = create_ui_resource({
     "uri": "ui://live-chart/session-xyz",
     "content": {
         "type": "externalUrl", 
@@ -127,7 +127,7 @@ button.addEventListener('press', () => {
 root.appendChild(button);
 """
 
-resource5 = create_UIResource({
+resource5 = create_ui_resource({
     "uri": "ui://remote-component/action-button",
     "content": {
         "type": "remoteDom",
@@ -154,12 +154,12 @@ print("Resource 5:", resource5.model_dump_json(indent=2))
 
 ## Using with FastMCP
 
-Here's how to use `create_UIResource` with the FastMCP framework:
+Here's how to use `create_ui_resource` with the FastMCP framework:
 
 ```python
 import argparse
 from mcp.server.fastmcp import FastMCP
-from mcp_ui_server import create_UIResource
+from mcp_ui_server import create_ui_resource
 from mcp_ui_server.core import UIResource
 
 # Create FastMCP instance
@@ -168,7 +168,7 @@ mcp = FastMCP("my-server")
 @mcp.tool()
 def show_dashboard() -> list[UIResource]:
     """Display an analytics dashboard."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://dashboard/analytics",
         "content": {
             "type": "externalUrl",
@@ -181,7 +181,7 @@ def show_dashboard() -> list[UIResource]:
 @mcp.tool()
 def show_welcome() -> list[UIResource]:
     """Display a welcome message."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://welcome/main",
         "content": {
             "type": "rawHtml",
@@ -210,7 +210,7 @@ https://backup.dashboard.example.com/main
 # Emergency fallback (will be logged but not used)  
 https://emergency.dashboard.example.com/main"""
 
-resource6 = create_UIResource({
+resource6 = create_ui_resource({
     "uri": "ui://dashboard-with-fallbacks/session-123",
     "content": {
         "type": "externalUrl", 
@@ -228,7 +228,7 @@ resource6 = create_UIResource({
 
 ## Error Handling
 
-The `create_UIResource` function will raise exceptions if invalid combinations are provided, for example:
+The `create_ui_resource` function will raise exceptions if invalid combinations are provided, for example:
 
 - URI not starting with `ui://` for any content type
 - Invalid content type specified
@@ -237,7 +237,7 @@ The `create_UIResource` function will raise exceptions if invalid combinations a
 from mcp_ui_server.exceptions import InvalidURIError
 
 try:
-    create_UIResource({
+    create_ui_resource({
         "uri": "invalid://should-be-ui",
         "content": {
             "type": "externalUrl", 

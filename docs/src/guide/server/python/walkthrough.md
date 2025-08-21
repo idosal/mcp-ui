@@ -41,7 +41,7 @@ Create a file called `server.py`:
 ```python
 import argparse
 from mcp.server.fastmcp import FastMCP
-from mcp_ui_server import create_UIResource
+from mcp_ui_server import create_ui_resource
 from mcp_ui_server.core import UIResource
 
 # Create FastMCP instance
@@ -50,7 +50,7 @@ mcp = FastMCP("my-mcp-server")
 @mcp.tool()
 def greet() -> list[UIResource]:
     """A simple greeting tool that returns a UI resource."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://greeting/simple",
         "content": {
             "type": "rawHtml",
@@ -108,7 +108,7 @@ def show_dashboard() -> list[UIResource]:
     </div>
     """
     
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://dashboard/main",
         "content": {
             "type": "rawHtml",
@@ -121,7 +121,7 @@ def show_dashboard() -> list[UIResource]:
 @mcp.tool()
 def show_external_site() -> list[UIResource]:
     """Display an external website in an iframe."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://external/example",
         "content": {
             "type": "externalUrl",
@@ -182,7 +182,7 @@ def show_interactive_demo() -> list[UIResource]:
     </script>
     """
     
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://demo/interactive",
         "content": {
             "type": "rawHtml",
@@ -228,7 +228,7 @@ def show_remote_dom() -> list[UIResource]:
     root.appendChild(container);
     """
     
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://remote-dom/demo",
         "content": {
             "type": "remoteDom",
@@ -247,7 +247,7 @@ Here's your complete `server.py` file:
 ```python
 import argparse
 from mcp.server.fastmcp import FastMCP
-from mcp_ui_server import create_UIResource
+from mcp_ui_server import create_ui_resource
 from mcp_ui_server.core import UIResource
 
 # Create FastMCP instance
@@ -256,7 +256,7 @@ mcp = FastMCP("my-mcp-server")
 @mcp.tool()
 def greet() -> list[UIResource]:
     """A simple greeting tool that returns a UI resource."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://greeting/simple",
         "content": {
             "type": "rawHtml",
@@ -290,7 +290,7 @@ def show_dashboard() -> list[UIResource]:
     </div>
     """
     
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://dashboard/main",
         "content": {
             "type": "rawHtml",
@@ -303,7 +303,7 @@ def show_dashboard() -> list[UIResource]:
 @mcp.tool()
 def show_external_site() -> list[UIResource]:
     """Display an external website in an iframe."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://external/example",
         "content": {
             "type": "externalUrl",
@@ -349,7 +349,7 @@ def show_interactive_demo() -> list[UIResource]:
     </script>
     """
     
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://demo/interactive",
         "content": {
             "type": "rawHtml",

@@ -6,7 +6,7 @@ For a complete example, see the [`python-server-demo`](https://github.com/idosal
 
 ## Key Exports
 
-- **`create_UIResource(options_dict: dict[str, Any]) -> UIResource`**:
+- **`create_ui_resource(options_dict: dict[str, Any]) -> UIResource`**:
   The primary function for creating UI snippets. It takes a dictionary of options to define the URI, content (direct HTML or external URL), and encoding method (text or blob).
 
 ## Purpose
