@@ -30,7 +30,7 @@ class UIResource(EmbeddedResource):
         )
 
 
-def create_UIResource(options_dict: dict[str, Any]) -> UIResource:
+def create_ui_resource(options_dict: dict[str, Any]) -> UIResource:
     """Create a UIResource.
     
     This is the object that should be included in the 'content' array of a toolResult.

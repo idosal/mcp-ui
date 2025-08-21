@@ -6,7 +6,7 @@ This package provides server-side functionality for creating MCP UI resources.
 from .core import (
     UIResource,
     create_ui_resource_contents,
-    create_UIResource,
+    create_ui_resource,
     ui_action_result_intent,
     ui_action_result_link,
     ui_action_result_notification,
@@ -42,7 +42,7 @@ __all__ = [
     "UIActionResultIntent",
     "UIActionResultNotification",
     "UIResource",
-    "create_UIResource",
+    "create_ui_resource",
     "create_ui_resource_contents",
     "ui_action_result_tool_call",
     "ui_action_result_prompt",
