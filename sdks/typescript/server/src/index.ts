@@ -10,7 +10,7 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, robustUtf8ToBase64 } from './utils.js';
+import { getAdditionalResourceProps, utf8ToBase64 } from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -83,7 +83,7 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
       resource = {
         uri: options.uri,
         mimeType: mimeType as MimeType,
-        blob: robustUtf8ToBase64(actualContentString),
+        blob: utf8ToBase64(actualContentString),
         ...getAdditionalResourceProps(options),
       };
       break;

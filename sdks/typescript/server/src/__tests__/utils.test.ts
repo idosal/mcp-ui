@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getAdditionalResourceProps, robustUtf8ToBase64 } from '../utils.js';
+import { getAdditionalResourceProps, utf8ToBase64 } from '../utils.js';
 import { UI_METADATA_PREFIX } from '../types.js';
 
 describe('getAdditionalResourceProps', () => {
@@ -60,29 +60,29 @@ describe('getAdditionalResourceProps', () => {
   });
 });
 
-describe('robustUtf8ToBase64', () => {
+describe('utf8ToBase64', () => {
   it('should correctly encode a simple ASCII string', () => {
     const str = 'hello world';
     const expected = 'aGVsbG8gd29ybGQ=';
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
   });
 
   it('should correctly encode a string with UTF-8 characters', () => {
     const str = '你好,世界';
     const expected = '5L2g5aW9LOS4lueVjA==';
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
   });
 
   it('should correctly encode an empty string', () => {
     const str = '';
     const expected = '';
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
   });
 
   it('should correctly encode a string with various special characters', () => {
     const str = '`~!@#$%^&*()_+-=[]{}\\|;\':",./<>?';
     const expected = 'YH4hQCMkJV4mKigpXystPVtde31cfDsnOiIsLi88Pj8=';
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
   });
 
   it('should use TextEncoder and btoa when Buffer is not available', () => {
@@ -93,7 +93,7 @@ describe('robustUtf8ToBase64', () => {
     // @ts-expect-error - simulating Buffer not being available
     delete global.Buffer;
 
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
 
     global.Buffer = bufferBackup;
   });
@@ -111,7 +111,7 @@ describe('robustUtf8ToBase64', () => {
     delete global.TextEncoder;
 
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    expect(robustUtf8ToBase64(str)).toBe(expected);
+    expect(utf8ToBase64(str)).toBe(expected);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       'MCP-UI SDK: Buffer API and TextEncoder/btoa not available. Base64 encoding might not be UTF-8 safe.',
     );
@@ -135,7 +135,7 @@ describe('robustUtf8ToBase64', () => {
     // @ts-expect-error - simulating btoa not being available
     delete global.btoa;
 
-    expect(() => robustUtf8ToBase64(str)).toThrow(
+    expect(() => utf8ToBase64(str)).toThrow(
       'MCP-UI SDK: Suitable UTF-8 to Base64 encoding method not found, and fallback btoa failed.',
     );
 

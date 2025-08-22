@@ -31,7 +31,7 @@ export function getAdditionalResourceProps(
  * @param str The string to encode.
  * @returns Base64 encoded string.
  */
-export function robustUtf8ToBase64(str: string): string {
+export function utf8ToBase64(str: string): string {
   if (typeof Buffer !== 'undefined') {
     return Buffer.from(str, 'utf-8').toString('base64');
   } else if (typeof TextEncoder !== 'undefined' && typeof btoa !== 'undefined') {
