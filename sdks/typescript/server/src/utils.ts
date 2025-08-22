@@ -43,7 +43,7 @@ export function robustUtf8ToBase64(str: string): string {
     for (let i = 0; i < uint8Array.length; i += CHUNK_SIZE) {
       binaryString += String.fromCharCode.apply(
         null,
-        uint8Array.subarray(i, i + CHUNK_SIZE)
+        uint8Array.slice(i, i + CHUNK_SIZE)
       );
     }
     return btoa(binaryString);
