@@ -24,3 +24,34 @@ export function getAdditionalResourceProps(
 
   return additionalResourceProps;
 }
+
+/**
+ * Robustly encodes a UTF-8 string to Base64.
+ * Uses Node.js Buffer if available, otherwise TextEncoder and btoa.
+ * @param str The string to encode.
+ * @returns Base64 encoded string.
+ */
+export function robustUtf8ToBase64(str: string): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(str, 'utf-8').toString('base64');
+  } else if (typeof TextEncoder !== 'undefined' && typeof btoa !== 'undefined') {
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(str);
+    let binaryString = '';
+    uint8Array.forEach((byte) => {
+      binaryString += String.fromCharCode(byte);
+    });
+    return btoa(binaryString);
+  } else {
+    console.warn(
+      'MCP-UI SDK: Buffer API and TextEncoder/btoa not available. Base64 encoding might not be UTF-8 safe.',
+    );
+    try {
+      return btoa(str);
+    } catch (e) {
+      throw new Error(
+        'MCP-UI SDK: Suitable UTF-8 to Base64 encoding method not found, and fallback btoa failed.',
+      );
+    }
+  }
+}
