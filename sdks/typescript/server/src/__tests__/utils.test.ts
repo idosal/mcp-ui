@@ -69,7 +69,7 @@ describe('robustUtf8ToBase64', () => {
 
   it('should correctly encode a string with UTF-8 characters', () => {
     const str = '你好,世界';
-    const expected = '5L2g5aW9LOdqiOmVjA==';
+    const expected = '5L2g5aW9LOS4lueVjA==';
     expect(robustUtf8ToBase64(str)).toBe(expected);
   });
 
@@ -81,7 +81,7 @@ describe('robustUtf8ToBase64', () => {
 
   it('should correctly encode a string with various special characters', () => {
     const str = '`~!@#$%^&*()_+-=[]{}\\|;\':",./<>?';
-    const expected = 'YH4hQCMkJV4mKigpXys9W117fVx8Oyc6IiwuLzw+Pw==';
+    const expected = 'YH4hQCMkJV4mKigpXystPVtde31cfDsnOiIsLi88Pj8=';
     expect(robustUtf8ToBase64(str)).toBe(expected);
   });
 
