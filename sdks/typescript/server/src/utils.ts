@@ -37,9 +37,6 @@ export function robustUtf8ToBase64(str: string): string {
   } else if (typeof TextEncoder !== 'undefined' && typeof btoa !== 'undefined') {
     const encoder = new TextEncoder();
     const uint8Array = encoder.encode(str);
-    let binaryString = '';
-    uint8Array.forEach((byte) => {
-      binaryString += String.fromCharCode(byte);
     const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
     return btoa(binaryString);
   } else {
