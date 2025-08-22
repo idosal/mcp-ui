@@ -37,7 +37,15 @@ export function robustUtf8ToBase64(str: string): string {
   } else if (typeof TextEncoder !== 'undefined' && typeof btoa !== 'undefined') {
     const encoder = new TextEncoder();
     const uint8Array = encoder.encode(str);
-    const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
+    // Efficiently convert Uint8Array to binary string, handling large arrays in chunks
+    let binaryString = '';
+    const CHUNK_SIZE = 8192;
+    for (let i = 0; i < uint8Array.length; i += CHUNK_SIZE) {
+      binaryString += String.fromCharCode.apply(
+        null,
+        uint8Array.subarray(i, i + CHUNK_SIZE)
+      );
+    }
     return btoa(binaryString);
   } else {
     console.warn(
