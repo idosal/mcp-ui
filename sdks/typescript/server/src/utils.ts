@@ -39,12 +39,12 @@ export function robustUtf8ToBase64(str: string): string {
     const uint8Array = encoder.encode(str);
     // Efficiently convert Uint8Array to binary string, handling large arrays in chunks
     let binaryString = '';
+    // 8192 is a common chunk size used in JavaScript for performance reasons.
+    // It tends to align well with internal buffer sizes and memory page sizes,
+    // and it's small enough to avoid stack overflow errors with String.fromCharCode.
     const CHUNK_SIZE = 8192;
     for (let i = 0; i < uint8Array.length; i += CHUNK_SIZE) {
-      binaryString += String.fromCharCode.apply(
-        null,
-        uint8Array.slice(i, i + CHUNK_SIZE)
-      );
+      binaryString += String.fromCharCode(...uint8Array.slice(i, i + CHUNK_SIZE));
     }
     return btoa(binaryString);
   } else {
