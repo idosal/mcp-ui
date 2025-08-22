@@ -140,6 +140,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - name: Pull latest changes from main
+        run: git pull origin main
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
@@ -173,6 +175,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - name: Pull latest changes from main
+        run: git pull origin main
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
