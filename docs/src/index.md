@@ -133,11 +133,11 @@ function MyApp({ mcpResource }) {
 
 | Host      | Rendering | UI Actions |
 | :-------- | :-------: | :--------: |
-| Postman   |     ✅    |     ⚠️      |
-| Goose     |     ✅    |     ⚠️      |
-| Smithery  |     ✅    |     ❌     |
-| MCPJam    |     ✅    |     ❌     |
-| VSCode    |    N/A    |    N/A     |
+| [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
+| [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
+| [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
+| [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [VSCode](https://code.visualstudio.com/)    |    ?    |    ?     |
 
 **Legend:**
 - ✅: Supported

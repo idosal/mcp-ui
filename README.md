@@ -308,11 +308,11 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a su
 
 | Host      | Rendering | UI Actions |
 | :-------- | :-------: | :--------: |
-| Postman   |     ✅    |     ⚠️      |
-| Goose     |     ✅    |     ⚠️      |
-| Smithery  |     ✅    |     ❌     |
-| MCPJam    |     ✅    |     ❌     |
-| VSCode (proposal)   |    ?    |    ?     |
+| [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
+| [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
+| [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
+| [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [VSCode](https://code.visualstudio.com/)    |    ?    |    ?     |
 
 **Legend:**
 - ✅: Supported
