@@ -1,0 +1,1 @@
+"""Test suite for MCP UI Server SDK."""

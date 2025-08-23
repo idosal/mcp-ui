@@ -38,7 +38,6 @@ packages = ["src/mcp_ui_server"]
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
     "ruff>=0.1.0",
     "pyright>=1.1.0",
 ]
@@ -68,4 +67,13 @@ typeCheckingMode = "strict"
 dev = [
     "pyright>=1.1.403",
     "ruff>=0.12.9",
+    "pytest>=7.0.0",
+    "pytest-snapshot>=0.9.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
