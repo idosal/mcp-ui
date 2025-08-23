@@ -1,6 +1,5 @@
 """Tests for UI action result helper functions."""
 
-import pytest
 
 from mcp_ui_server import (
     ui_action_result_intent,

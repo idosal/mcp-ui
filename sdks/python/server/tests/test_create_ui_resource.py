@@ -3,11 +3,10 @@
 import base64
 
 import pytest
+from pydantic import AnyUrl, ValidationError
 
 from mcp_ui_server import create_ui_resource
 from mcp_ui_server.exceptions import InvalidContentError, InvalidURIError
-from pydantic import AnyUrl
-from pydantic import ValidationError
 
 
 @pytest.fixture
@@ -115,7 +114,7 @@ class TestCreateUIResource:
                 "meta": None,
                 "uri": AnyUrl("ui://test-html-blob"),
                 "mimeType": "text/html",
-                "blob": base64.b64encode("<h1>Blob</h1>".encode("utf-8")).decode("ascii"),
+                "blob": base64.b64encode(b"<h1>Blob</h1>").decode("ascii"),
             }
         }
         assert resource.model_dump() == expected
@@ -147,7 +146,7 @@ class TestCreateUIResource:
                 "meta": None,
                 "uri": AnyUrl("ui://test-url-blob"),
                 "mimeType": "text/uri-list",
-                "blob": base64.b64encode("https://example.com/blob".encode("utf-8")).decode("ascii"),
+                "blob": base64.b64encode(b"https://example.com/blob").decode("ascii"),
             }
         }
         assert resource.model_dump() == expected
@@ -179,7 +178,7 @@ class TestCreateUIResource:
                 "meta": None,
                 "uri": AnyUrl("ui://test-remote-dom-wc"),
                 "mimeType": "application/vnd.mcp-ui.remote-dom+javascript; framework=webcomponents",
-                "blob": base64.b64encode("<p>Web Component</p>".encode("utf-8")).decode("ascii"),
+                "blob": base64.b64encode(b"<p>Web Component</p>").decode("ascii"),
             }
         }
         assert resource.model_dump() == expected
