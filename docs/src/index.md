@@ -127,23 +127,6 @@ function MyApp({ mcpResource }) {
 ```
 :::
 
-## Supported Hosts
-
-`mcp-ui` is supported by a growing number of MCP-compatible hosts. Feature support varies by host:
-
-| Host      | Rendering | UI Actions |
-| :-------- | :-------: | :--------: |
-| [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
-| [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
-| [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
-| [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
-| [VSCode](https://code.visualstudio.com/)    |    ?    |    ?     |
-
-**Legend:**
-- ✅: Supported
-- ⚠️: Partial Support
-- ❌: Not Supported
-
 
 <style>
 .video-container {

@@ -123,6 +123,7 @@ export default withMermaid(
               { text: 'Installation', link: '/guide/getting-started' },
               { text: 'Core Concepts', link: '/guide/protocol-details' },
               { text: 'Embeddable UI', link: '/guide/embeddable-ui' },
+              { text: 'Supported Hosts', link: '/guide/supported-hosts' },
             ],
           },
           {

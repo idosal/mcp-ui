@@ -312,12 +312,12 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a su
 | [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
 | [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
 | [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
-| [VSCode](https://code.visualstudio.com/)    |    ?    |    ?     |
+| [VSCode](https://github.com/microsoft/vscode/issues/260218) (TBA)    |    ?    |    ?     |
 
 **Legend:**
 - ✅: Supported
 - ⚠️: Partial Support
-- ❌: Not Supported
+- ❌: Not Supported (yet)
 
 ## 🔒 Security
 Host and user security is one of `mcp-ui`'s primary concerns. In all content types, the remote code is executed in a sandboxed iframe.
