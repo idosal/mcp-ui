@@ -92,6 +92,49 @@ describe('HTMLResource component', () => {
     expect(iframe.srcdoc).toContain(html);
   });
 
+  it('sets blob HTML src without useSrcDoc', () => {
+    const originalCreateObjectURL = window.URL.createObjectURL;
+    window.URL.createObjectURL = (blob: Blob) => {
+      return `blob:${blob.size}`;
+    }
+    const html = '<p>Blob Content</p>';
+    const encodedHtml = Buffer.from(html).toString('base64');
+    const props: HTMLResourceRendererProps = {
+      resource: {
+        uri: 'ui://blob-test',
+        mimeType: 'text/html',
+        blob: encodedHtml,
+      },
+      onUIAction: mockOnUIAction,
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    window.URL.createObjectURL = originalCreateObjectURL;
+    const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
+    expect(iframe.src).toContain(`blob:${new Blob([html]).size}`);
+  })
+
+  it('respects useSrcDoc', () => {
+    const originalCreateObjectURL = window.URL.createObjectURL;
+    window.URL.createObjectURL = (blob: Blob) => {
+      return `blob:${blob.size}`;
+    }
+    const html = '<p>Blob Content</p>';
+    const encodedHtml = Buffer.from(html).toString('base64');
+    const props: HTMLResourceRendererProps = {
+      resource: {
+        uri: 'ui://blob-test',
+        mimeType: 'text/html',
+        blob: encodedHtml,
+        },
+        onUIAction: mockOnUIAction,
+        useSrcDoc: true,
+    };
+    render(<HTMLResourceRenderer {...props} />);
+    window.URL.createObjectURL = originalCreateObjectURL;
+    const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
+    expect(iframe.srcdoc).toContain(html);
+  })
+
   it('decodes URL from blob for ui:// resource with text/uri-list mimetype', () => {
     const url = 'https://example.com/blob-app';
     const encodedUrl = Buffer.from(url).toString('base64');
@@ -109,7 +152,7 @@ describe('HTMLResource component', () => {
   });
 
   it('handles multiple URLs in uri-list format and uses the first one', () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
     const uriList =
       'https://example.com/first\nhttps://example.com/second\nhttps://example.com/third';
     const props: HTMLResourceRendererProps = {
@@ -220,7 +263,7 @@ describe('HTMLResource iframe communication', () => {
   };
 
   const mockOnUIAction = vi.fn<[UIActionResult], Promise<unknown>>();
-  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
   const renderComponentForUIActionTests = (props: Partial<HTMLResourceRendererProps> = {}) => {
     return render(
