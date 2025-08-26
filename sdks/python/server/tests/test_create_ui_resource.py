@@ -89,7 +89,6 @@ class TestCreateUIResource:
     def test_create_text_based_raw_html_resource(self, raw_html_text_options):
         """Test creating a text-based raw HTML resource."""
         resource = create_ui_resource(raw_html_text_options)
-        print(resource.model_dump())
         expected = {
             "meta": None,
             "annotations": None,
