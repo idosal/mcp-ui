@@ -43,9 +43,9 @@ export interface CreateUIResourceOptions {
   uiMetadata?: UIResourceMetadata;
   // additional metadata to be passed on _meta
   metadata?: Record<string, unknown>;
-  // additional resource props to be passed on resource itself
+  // additional resource props to be passed on the resource itself
   resourceProps?: UIResourceProps;
-  // additional resource props to be passed on embedded resource (i.e. annotations)
+  // additional resource props to be passed on the top-level embedded resource (i.e. annotations)
   embeddedResourceProps?: EmbeddedUIResourceProps;
 }
 
