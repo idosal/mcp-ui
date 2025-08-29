@@ -15,6 +15,8 @@ import { getAdditionalResourceProps, utf8ToBase64 } from './utils.js';
 export type UIResource = {
   type: 'resource';
   resource: HTMLTextContent | Base64BlobContent;
+  annotations?: Record<string, unknown>;
+  _meta?: Record<string, unknown>;
 };
 
 /**
@@ -96,6 +98,7 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
   return {
     type: 'resource',
     resource: resource,
+    ...(options.embeddedResourceProps ?? {}),
   };
 }
 

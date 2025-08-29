@@ -1,4 +1,4 @@
-import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
 
 // Primary identifier for the resource. Starts with ui://`
 export type URI = `ui://${string}`;
@@ -43,11 +43,14 @@ export interface CreateUIResourceOptions {
   uiMetadata?: UIResourceMetadata;
   // additional metadata to be passed on _meta
   metadata?: Record<string, unknown>;
-  // additional resource props to be passed on resource (i.e. annotations)
+  // additional resource props to be passed on resource itself
   resourceProps?: UIResourceProps;
+  // additional resource props to be passed on embedded resource (i.e. annotations)
+  embeddedResourceProps?: EmbeddedUIResourceProps;
 }
 
 export type UIResourceProps = Omit<Partial<Resource>, 'uri' | 'mimeType'>;
+export type EmbeddedUIResourceProps = Omit<Partial<EmbeddedResource>, 'resource' | 'type'>;
 
 export const UIMetadataKey = {
   PREFERRED_FRAME_SIZE: 'preferred-frame-size',
