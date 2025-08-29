@@ -30,7 +30,10 @@ MCP-UI specific configuration options. These keys are automatically prefixed wit
 - **`initial-render-data`**: Provide data that should be passed to the iframe when rendering
 
 ### `resourceProps`
-Additional properties that are spread directly onto the resource definition, allowing you to add any MCP specification-supported properties like `annotations`.
+Additional properties that are spread directly onto the actual resource definition, allowing you to add/override any MCP specification-supported properties.
+
+### `embeddedResourceProps`
+Additional properties that are spread directly onto the embedded resource top-level definition, allowing you to add any MCP embedded resource [specification-supported](https://modelcontextprotocol.io/specification/2025-06-18/schema#embeddedresource) properties, like `annotations`.
 
 ## Building
 

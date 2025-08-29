@@ -141,7 +141,7 @@ console.log('Resource 5:', JSON.stringify(resource5, null, 2));
 
 ## Metadata Configuration Examples
 
-The `createUIResource` function supports three types of metadata configuration to enhance your UI resources:
+The `createUIResource` function supports several types of metadata configuration to enhance your UI resources:
 
 ```typescript
 import { createUIResource } from '@mcp-ui/server';
@@ -212,14 +212,14 @@ console.log('Resource with UI metadata:', JSON.stringify(resourceWithUIMetadata,
 }
 */
 
-// Example 9: Using resourceProps for additional MCP properties
+// Example 9: Using embeddedResourceProps for additional MCP properties
 const resourceWithProps = createUIResource({
   uri: 'ui://form/user-profile',
   content: { type: 'rawHtml', htmlString: '<form id="profile">...</form>' },
   encoding: 'text',
-  resourceProps: {
+  embeddedResourceProps: {
     annotations: {
-      audience: ['developers', 'admins'],
+      audience: ['user'],
       priority: 'high'
     }
   }
@@ -232,10 +232,10 @@ console.log('Resource with additional props:', JSON.stringify(resourceWithProps,
     "uri": "ui://form/user-profile",
     "mimeType": "text/html",
     "text": "<form id=\"profile\">...</form>",
-    "annotations": {
-      "audience": ["developers", "admins"],
-      "priority": "high"
-    }
+  },
+  "annotations": {
+    "audience": ["user"],
+    "priority": "high"
   }
 }
 */
@@ -245,7 +245,8 @@ console.log('Resource with additional props:', JSON.stringify(resourceWithProps,
 
 - **Use `metadata` for standard MCP resource information** like titles, descriptions, timestamps, and authorship
 - **Use `uiMetadata` for client rendering hints** like preferred sizes, initial data, and context preferences  
-- **Use `resourceProps` for MCP specification properties** like annotations, descriptions at the resource level, and other standard fields
+- **Use `resourceProps` for MCP specification properties**, descriptions at the resource level, and other standard fields
+- **Use `embeddedResourceProps` for MCP embedded resource properties** like annotations.
 
 ## Advanced URI List Example
 
