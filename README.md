@@ -312,6 +312,7 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a su
 | [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
 | [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
 | [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [fast-agent](https://fast-agent.ai/mcp/mcp-ui/) | ✅ | ❌ |
 | [VSCode](https://github.com/microsoft/vscode/issues/260218) (TBA)    |    ?    |    ?     |
 
 **Legend:**
