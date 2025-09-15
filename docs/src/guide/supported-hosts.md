@@ -8,6 +8,7 @@
 | [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
 | [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
 | [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [fast-agent]([https:](https://fast-agent.ai/mcp/mcp-ui/) | ✅ | ❌ |
 | [VSCode](https://github.com/microsoft/vscode/issues/260218) (TBA)    |    ?    |    ?     |
 
 **Legend:**
