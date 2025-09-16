@@ -76,6 +76,7 @@ interface UIResourceRendererProps {
     - **`ref`**: Optional React ref to access the underlying iframe element
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
   - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
+  - **`useSrcDoc`**: Optional `boolean` (defaults to `false`). When `false` (default), HTML content is rendered using a blob URL set as the iframe's `src` attribute. When `true`, HTML content is rendered using the `srcDoc` attribute with the raw HTML string. Useful in environments with strict Content Security Policies that block blob URLs.
 - **`remoteDomProps`**: Optional props for the `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: Optional remote element definitions for Remote DOM resources. REQUIRED for Remote DOM snippets.
@@ -229,6 +230,20 @@ The function provides type narrowing, so TypeScript will understand that `conten
       title: 'Custom MCP Resource',
       className: 'mcp-resource-frame'
     }
+  }}
+  onUIAction={handleUIAction}
+/>
+```
+
+### Using srcDoc Instead of Blob URLs
+
+By default, HTML content is rendered using blob URLs for better security. If you need to use `srcDoc` instead (e.g., for environments with strict CSP policies that block blob URLs):
+
+```tsx
+<UIResourceRenderer
+  resource={mcpResource.resource}
+  htmlProps={{
+    useSrcDoc: true
   }}
   onUIAction={handleUIAction}
 />
