@@ -110,7 +110,9 @@ describe('processHTMLResource', () => {
         text: ' ',
       };
       const result = processHTMLResource(resource);
-      expect(result.error).toBe('URL resource expects a non-empty text or blob field containing the URL.');
+      expect(result.error).toBe(
+        'URL resource expects a non-empty text or blob field containing the URL.',
+      );
     });
 
     it('should extract the first valid URL from a blob', () => {
@@ -193,7 +195,7 @@ describe('processHTMLResource', () => {
         expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?url=https%3A%2F%2Fexample.com');
         expect(result.iframeRenderMode).toBe('src');
       });
-    
+
       it('should handle proxy with existing query parameters', () => {
         const resource = {
           mimeType: 'text/uri-list',
@@ -201,10 +203,12 @@ describe('processHTMLResource', () => {
         };
         const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/?a=1&b=2');
         expect(result.error).toBeUndefined();
-        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?a=1&b=2&url=https%3A%2F%2Fexample.com');
+        expect(result.iframeSrc).toBe(
+          'https://proxy.mcpui.dev/?a=1&b=2&url=https%3A%2F%2Fexample.com',
+        );
         expect(result.iframeRenderMode).toBe('src');
       });
-    
+
       it('should fallback to direct URL if proxy is invalid', () => {
         const resource = {
           mimeType: 'text/uri-list',
@@ -215,7 +219,7 @@ describe('processHTMLResource', () => {
         expect(result.iframeSrc).toBe('https://example.com');
         expect(result.iframeRenderMode).toBe('src');
       });
-    
+
       it('should not use proxy when proxy is empty string', () => {
         const resource = {
           mimeType: 'text/uri-list',
@@ -226,7 +230,7 @@ describe('processHTMLResource', () => {
         expect(result.iframeSrc).toBe('https://example.com');
         expect(result.iframeRenderMode).toBe('src');
       });
-    
+
       it('should not use proxy when proxy is not provided', () => {
         const resource = {
           mimeType: 'text/uri-list',

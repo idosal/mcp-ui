@@ -21,7 +21,8 @@ import {
   UIActionResult,
   basicComponentLibrary,
   remoteTextDefinition,
-  remoteButtonDefinition
+  remoteButtonDefinition,
+  isUIResource
 } from '@mcp-ui/client';
 
 const remoteDomScript = `
@@ -83,7 +84,8 @@ import {
   UIActionResult,
   basicComponentLibrary,
   remoteTextDefinition,
-  remoteButtonDefinition
+  remoteButtonDefinition,
+  isUIResource
 } from '@mcp-ui/client';
 
 // Simulate fetching an MCP UI resource
@@ -230,180 +232,411 @@ export default App;
 
 ---
 
+## Using the `isUIResource` Utility
+
+Instead of manually checking if content is a UI resource, you can use the `isUIResource()` utility function:
+
+```tsx
+import React from 'react';
+import { UIResourceRenderer, isUIResource } from '@mcp-ui/client';
+
+function ResourceList({ mcpResponses }) {
+  return (
+    <div>
+      {mcpResponses.map((response, index) => {
+        // Use isUIResource instead of manual checking
+        if (isUIResource(response)) {
+          return (
+            <div key={index}>
+              <h3>UI Resource: {response.resource.uri}</h3>
+              <UIResourceRenderer 
+                resource={response.resource} 
+                onUIAction={handleAction}
+              />
+            </div>
+          );
+        }
+        
+        // Handle other response types
+        return (
+          <div key={index}>
+            <p>Non-UI content: {response.type}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+This is equivalent to the manual check:
+```typescript
+response.type === 'resource' && response.resource.uri?.startsWith('ui://')
+```
+
+But provides better type safety and is more concise.
+
+---
+
 ## Handling Asynchronous Actions with Message IDs
 
-When your iframe content needs to track the status of long-running operations, you can use the `messageId` field to receive acknowledgment and response messages. Here's a complete example:
+When an action from the iframe requires asynchronous processing on the host, the `messageId` property can be used to track the action's lifecycle and result. This allows the iframe to fetch data from the host, present feedback to the user (e.g., loading indicators), success messages, etc.
 
-### HTML Resource with Async Communication
+### Communication Flow
+
+1.  **Iframe to Host**: The iframe sends a message with a unique `messageId`.
+2.  **Host Acknowledgment**: The `UIResourceRenderer` automatically sends a `ui-message-received` message back to the iframe to acknowledge receipt.
+3.  **Host Processing**: The `onUIAction` function provided to the renderer is executed. This function can be `async` and performs the long-running task.
+4.  **Host Response**:
+    *   If the `onUIAction` promise resolves, `UIResourceRenderer` sends a `ui-message-response` with the resolved value as the `response`.
+    *   If the `onUIAction` promise rejects (throws an error), it sends a `ui-message-response` with the error details as the `error`.
+5.  **Iframe Updates**: The iframe listens for these messages and updates its UI accordingly.
+
+### Example
+
+
+#### 1. In the iframe: Initiating the request
+
+First, the iframe needs to generate a unique ID for the request and send it to the host. It should also keep track of pending requests to handle responses when they arrive.
 
 ```typescript
+// A Map to store callbacks for pending requests, keyed by messageId.
+const requests = new Map<string, (response: any, error?: any) => void>();
+
+function makeRequest() {
+  const messageId = crypto.randomUUID();
+
+  // Store a callback to handle the response for this specific request.
+  requests.set(messageId, (response, error) => {
+    if (error) {
+      console.error('Request failed:', error);
+      // Update UI to show error
+    } else {
+      console.log('Received response:', response);
+      // Update UI with the response data
+    }
+  });
+
+  // Send the request to the host.
+  window.parent.postMessage(
+    {
+      type: "ui-request-data",
+      messageId,
+      payload: {
+        requestType: "get-payment-methods",
+        params: {
+          // any params needed for the request
+        },
+      },
+    },
+    "*"
+  );
+
+  // You can update the UI to a loading state here.
+}
+
+// Example: trigger the request on a button click.
+button.addEventListener("click", makeRequest);
+```
+
+#### 2. In the host: Receiving and processing the request
+
+The host listens for messages from the iframe. When it receives a request with a `messageId`, it can optionally send an acknowledgment and then starts the asynchronous work.
+
+```typescript
+window.addEventListener("message", async (event) => {
+  const { type, messageId, payload } = event.data;
+
+  // Acknowledge receipt of the message
+  if (messageId && event.source) {
+    (event.source as Window).postMessage(
+      {
+        type: "ui-message-received",
+        messageId: messageId,
+      },
+      { targetOrigin: "*" }
+    );
+  }
+
+  if (type === "ui-request-data") {
+    const { requestType, params } = payload;
+    if (requestType === "get-payment-methods") {
+      try {
+        // 3. Perform the async operation
+        const paymentMethods = await fetchPaymentMethods(params);
+
+        // 4. Send a success response
+        if (event.source) {
+          (event.source as Window).postMessage(
+            {
+              type: "ui-message-response",
+              messageId: messageId,
+              payload: { response: { paymentMethods } },
+            },
+            { targetOrigin: "*" }
+          );
+        }
+      } catch (error) {
+        // 4. Send an error response
+        if (event.source) {
+          (event.source as Window).postMessage(
+            {
+              type: "ui-message-response",
+              messageId: messageId,
+              payload: { error },
+            },
+            { targetOrigin: "*" }
+          );
+        }
+      }
+    }
+  }
+});
+```
+
+#### 3. In the iframe: Handling the response
+
+The iframe needs a listener to handle messages from the host. It can use the `messageId` to match responses to the original requests.
+
+```typescript
+window.addEventListener("message", (event) => {
+  const { type, messageId, payload } = event.data;
+
+  // Check if it's a response to a request we're waiting for.
+  if (!messageId || !requests.has(messageId)) {
+    return;
+  }
+
+  if (type === "ui-message-received") {
+    // The host has acknowledged the request. You can update the UI.
+    console.log(`Request ${messageId} is being processed...`);
+    // e.g., show a more specific loading indicator.
+  }
+
+  if (type === "ui-message-response") {
+    const { response, error } = payload;
+    
+    // Retrieve the original callback.
+    const callback = requests.get(messageId);
+    if (callback) {
+      callback(response, error);
+    }
+    
+    // Clean up the request from the map.
+    requests.delete(messageId);
+  }
+});
+```
+
+
+This pattern is crucial for building responsive and user-friendly UIs, especially when interacting with potentially slow backend operations.
+
+---
+
+## Custom Theming with Render Data
+
+The `UIResourceRenderer` supports passing custom styling data to HTML iframes through the [`htmlProps.iframeRenderData`](/guide/client/resource-renderer#props-details) mechanism. This allows you to theme iframe content dynamically based on your host application's theme, user preferences, or other runtime conditions.
+
+### How It Works
+
+The theming flow involves several coordinated steps:
+
+1. **Host Configuration**: The host renders `<UIResourceRenderer>` with `htmlProps.iframeRenderData` containing your custom CSS or theme data
+2. **Parameter Addition**: The SDK automatically adds `?waitForRenderData=true` to the iframe URL
+3. **Iframe Waiting**: The iframe recognizes this parameter and waits before rendering
+4. **Data Transfer**: The SDK sends a `ui-lifecycle-iframe-render-data` message with the render data when the iframe is ready
+5. **Theme Application**: The iframe receives the data and applies the custom styling
+
+### Example: Dynamic Theme Support
+
+Here's a complete example showing how to implement dynamic theming:
+
+#### Host Application Setup
+
+```tsx
 import React, { useState } from 'react';
 import { UIResourceRenderer } from '@mcp-ui/client';
 
-const AsyncExampleApp: React.FC = () => {
-  const [actionStatus, setActionStatus] = useState<string>('Ready');
-  const [actionResult, setActionResult] = useState<any>(null);
+const ThemeableApp: React.FC = () => {
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
 
-  const handleAsyncUIAction = async (result: UIActionResult): Promise<any> => {
-    console.log(`Received action with messageId: ${result.messageId}`);
-    setActionStatus('Processing...');
-
-    // Simulate an async operation (e.g., API call, database query)
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    if (result.type === 'tool' && result.payload.toolName === 'processData') {
-      // Simulate success or failure based on params
-      if (result.payload.params.shouldFail) {
-        throw new Error('Simulated processing error');
+  // Define your theme styles
+  const themeStyles = {
+    light: `
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #333333;
+        --primary-color: #007bff;
+        --border-color: #e0e0e0;
       }
-      
-      return {
-        status: 'success',
-        processedData: `Processed: ${result.payload.params.data}`,
-        timestamp: new Date().toISOString()
-      };
-    }
-
-    return { status: 'unknown action' };
-  };
-
-  const asyncHtmlResource = {
-    uri: 'ui://async-example/demo',
-    mimeType: 'text/html' as const,
-    text: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          button { margin: 10px; padding: 10px 20px; }
-          .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
-          .pending { background: #fff3cd; border: 1px solid #ffeaa7; }
-          .success { background: #d4edda; border: 1px solid #c3e6cb; }
-          .error { background: #f8d7da; border: 1px solid #f5c6cb; }
-        </style>
-      </head>
-      <body>
-        <h3>Async Action Demo</h3>
-        <button onclick="processData('success')">Process Data (Success)</button>
-        <button onclick="processData('error')">Process Data (Error)</button>
-        <div id="status">Ready</div>
-        <div id="result"></div>
-
-        <script>
-          let messageCounter = 0;
-          const pendingRequests = new Map();
-
-          function generateMessageId() {
-            return \`async-msg-\${Date.now()}-\${++messageCounter}\`;
-          }
-
-          function updateStatus(message, className = '') {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = message;
-            statusEl.className = 'status ' + className;
-          }
-
-          function updateResult(content) {
-            document.getElementById('result').innerHTML = content;
-          }
-
-          function processData(mode) {
-            const messageId = generateMessageId();
-            
-            updateStatus('Sending request...', 'pending');
-            updateResult('');
-            
-            pendingRequests.set(messageId, { startTime: Date.now(), mode });
-            
-            window.parent.postMessage({
-              type: 'tool',
-              messageId: messageId,
-              payload: {
-                toolName: 'processData',
-                params: {
-                  data: \`Sample data (\${mode})\`,
-                  shouldFail: mode === 'error',
-                  timestamp: Date.now()
-                }
-              }
-            }, '*');
-          }
-
-          // Listen for response messages
-          window.addEventListener('message', (event) => {
-            const message = event.data;
-            
-            if (!message.messageId || !pendingRequests.has(message.messageId)) {
-              return;
-            }
-            
-            const request = pendingRequests.get(message.messageId);
-            
-            switch (message.type) {
-              case 'ui-message-received':
-                updateStatus('Request acknowledged, processing...', 'pending');
-                break;
-                
-              case 'ui-message-response':
-                if (message.payload.error) {
-                  updateStatus('Error occurred!', 'error');
-                  updateResult(\`
-                    <h4>Error:</h4>
-                    <div style="color: red;">\${JSON.stringify(message.payload.error, null, 2)}</div>
-                  \`);
-                  pendingRequests.delete(message.messageId);
-                  break;
-                }
-                updateStatus('Completed successfully!', 'success');
-                updateResult(\`
-                  <h4>Response:</h4>
-                  <pre>\${JSON.stringify(message.payload.response, null, 2)}</pre>
-                \`);
-                pendingRequests.delete(message.messageId);
-                break;
-            }
-          });
-        </script>
-      </body>
-      </html>
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+    `,
+    dark: `
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #ffffff;
+        --primary-color: #4a9eff;
+        --border-color: #404040;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
     `
   };
 
   return (
-    <div>
-      <h2>Async Communication Example</h2>
-      <p>Host Status: {actionStatus}</p>
-      {actionResult && (
-        <div>
-          <h4>Last Host Result:</h4>
-          <pre>{JSON.stringify(actionResult, null, 2)}</pre>
-        </div>
-      )}
+    <div style={{ padding: '20px' }}>
+      <h1>Themed MCP-UI Example</h1>
       
-      <UIResourceRenderer
-        resource={asyncHtmlResource}
-        onUIAction={handleAsyncUIAction}
-      />
+      {/* Theme switcher */}
+      <div style={{ marginBottom: '20px' }}>
+        <button 
+          onClick={() => setCurrentTheme(currentTheme === 'light' ? 'dark' : 'light')}
+        >
+          Switch to {currentTheme === 'light' ? 'Dark' : 'Light'} Theme
+        </button>
+      </div>
+
+      {/* Render the themed iframe */}
+      <div>
+        <UIResourceRenderer
+          resource={themedHtmlResource}
+          onUIAction={handleUIAction}
+          htmlProps={{
+            iframeRenderData: {
+              customCss: themeStyles[currentTheme],
+              theme: currentTheme,
+              // You can pass any additional data your iframe needs
+              additionalConfig: {
+                animations: true,
+                fontSize: '16px'
+              }
+            }
+          }}
+        />
+      </div>
     </div>
   );
 };
+
+export default ThemeableApp;
 ```
 
-### Key Features Demonstrated
+#### Iframe Script Implementation
 
-1. **Message ID Generation**: The iframe creates unique message IDs for each request
-2. **Request Tracking**: Pending requests are stored to match responses
-3. **Status Updates**: The UI shows different states (pending, success, error)
-4. **Response Handling**: Different message types trigger appropriate UI updates
-5. **Cleanup**: Completed requests are removed from pending tracking
+In your iframe's HTML content, implement the render data lifecycle:
 
-This pattern is especially useful for:
-- Long-running server operations
-- File uploads or downloads
-- Database queries
-- External API calls
-- Multi-step workflows
+```html
+<script>
+// In the iframe's script
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("waitForRenderData") === "true") {
+  let customRenderData = null;
+
+  // The parent will send this message on load or when we notify it we're ready
+  window.addEventListener("message", (event) => {
+    // Add origin checks for security in production
+    if (event.data.type === "ui-lifecycle-iframe-render-data") {
+      // If the iframe has already received data, we don't need to do anything
+      if (customRenderData) {
+        return;
+      } else {
+        customRenderData = event.data.payload.renderData;
+        // Now you can render the UI with the received data
+        renderUI(customRenderData);
+      }
+    }
+  });
+  
+  // We can let the parent know we're ready to receive data
+  window.parent.postMessage({ type: "ui-lifecycle-iframe-ready" }, "*");
+} else {
+  // If the iframe doesn't need to wait for data, we can render the default UI immediately
+  renderUI();
+}
+
+function renderUI(renderData = null) {
+  const statusEl = document.getElementById('status');
+  
+  if (renderData) {
+    // Apply custom CSS
+    if (renderData.customCss) {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = renderData.customCss;
+      document.head.appendChild(styleElement);
+    }
+    
+    // Use other render data
+    if (statusEl) {
+      statusEl.innerHTML = \\`
+        <strong>✅ Theme Applied!</strong><br>
+        Theme: \${renderData.theme || 'unknown'}<br>
+        Additional config: \${JSON.stringify(renderData.additionalConfig || {}, null, 2)}
+      \\`;
+    }
+    
+    // You can access any custom data passed in iframeRenderData
+    console.log('Render data received:', renderData);
+  } else {
+    // Default rendering without theme data
+    if (statusEl) {
+      statusEl.innerHTML = '<em>No theme data received - using defaults</em>';
+    }
+  }
+}
+</script>
+```
+
+#### Passing Multiple Theme Variables
+
+```tsx
+// In your host component
+const advancedThemeData = {
+  colors: {
+    primary: '#007bff',
+    secondary: '#6c757d',
+    success: '#28a745',
+    warning: '#ffc107',
+    danger: '#dc3545'
+  },
+  fonts: {
+    heading: 'Georgia, serif',
+    body: 'Arial, sans-serif',
+    mono: 'Monaco, monospace'
+  },
+  spacing: {
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px'
+  }
+};
+
+// Pass to iframe
+<UIResourceRenderer
+  resource={resource}
+  onUIAction={handleUIAction}
+  htmlProps={{
+    iframeRenderData: { themeConfig: advancedThemeData }
+  }}
+/>
+```
+
+### Benefits of This Approach
+
+- **Dynamic Theming**: Themes can change at runtime without reloading the iframe
+- **Consistent Styling**: Ensures iframe content matches your host application's design
+- **Performance**: CSS is injected once rather than being included in every iframe
+- **Flexibility**: You can pass any styling or configuration data, not just CSS
+- **Security**: The iframe explicitly opts into receiving render data
+
+This theming system provides a powerful way to create cohesive user experiences across your host application and embedded MCP-UI content.
 
 ---
 

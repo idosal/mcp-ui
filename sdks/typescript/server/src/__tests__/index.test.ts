@@ -6,6 +6,7 @@ import {
   uiActionResultIntent,
   uiActionResultNotification,
 } from '../index';
+import { UI_METADATA_PREFIX } from '../types.js';
 
 describe('@mcp-ui/server', () => {
   describe('createUIResource', () => {
@@ -50,6 +51,77 @@ describe('@mcp-ui/server', () => {
       expect(resource.resource.blob).toBeUndefined();
     });
 
+    it('should create a text-based external URL resource with metadata', () => {
+      const options = {
+        uri: 'ui://test-url' as const,
+        content: { type: 'externalUrl' as const, iframeUrl: 'https://example.com' },
+        encoding: 'text' as const,
+        uiMetadata: { 'preferred-frame-size': ['100px', '100px'] as [string, string] },
+        resourceProps: { _meta: { 'arbitrary-prop': 'arbitrary' } },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.uri).toBe('ui://test-url');
+      expect(resource.resource.mimeType).toBe('text/uri-list');
+      expect(resource.resource.text).toBe('https://example.com');
+      expect(resource.resource.blob).toBeUndefined();
+      expect(resource.resource._meta).toEqual({
+        [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'],
+        'arbitrary-prop': 'arbitrary',
+      });
+    });
+
+    it('should create a text-based external URL resource with metadata, respecting order of overriding metadata', () => {
+      const options = {
+        uri: 'ui://test-url' as const,
+        content: { type: 'externalUrl' as const, iframeUrl: 'https://example.com' },
+        encoding: 'text' as const,
+        metadata: { 'arbitrary-prop': 'arbitrary', foo: 'bar' },
+        resourceProps: { _meta: { 'arbitrary-prop': 'arbitrary2' } },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.uri).toBe('ui://test-url');
+      expect(resource.resource.mimeType).toBe('text/uri-list');
+      expect(resource.resource.text).toBe('https://example.com');
+      expect(resource.resource.blob).toBeUndefined();
+      expect(resource.resource._meta).toEqual({ foo: 'bar', 'arbitrary-prop': 'arbitrary2' });
+    });
+
+    it('should create a text-based external URL resource with embedded resource props', () => {
+      const options = {
+        uri: 'ui://test-url' as const,
+        content: { type: 'externalUrl' as const, iframeUrl: 'https://example.com' },
+        encoding: 'text' as const,
+        uiMetadata: { 'preferred-frame-size': ['100px', '100px'] as [string, string] },
+        resourceProps: { _meta: { 'arbitrary-metadata': 'resource-level-metadata' } },
+        embeddedResourceProps: {
+          annotations: {
+            audience: ['user'],
+          },
+          _meta: { 'arbitrary-metadata': 'embedded-resource-metadata' },
+        },
+      };
+      const resource = createUIResource(options);
+      expect(resource).toEqual({
+        type: 'resource',
+        resource: {
+          uri: 'ui://test-url',
+          mimeType: 'text/uri-list',
+          text: 'https://example.com',
+          blob: undefined,
+          _meta: {
+            'arbitrary-metadata': 'resource-level-metadata',
+            [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['100px', '100px'],
+          },
+        },
+        annotations: {
+          audience: ['user'],
+        },
+        _meta: {
+          'arbitrary-metadata': 'embedded-resource-metadata',
+        },
+      });
+    });
+
     it('should create a blob-based external URL resource', () => {
       const options = {
         uri: 'ui://test-url-blob' as const,
@@ -65,6 +137,7 @@ describe('@mcp-ui/server', () => {
         Buffer.from('https://example.com/blob').toString('base64'),
       );
       expect(resource.resource.text).toBeUndefined();
+      expect(resource.resource._meta).toBeUndefined();
     });
 
     it('should create a blob-based direct HTML resource with correct mimetype', () => {

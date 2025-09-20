@@ -138,7 +138,7 @@ window.parent.postMessage(
 );
 ```
 
-## Reserved Message Types - from the iframe to the host
+## Reserved Message Types (iframe to host)
 
 - [`ui-lifecycle-iframe-ready`](#ui-lifecycle-iframe-ready) - the iframe is ready to receive messages
 - [`ui-size-change`](#ui-size-change) - the iframe's size has changed and the host should adjust the iframe's size
@@ -149,7 +149,7 @@ window.parent.postMessage(
 - indicates that the iframe is ready to receive messages
 
 **Example:**
-See [Render Data](#render-data)
+See [Render Data](#passing-render-data-to-the-iframe)
 
 ### `ui-size-change`
 
@@ -205,7 +205,7 @@ window.parent.postMessage(
 
 See also [Asynchronous Data Requests with Message IDs](#asynchronous-data-requests-with-message-ids)
 
-## Reserved Message Types - from the host to the iframe
+## Reserved Message Types (host to iframe)
 
 - [`ui-lifecycle-iframe-render-data`](#ui-lifecycle-iframe-render-data) - the host sends the iframe render data
 - [`ui-message-received`](#ui-message-received) - the host sends the iframe to indicate that the action has been received
@@ -272,7 +272,7 @@ window.addEventListener("message", (event) => {
 });
 ```
 
-#### In the iframe:
+### In the iframe:
 
 ```typescript
 // In the iframe's script
@@ -304,89 +304,34 @@ if (urlParams.get("waitForRenderData") === "true") {
 
 ## Asynchronous Data Requests with Message IDs
 
-### In the iframe:
+Actions initiated from the iframe are handled by the host asynchronously (e.g., data requests, tool calls, etc.). It's useful for the iframe to get feedback on the status of the request and its result. This is achieved using a `messageId` to track the request through its lifecycle. Example use cases include fetching additional information, displaying a progress bar in the iframe, signaling success or failure, and more.
 
-```typescript
-const requests = new Map<string, (response: any) => void>();
+The primary message types are:
+- `ui-request-data`: Sent from the iframe to the host to request some data or action.
+- `ui-message-received`: Sent from the host to the iframe to acknowledge that the request is being processed.
+- `ui-message-response`: Sent from the host to the iframe with the final result (success or error).
 
-button.addEventListener("click", () => {
-  const messageId = crypto.randomUUID();
-  requests.set(messageId, (response) => {
-    // handle the response
-  });
-  window.parent.postMessage(
-    {
-      type: "ui-request-data",
-      messageId,
-      payload: {
-        requestType: "get-payment-methods",
-        params: {
-          // any params needed for the request
-        },
-      },
-    },
-    "*"
-  );
-});
+While this example uses `ui-request-data`, any message from the iframe can include a `messageId` to leverage this asynchronous flow (e.g., `tool`, `intent`).
 
-window.addEventListener("message", (event) => {
-  if (event.data.type === "ui-message-response") {
-    const { messageId, response, error } = event.data.payload;
-    if (error) {
-      // handle the error
-    } else {
-      const callback = requests.get(messageId);
-      if (callback) {
-        callback(response);
-      }
-    }
-    // clean up the request
-    requests.delete(messageId);
-  }
-});
-```
+```mermaid
+sequenceDiagram
+    participant Iframe
+    participant Host
 
-### In the host:
+    Iframe->>Host: postMessage({ type: 'ui-request-data', messageId: '123', ... })
+    Note right of Iframe: 1. Iframe initiates request<br>with a unique messageId.
 
-```typescript
-window.addEventListener("message", async (event) => {
-  if (event.data.messageId) {
-    iframe.contentWindow.postMessage(
-      {
-        type: "ui-message-received",
-        messageId: event.data.messageId,
-      },
-      "*"
-    );
-  }
+    Host->>Iframe: postMessage({ type: 'ui-message-received', messageId: '123' })
+    Note left of Host: 2. Host acknowledges receipt (optional).
 
-  if (event.data.type === "ui-request-data") {
-    const {
-      messageId,
-      payload: { requestType, params },
-    } = event.data;
-    if (requestType === "get-payment-methods") {
-      try {
-        const paymentMethods = await fetchPaymentMethods(params);
-        iframe.contentWindow.postMessage(
-          {
-            type: "ui-message-response",
-            messageId: messageId,
-            payload: { response: { paymentMethods } },
-          },
-          "*"
-        );
-      } catch (error) {
-        iframe.contentWindow.postMessage(
-          {
-            type: "ui-message-response",
-            messageId: messageId,
-            payload: { error },
-          },
-          "*"
-        );
-      }
-    }
-  }
-});
+    Note over Host: Process request...
+
+    alt Request succeeds
+        Host->>Iframe: postMessage({ type: 'ui-message-response', messageId: '123', payload: { response: ... } })
+    else Request fails
+        Host->>Iframe: postMessage({ type: 'ui-message-response', messageId: '123', payload: { error: ... } })
+    end
+    Note left of Host: 3. Host sends final response.
+
+    Note right of Iframe: 4. Iframe uses messageId to handle<br>the specific response.
 ```

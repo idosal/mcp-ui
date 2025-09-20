@@ -19,6 +19,7 @@
   <a href="#-getting-started">Getting Started</a> •
   <a href="#-walkthrough">Walkthrough</a> •
   <a href="#-examples">Examples</a> •
+  <a href="#-supported-hosts">Supported Hosts</a> •
   <a href="#-security">Security</a> •
   <a href="#-roadmap">Roadmap</a> •
   <a href="#-contributing">Contributing</a> •
@@ -301,7 +302,23 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
 
 Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a supported local inspector, see the [ui-inspector](https://github.com/idosal/ui-inspector).
 
+## 💻 Supported Hosts
 
+`mcp-ui` is supported by a growing number of MCP-compatible clients. Feature support varies by host:
+
+| Host      | Rendering | UI Actions |
+| :-------- | :-------: | :--------: |
+| [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
+| [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
+| [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
+| [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [fast-agent](https://fast-agent.ai/mcp/mcp-ui/) | ✅ | ❌ |
+| [VSCode](https://github.com/microsoft/vscode/issues/260218) (TBA)    |    ?    |    ?     |
+
+**Legend:**
+- ✅: Supported
+- ⚠️: Partial Support
+- ❌: Not Supported (yet)
 
 ## 🔒 Security
 Host and user security is one of `mcp-ui`'s primary concerns. In all content types, the remote code is executed in a sandboxed iframe.

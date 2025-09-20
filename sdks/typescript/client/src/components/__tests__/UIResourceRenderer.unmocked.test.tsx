@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { Resource } from '@modelcontextprotocol/sdk/types.js';
 import { UIResourceRenderer } from '../UIResourceRenderer';
+import { UI_METADATA_PREFIX } from '../../types';
 
 describe('UIResourceRenderer', () => {
   const testResource: Partial<Resource> = {
@@ -50,6 +51,22 @@ describe('UIResourceRenderer', () => {
     });
     expect(ref.current?.style.width).toBe('100px');
     expect(ref.current?.style.height).toBe('100%');
+  });
+
+  it('should respect a preferred-frame-size metadata', () => {
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <UIResourceRenderer
+        resource={{
+          ...testResource,
+          _meta: { [`${UI_METADATA_PREFIX}preferred-frame-size`]: ['200px', '100px'] },
+        }}
+        htmlProps={{ iframeProps: { ref }, autoResizeIframe: true }}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.style.width).toBe('200px');
+    expect(ref.current?.style.height).toBe('100px');
   });
 });
 

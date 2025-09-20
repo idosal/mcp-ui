@@ -294,6 +294,7 @@ div[class*='language-'] code {
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin-bottom: 24px;
+  margin-top: 24px;
   background: linear-gradient(135deg, var(--vp-c-text-1) 0%, var(--vp-c-brand-1) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -303,7 +304,7 @@ div[class*='language-'] code {
 .vp-doc h2 {
   font-size: 1.875rem;
   font-weight: 700;
-  margin-top: 48px;
+  margin-top: 12px;
   margin-bottom: 16px;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--vp-c-divider);

@@ -1,3 +1,36 @@
+# [5.9.0](https://github.com/idosal/mcp-ui/compare/v5.8.1...v5.9.0) (2025-08-20)
+
+
+### Features
+
+* support passing resource metadata ([#87](https://github.com/idosal/mcp-ui/issues/87)) ([f1c1c9b](https://github.com/idosal/mcp-ui/commit/f1c1c9b62dd74c63045b295eb388181843ac772a))
+
+## [5.8.1](https://github.com/idosal/mcp-ui/compare/v5.8.0...v5.8.1) (2025-08-20)
+
+
+### Bug Fixes
+
+* move react dependencies to be peer dependencies ([#91](https://github.com/idosal/mcp-ui/issues/91)) ([f672f3e](https://github.com/idosal/mcp-ui/commit/f672f3efc1c2ba2fbae16f9dcdc2142c2b4bd920)), closes [#90](https://github.com/idosal/mcp-ui/issues/90)
+
+# [5.8.0](https://github.com/idosal/mcp-ui/compare/v5.7.0...v5.8.0) (2025-08-19)
+
+
+### Bug Fixes
+
+* minor typo ([a0bee9c](https://github.com/idosal/mcp-ui/commit/a0bee9c85e5ee02e021ba687940ced38220445fe))
+
+
+### Features
+
+* add convenience function isUIResource to client SDK ([#86](https://github.com/idosal/mcp-ui/issues/86)) ([607c6ad](https://github.com/idosal/mcp-ui/commit/607c6add3567bb60c45accf3e1b25a38ed284a6f))
+
+# [5.7.0](https://github.com/idosal/mcp-ui/compare/v5.6.2...v5.7.0) (2025-08-15)
+
+
+### Features
+
+* add sandbox permissions instead of an override ([#83](https://github.com/idosal/mcp-ui/issues/83)) ([b1068e9](https://github.com/idosal/mcp-ui/commit/b1068e9e87caa2b4302bf145a33efdfd1af05c1d))
+
 ## [5.6.2](https://github.com/idosal/mcp-ui/compare/v5.6.1...v5.6.2) (2025-08-05)
 
 
