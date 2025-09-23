@@ -25,6 +25,7 @@ export const InternalMessageType = {
 
   UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
   UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
+  UI_REQUEST_RENDER_DATA: 'ui-request-render-data',
 } as const;
 
 export const ReservedUrlParams = {
@@ -104,6 +105,20 @@ export const HTMLResourceRenderer = ({
             source,
             origin,
             undefined,
+            {
+              renderData: initialRenderData,
+            },
+          );
+          return;
+        }
+
+        // if the iframe requests render data, send it
+        if (data?.type === InternalMessageType.UI_REQUEST_RENDER_DATA) {
+          postToFrame(
+            InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+            source,
+            origin,
+            data.messageId,
             {
               renderData: initialRenderData,
             },

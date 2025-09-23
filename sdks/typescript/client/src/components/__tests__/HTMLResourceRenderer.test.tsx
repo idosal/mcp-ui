@@ -533,6 +533,72 @@ describe('HTMLResource metadata', () => {
       '*',
     );
   });
+
+  it('should respond to ui-request-render-data with render data', () => {
+    const iframeRenderData = { theme: 'dark', user: { id: '123' } };
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        iframeRenderData={iframeRenderData}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    
+    const messageId = 'test-message-id';
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_REQUEST_RENDER_DATA,
+      messageId,
+    });
+    
+    expect(spy).toHaveBeenCalledWith(
+      {
+        type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+        payload: { renderData: iframeRenderData },
+        messageId,
+      },
+      '*',
+    );
+  });
+
+  it('should respond to ui-request-render-data with undefined when no render data', () => {
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    
+    const messageId = 'test-message-id-2';
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_REQUEST_RENDER_DATA,
+      messageId,
+    });
+    
+    expect(spy).toHaveBeenCalledWith(
+      {
+        type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+        payload: { renderData: undefined },
+        messageId,
+      },
+      '*',
+    );
+  });
 });
 
 // Helper to dispatch a message event

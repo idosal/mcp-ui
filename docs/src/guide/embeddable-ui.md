@@ -143,6 +143,7 @@ window.parent.postMessage(
 - [`ui-lifecycle-iframe-ready`](#ui-lifecycle-iframe-ready) - the iframe is ready to receive messages
 - [`ui-size-change`](#ui-size-change) - the iframe's size has changed and the host should adjust the iframe's size
 - [`ui-request-data`](#ui-request-data) - the iframe sends a request to the host to request data
+- [`ui-request-render-data`](#ui-request-render-data) - the iframe requests render data from the host
 
 ### `ui-lifecycle-iframe-ready`
 
@@ -204,6 +205,24 @@ window.parent.postMessage(
 ```
 
 See also [Asynchronous Data Requests with Message IDs](#asynchronous-data-requests-with-message-ids)
+
+### `ui-request-render-data`
+
+- a message that the iframe sends to the host to request render data. The message can optionally include a `messageId` to allow the iframe to track the response.
+- this message has no payload
+- the host responds with a [`ui-lifecycle-iframe-render-data`](#ui-lifecycle-iframe-render-data) message containing the render data
+
+**Example:**
+
+```typescript
+window.parent.postMessage(
+  {
+    type: "ui-request-render-data",
+    messageId: "render-data-123", // optional
+  },
+  "*"
+);
+```
 
 ## Reserved Message Types (host to iframe)
 
@@ -300,6 +319,51 @@ if (urlParams.get("waitForRenderData") === "true") {
   // If the iframe doesn't need to wait for data, we can render the default UI immediately
   renderUI();
 }
+```
+
+### Alternative: Requesting Render Data On-Demand
+
+Instead of relying on the `ui-lifecycle-iframe-ready` lifecycle event, you can explicitly request render data when needed using `ui-request-render-data`:
+
+#### In the iframe:
+
+```typescript
+// Request render data when ready
+async function requestRenderData() {
+  return new Promise((resolve, reject) => {
+    const messageId = crypto.randomUUID();
+    
+    window.parent.postMessage(
+      { type: "ui-request-render-data", messageId },
+      "*"
+    );
+
+    function handleMessage(event) {
+      if (event.data?.type !== "ui-lifecycle-iframe-render-data") return;
+      if (event.data.messageId !== messageId) return;
+      
+      window.removeEventListener("message", handleMessage);
+      
+      const { renderData, error } = event.data.payload;
+      if (error) return reject(error);
+      return resolve(renderData);
+    }
+
+    window.addEventListener("message", handleMessage);
+  });
+}
+
+// Use it when your iframe is ready
+const renderData = await requestRenderData();
+renderUI(renderData);
+```
+
+#### In the host:
+
+```typescript
+// The host handles ui-request-render-data messages automatically
+// when using the HTMLResourceRenderer component.
+// No additional code needed - just pass your render data via iframeRenderData prop.
 ```
 
 ## Asynchronous Data Requests with Message IDs
