@@ -358,14 +358,6 @@ const renderData = await requestRenderData();
 renderUI(renderData);
 ```
 
-#### In the host:
-
-```typescript
-// The host handles ui-request-render-data messages automatically
-// when using the HTMLResourceRenderer component.
-// No additional code needed - just pass your render data via iframeRenderData prop.
-```
-
 ## Asynchronous Data Requests with Message IDs
 
 Actions initiated from the iframe are handled by the host asynchronously (e.g., data requests, tool calls, etc.). It's useful for the iframe to get feedback on the status of the request and its result. This is achieved using a `messageId` to track the request through its lifecycle. Example use cases include fetching additional information, displaying a progress bar in the iframe, signaling success or failure, and more.
