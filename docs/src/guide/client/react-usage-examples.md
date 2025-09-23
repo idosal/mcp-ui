@@ -670,13 +670,6 @@ function renderUI(renderData = null) {
 </script>
 ```
 
-**Benefits of the ui-request-render-data approach:**
-- **More semantic**: Explicit requests vs. lifecycle side-effects
-- **Better timing control**: Request render data exactly when needed
-- **Request tracking**: Use messageId to track specific requests
-- **Improved reliability**: Direct request/response pattern
-- **Flexible usage**: Can re-request render data later if needed
-
 #### Passing Multiple Theme Variables
 
 ```tsx
