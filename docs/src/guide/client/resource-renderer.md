@@ -326,12 +326,6 @@ const renderData = await requestRenderData();
 renderUI(renderData);
 ```
 
-This approach provides several advantages:
-- **Semantic clarity**: Explicit render data requests vs. lifecycle side-effects
-- **Flexible timing**: Can request render data at any point, not just during initialization
-- **Request tracking**: Optional messageId support for tracking requests/responses
-- **Reliability**: Direct request/response pattern vs. automatic delivery
-
 ### Automatically Resizing the Iframe
 
 The `autoResizeIframe` prop allows you to automatically resize the iframe to the size of the content.
