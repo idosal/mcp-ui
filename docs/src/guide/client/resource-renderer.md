@@ -291,6 +291,47 @@ if (urlParams.get('waitForRenderData') === 'true') {
 }
 ```
 
+#### Alternative: Explicit Render Data Requests
+
+Instead of relying on the `ui-lifecycle-iframe-ready` lifecycle event, iframes can explicitly request render data when needed using the `ui-request-render-data` message type:
+
+```javascript
+// In the iframe's script - explicit render data request
+async function requestRenderData() {
+  return new Promise((resolve, reject) => {
+    const messageId = crypto.randomUUID();
+    
+    window.parent.postMessage(
+      { type: 'ui-request-render-data', messageId },
+      '*'
+    );
+
+    function handleMessage(event) {
+      if (event.data?.type !== 'ui-lifecycle-iframe-render-data') return;
+      if (event.data.messageId !== messageId) return;
+      
+      window.removeEventListener('message', handleMessage);
+      
+      const { renderData, error } = event.data.payload;
+      if (error) return reject(error);
+      return resolve(renderData);
+    }
+
+    window.addEventListener('message', handleMessage);
+  });
+}
+
+// Use it when your iframe is ready
+const renderData = await requestRenderData();
+renderUI(renderData);
+```
+
+This approach provides several advantages:
+- **Semantic clarity**: Explicit render data requests vs. lifecycle side-effects
+- **Flexible timing**: Can request render data at any point, not just during initialization
+- **Request tracking**: Optional messageId support for tracking requests/responses
+- **Reliability**: Direct request/response pattern vs. automatic delivery
+
 ### Automatically Resizing the Iframe
 
 The `autoResizeIframe` prop allows you to automatically resize the iframe to the size of the content.
