@@ -98,8 +98,11 @@ MCP-UI is a Model Context Protocol UI SDK monorepo providing TypeScript and Ruby
 
 ### Working with Examples
 - Examples use workspace dependencies and build independently
-- Remote DOM demo showcases client-side rendering capabilities
-- Server demos show complete MCP server implementations
+- External URL demo shows partial externalUrl content type functionality
+- Remote DOM demo shows partial remote-dom content type functionality
+- The Server demo shows a full MCP server implementation with Cloudflare
+- The Ruby and Typescript server demos show basic MCP server implementations
+- WC-demo showcases the web components client implementation
 - Always test example builds after making SDK changes
 
 ### Documentation Updates
