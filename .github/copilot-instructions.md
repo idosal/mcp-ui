@@ -17,7 +17,7 @@ MCP-UI is a Model Context Protocol UI SDK monorepo providing TypeScript and Ruby
 ### Testing (CRITICAL - Set 30+ minute timeouts)
 - Run TypeScript tests: `pnpm test:ts` -- takes ~6 seconds. NEVER CANCEL. Set timeout to 300+ seconds.
 - Run Ruby tests: `pnpm test:ruby` -- takes ~1 second. NEVER CANCEL. Set timeout to 300+ seconds.
-- Run all tests: `pnpm test` -- combines TypeScript and Ruby tests. NEVER CANCEL. Set timeout to 600+ seconds.
+- Run all tests: `pnpm test` -- combines TypeScript and Ruby tests. NEVER CANCEL. Set timeout to 300+ seconds.
 - Run with coverage: `pnpm coverage` -- NEVER CANCEL. Set timeout to 600+ seconds.
 
 ### Code Quality (Always run before committing)
