@@ -42,6 +42,11 @@ export default withMermaid(
       ],
       ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
       ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+      [
+        'style',
+        {},
+        `.VPNavBar .VPNavBarSocialLinks a[href*="npmjs.com/package/@mcp-ui/server"] { border-left: 1px solid var(--vp-c-divider); margin-left: 8px; padding-left: 12px; }`
+      ],
     ],
 
     vite: {
@@ -81,6 +86,7 @@ export default withMermaid(
                 link: '/guide/server/typescript/usage-examples',
               },
               { text: 'Ruby', link: '/guide/server/ruby/usage-examples' },
+              { text: 'Python', link: '/guide/server/python/usage-examples' },
             ],
           },
           {
@@ -109,6 +115,10 @@ export default withMermaid(
           {
             text: 'mcp_ui_server Gem',
             link: 'https://rubygems.org/gems/mcp_ui_server',
+          },
+          {
+            text: 'mcp-ui-server (PyPI)',
+            link: 'https://pypi.org/project/mcp-ui-server/',
           },
         ],
       },
@@ -161,6 +171,15 @@ export default withMermaid(
                     text: 'Usage & Examples',
                     link: '/guide/server/ruby/usage-examples',
                   },
+                ],
+              },
+              {
+                text: 'Python',
+                collapsed: false,
+                items: [
+                  { text: 'Overview', link: '/guide/server/python/overview' },
+                  { text: 'Walkthrough', link: '/guide/server/python/walkthrough' },
+                  { text: 'Usage & Examples', link: '/guide/server/python/usage-examples' },
                 ],
               },
             ],
@@ -244,6 +263,10 @@ export default withMermaid(
             svg: '<svg viewBox="0 0 256 293" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><g fill="currentColor"><path d="M76.748 97.434l-.163-.163-36.11 36.11 87.674 87.512 36.11-35.948 51.564-51.563-36.11-36.11v-.164H76.584l.163.326z"/><path d="M127.823.976L.135 74.173v146.395l127.688 73.197 127.689-73.197V74.173L127.823.976zm103.29 205.603l-103.29 59.534-103.29-59.534V87.837l103.29-59.534 103.29 59.534v118.742z"/></g></svg>',
           },
           link: 'https://rubygems.org/gems/mcp_ui_server',
+        },
+        {
+          icon: 'pypi',
+          link: 'https://pypi.org/project/mcp-ui-server/',
         },
       ],
 

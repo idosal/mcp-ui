@@ -8,6 +8,7 @@
   <a href="https://www.npmjs.com/package/@mcp-ui/server"><img src="https://img.shields.io/npm/v/@mcp-ui/server?label=server&color=green" alt="Server Version"></a>
   <a href="https://www.npmjs.com/package/@mcp-ui/client"><img src="https://img.shields.io/npm/v/@mcp-ui/client?label=client&color=blue" alt="Client Version"></a>
   <a href="https://rubygems.org/gems/mcp_ui_server"><img src="https://img.shields.io/gem/v/mcp_ui_server" alt="Ruby Server SDK Version"></a>
+  <a href="https://pypi.org/project/mcp-ui-server/"><img src="https://img.shields.io/pypi/v/mcp-ui-server?label=python&color=yellow" alt="Python Server SDK Version"></a>
   <a href="https://discord.gg/CEAG4KW7ZH"><img src="https://img.shields.io/discord/1401195140436983879?logo=discord&label=discord" alt="Discord"></a>
   <a href="https://gitmcp.io/idosal/mcp-ui"><img src="https://img.shields.io/endpoint?url=https://gitmcp.io/badge/idosal/mcp-ui" alt="MCP Documentation"></a>
 </p>
@@ -43,6 +44,7 @@
 * **`@mcp-ui/server` (TypeScript)**: Utilities to generate UI resources (`UIResource`) on your MCP server.
 * **`@mcp-ui/client` (TypeScript)**: UI components (e.g., `<UIResourceRenderer />`) to render the UI resources and handle their events.
 * **`mcp_ui_server` (Ruby)**: Utilities to generate UI resources on your MCP server in a Ruby environment.
+* **`mcp-ui-server` (Python)**: Utilities to generate UI resources on your MCP server in a Python environment.
 
 Together, they let you define reusable UI snippets on the server side, seamlessly and securely render them in the client, and react to their actions in the MCP host environment.
 
@@ -162,6 +164,16 @@ yarn add @mcp-ui/server @mcp-ui/client
 gem install mcp_ui_server
 ```
 
+### Python
+
+```bash
+# using pip
+pip install mcp-ui-server
+
+# or uv
+uv add mcp-ui-server
+```
+
 ## 🚀 Getting Started
 
 You can use [GitMCP](https://gitmcp.io/idosal/mcp-ui) to give your IDE access to `mcp-ui`'s latest documentation! 
@@ -235,6 +247,28 @@ You can use [GitMCP](https://gitmcp.io/idosal/mcp-ui) to give your IDE access to
    }
    ```
 
+### Python
+
+**Server-side**: Build your UI resources
+
+   ```python
+   from mcp_ui_server import create_ui_resource
+
+   # Inline HTML
+   html_resource = create_ui_resource({
+     "uri": "ui://greeting/1",
+     "content": { "type": "rawHtml", "htmlString": "<p>Hello, from Python!</p>" },
+     "encoding": "text",
+   })
+
+   # External URL
+   external_url_resource = create_ui_resource({
+     "uri": "ui://greeting/2",
+     "content": { "type": "externalUrl", "iframeUrl": "https://example.com" },
+     "encoding": "text",
+   })
+   ```
+
 ### Ruby
 
 **Server-side**: Build your UI resources
@@ -281,6 +315,7 @@ For a detailed, simple, step-by-step guide on how to integrate `mcp-ui` into you
 
 - **[TypeScript Server Walkthrough](https://mcpui.dev/guide/server/typescript/walkthrough)**
 - **[Ruby Server Walkthrough](https://mcpui.dev/guide/server/ruby/walkthrough)**
+- **[Python Server Walkthrough](https://mcpui.dev/guide/server/python/walkthrough)**
 
 These guides will show you how to add a `mcp-ui` endpoint to an existing server, create tools that return UI resources, and test your setup with the `ui-inspector`!
 
@@ -299,6 +334,7 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
     * **HTTP Streaming**: `https://remote-mcp-server-authless.idosalomon.workers.dev/mcp`
     * **SSE**: `https://remote-mcp-server-authless.idosalomon.workers.dev/sse`
 * **Ruby**: A barebones [demo server](/examples/ruby-server-demo) that shows how to use `mcp_ui_server` and `mcp` gems together.
+* **Python**: A simple [demo server](/examples/python-server-demo) that shows how to use the `mcp-ui-server` Python package.
 
 Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a supported local inspector, see the [ui-inspector](https://github.com/idosal/ui-inspector).
 
