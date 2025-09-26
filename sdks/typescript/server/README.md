@@ -8,6 +8,8 @@
   <a href="https://www.npmjs.com/package/@mcp-ui/server"><img src="https://img.shields.io/npm/v/@mcp-ui/server?label=server&color=green" alt="Server Version"></a>
   <a href="https://www.npmjs.com/package/@mcp-ui/client"><img src="https://img.shields.io/npm/v/@mcp-ui/client?label=client&color=blue" alt="Client Version"></a>
   <a href="https://rubygems.org/gems/mcp_ui_server"><img src="https://img.shields.io/gem/v/mcp_ui_server" alt="Ruby Server SDK Version"></a>
+  <a href="https://pypi.org/project/mcp-ui-server/"><img src="https://img.shields.io/pypi/v/mcp-ui-server?label=python&color=yellow" alt="Python Server SDK Version"></a>
+  <a href="https://discord.gg/CEAG4KW7ZH"><img src="https://img.shields.io/discord/1401195140436983879?logo=discord&label=discord" alt="Discord"></a>
   <a href="https://gitmcp.io/idosal/mcp-ui"><img src="https://img.shields.io/endpoint?url=https://gitmcp.io/badge/idosal/mcp-ui" alt="MCP Documentation"></a>
 </p>
 
@@ -18,6 +20,7 @@
   <a href="#-getting-started">Getting Started</a> •
   <a href="#-walkthrough">Walkthrough</a> •
   <a href="#-examples">Examples</a> •
+  <a href="#-supported-hosts">Supported Hosts</a> •
   <a href="#-security">Security</a> •
   <a href="#-roadmap">Roadmap</a> •
   <a href="#-contributing">Contributing</a> •
@@ -41,6 +44,7 @@
 * **`@mcp-ui/server` (TypeScript)**: Utilities to generate UI resources (`UIResource`) on your MCP server.
 * **`@mcp-ui/client` (TypeScript)**: UI components (e.g., `<UIResourceRenderer />`) to render the UI resources and handle their events.
 * **`mcp_ui_server` (Ruby)**: Utilities to generate UI resources on your MCP server in a Ruby environment.
+* **`mcp-ui-server` (Python)**: Utilities to generate UI resources on your MCP server in a Python environment.
 
 Together, they let you define reusable UI snippets on the server side, seamlessly and securely render them in the client, and react to their actions in the MCP host environment.
 
@@ -73,6 +77,10 @@ interface UIResource {
 
 The UI Resource is rendered in the `<UIResourceRenderer />` component. It automatically detects the resource type and renders the appropriate component.
 
+It is available as a React component and as a Web Component.
+
+**React Component**
+
 It accepts the following props:
 - **`resource`**: The resource object from an MCP Tool response. It must include `uri`, `mimeType`, and content (`text`, `blob`)
 - **`onUIAction`**: Optional callback for handling UI actions from the resource:
@@ -88,9 +96,32 @@ It accepts the following props:
 - **`htmlProps`**: Optional props for the internal `<HTMLResourceRenderer>`
   - **`style`**: Optional custom styles for the iframe
   - **`iframeProps`**: Optional props passed to the iframe element
+  - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
+  - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
 - **`remoteDomProps`**: Optional props for the internal `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: remote element definitions for Remote DOM resources.
+
+**Web Component**
+
+The Web Component is available as `<ui-resource-renderer>`. It accepts the same props as the React component, but they must be passed as strings.
+
+Example:
+```html
+<ui-resource-renderer
+  resource='{ "mimeType": "text/html", "text": "<h2>Hello from the Web Component!</h2>" }'
+></ui-resource-renderer>
+```
+
+The `onUIAction` prop can be handled by attaching an event listener to the component:
+```javascript
+const renderer = document.querySelector('ui-resource-renderer');
+renderer.addEventListener('onUIAction', (event) => {
+  console.log('Action:', event.detail);
+});
+```
+
+The Web Component is available in the `@mcp-ui/client` package at `dist/ui-resource-renderer.wc.js`.
 
 ### Supported Resource Types
 
@@ -131,6 +162,16 @@ yarn add @mcp-ui/server @mcp-ui/client
 
 ```bash
 gem install mcp_ui_server
+```
+
+### Python
+
+```bash
+# using pip
+pip install mcp-ui-server
+
+# or uv
+uv add mcp-ui-server
 ```
 
 ## 🚀 Getting Started
@@ -206,6 +247,28 @@ You can use [GitMCP](https://gitmcp.io/idosal/mcp-ui) to give your IDE access to
    }
    ```
 
+### Python
+
+**Server-side**: Build your UI resources
+
+   ```python
+   from mcp_ui_server import create_ui_resource
+
+   # Inline HTML
+   html_resource = create_ui_resource({
+     "uri": "ui://greeting/1",
+     "content": { "type": "rawHtml", "htmlString": "<p>Hello, from Python!</p>" },
+     "encoding": "text",
+   })
+
+   # External URL
+   external_url_resource = create_ui_resource({
+     "uri": "ui://greeting/2",
+     "content": { "type": "externalUrl", "iframeUrl": "https://example.com" },
+     "encoding": "text",
+   })
+   ```
+
 ### Ruby
 
 **Server-side**: Build your UI resources
@@ -252,15 +315,19 @@ For a detailed, simple, step-by-step guide on how to integrate `mcp-ui` into you
 
 - **[TypeScript Server Walkthrough](https://mcpui.dev/guide/server/typescript/walkthrough)**
 - **[Ruby Server Walkthrough](https://mcpui.dev/guide/server/ruby/walkthrough)**
+- **[Python Server Walkthrough](https://mcpui.dev/guide/server/python/walkthrough)**
 
 These guides will show you how to add a `mcp-ui` endpoint to an existing server, create tools that return UI resources, and test your setup with the `ui-inspector`!
 
 ## 🌍 Examples
 
 **Client Examples**
-* [ui-inspector](https://github.com/idosal/ui-inspector) - inspect local `mcp-ui`-enabled servers. 
+* [Goose](https://github.com/block/goose) - open source AI agent that supports `mcp-ui`.
+* [LibreChat](https://github.com/danny-avila/LibreChat) - enhanced ChatGPT clone that supports `mcp-ui`.
+* [ui-inspector](https://github.com/idosal/ui-inspector) - inspect local `mcp-ui`-enabled servers.
 * [MCP-UI Chat](https://github.com/idosal/scira-mcp-ui-chat) - interactive chat built with the `mcp-ui` client. Check out the [hosted version](https://scira-mcp-chat-git-main-idosals-projects.vercel.app/)!
-* MCP-UI RemoteDOM Playground (`examples/remote-dom-demo`) - local demo app to test RemoteDOM resources (intended for hosts)
+* MCP-UI RemoteDOM Playground (`examples/remote-dom-demo`) - local demo app to test RemoteDOM resources
+* MCP-UI Web Component Demo (`examples/wc-demo`) - local demo app to test the Web Component integration in hosts
 
 **Server Examples**
 * **TypeScript**: A [full-featured server](examples/server) that is deployed to a hosted environment for easy testing.
@@ -269,14 +336,31 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
     * **HTTP Streaming**: `https://remote-mcp-server-authless.idosalomon.workers.dev/mcp`
     * **SSE**: `https://remote-mcp-server-authless.idosalomon.workers.dev/sse`
 * **Ruby**: A barebones [demo server](/examples/ruby-server-demo) that shows how to use `mcp_ui_server` and `mcp` gems together.
+* **Python**: A simple [demo server](/examples/python-server-demo) that shows how to use the `mcp-ui-server` Python package.
+* [XMCP](https://github.com/basementstudio/xmcp/tree/main/examples/mcp-ui) - Typescript MCP framework with `mcp-ui` starter example.
 
 Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a supported local inspector, see the [ui-inspector](https://github.com/idosal/ui-inspector).
 
+## 💻 Supported Hosts
 
+`mcp-ui` is supported by a growing number of MCP-compatible clients. Feature support varies by host:
+
+| Host      | Rendering | UI Actions |
+| :-------- | :-------: | :--------: |
+| [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
+| [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
+| [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
+| [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
+| [fast-agent](https://fast-agent.ai/mcp/mcp-ui/) | ✅ | ❌ |
+| [VSCode](https://github.com/microsoft/vscode/issues/260218) (TBA)    |    ?    |    ?     |
+
+**Legend:**
+- ✅: Supported
+- ⚠️: Partial Support
+- ❌: Not Supported (yet)
 
 ## 🔒 Security
 Host and user security is one of `mcp-ui`'s primary concerns. In all content types, the remote code is executed in a sandboxed iframe.
-
 
 ## 🛣️ Roadmap
 
@@ -285,15 +369,17 @@ Host and user security is one of `mcp-ui`'s primary concerns. In all content typ
 - [X] Support Web Components
 - [X] Support Remote-DOM
 - [ ] Add component libraries (in progress)
-- [ ] Add SDKs for additional programming languages (in progress; Ruby available)
+- [ ] Add SDKs for additional programming languages (in progress; Ruby, Python available)
 - [ ] Support additional frontend frameworks
 - [ ] Add declarative UI content type
 - [ ] Support generative UI?
       
+## Core Team
+`mcp-ui` is a project by [Ido Salomon](https://x.com/idosal1), in collaboration with [Liad Yosef](https://x.com/liadyosef).
+
 ## 🤝 Contributing
 
 Contributions, ideas, and bug reports are welcome! See the [contribution guidelines](https://github.com/idosal/mcp-ui/blob/main/.github/CONTRIBUTING.md) to get started.
-
 
 ## 📄 License
 

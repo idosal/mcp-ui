@@ -322,10 +322,12 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
 ## 🌍 Examples
 
 **Client Examples**
+* [Goose](https://github.com/block/goose) - open source AI agent that supports `mcp-ui`.
+* [LibreChat](https://github.com/danny-avila/LibreChat) - enhanced ChatGPT clone that supports `mcp-ui`.
 * [ui-inspector](https://github.com/idosal/ui-inspector) - inspect local `mcp-ui`-enabled servers.
 * [MCP-UI Chat](https://github.com/idosal/scira-mcp-ui-chat) - interactive chat built with the `mcp-ui` client. Check out the [hosted version](https://scira-mcp-chat-git-main-idosals-projects.vercel.app/)!
-* MCP-UI RemoteDOM Playground (`examples/remote-dom-demo`) - local demo app to test RemoteDOM resources (intended for hosts)
-* MCP-UI Web Component Demo (`examples/wc-demo`) - local demo app to test the Web Component
+* MCP-UI RemoteDOM Playground (`examples/remote-dom-demo`) - local demo app to test RemoteDOM resources
+* MCP-UI Web Component Demo (`examples/wc-demo`) - local demo app to test the Web Component integration in hosts
 
 **Server Examples**
 * **TypeScript**: A [full-featured server](examples/server) that is deployed to a hosted environment for easy testing.
@@ -335,6 +337,7 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
     * **SSE**: `https://remote-mcp-server-authless.idosalomon.workers.dev/sse`
 * **Ruby**: A barebones [demo server](/examples/ruby-server-demo) that shows how to use `mcp_ui_server` and `mcp` gems together.
 * **Python**: A simple [demo server](/examples/python-server-demo) that shows how to use the `mcp-ui-server` Python package.
+* [XMCP](https://github.com/basementstudio/xmcp/tree/main/examples/mcp-ui) - Typescript MCP framework with `mcp-ui` starter example.
 
 Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a supported local inspector, see the [ui-inspector](https://github.com/idosal/ui-inspector).
 
@@ -359,7 +362,6 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a su
 ## 🔒 Security
 Host and user security is one of `mcp-ui`'s primary concerns. In all content types, the remote code is executed in a sandboxed iframe.
 
-
 ## 🛣️ Roadmap
 
 - [X] Add online playground
@@ -367,7 +369,7 @@ Host and user security is one of `mcp-ui`'s primary concerns. In all content typ
 - [X] Support Web Components
 - [X] Support Remote-DOM
 - [ ] Add component libraries (in progress)
-- [ ] Add SDKs for additional programming languages (in progress; Ruby available)
+- [ ] Add SDKs for additional programming languages (in progress; Ruby, Python available)
 - [ ] Support additional frontend frameworks
 - [ ] Add declarative UI content type
 - [ ] Support generative UI?
@@ -378,7 +380,6 @@ Host and user security is one of `mcp-ui`'s primary concerns. In all content typ
 ## 🤝 Contributing
 
 Contributions, ideas, and bug reports are welcome! See the [contribution guidelines](https://github.com/idosal/mcp-ui/blob/main/.github/CONTRIBUTING.md) to get started.
-
 
 ## 📄 License
 
