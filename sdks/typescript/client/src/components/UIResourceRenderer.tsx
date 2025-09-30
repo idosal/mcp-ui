@@ -1,18 +1,20 @@
-import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { ResourceContentType, UIActionResult } from '../types';
 import { HTMLResourceRenderer, HTMLResourceRendererProps } from './HTMLResourceRenderer';
 import { RemoteDOMResourceProps, RemoteDOMResourceRenderer } from './RemoteDOMResourceRenderer';
 import { basicComponentLibrary } from '../remote-dom/component-libraries/basic';
 
 export type UIResourceRendererProps = {
-  resource: Partial<Resource>;
+  resource: Partial<EmbeddedResource>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
   htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction'>;
   remoteDomProps?: Omit<RemoteDOMResourceProps, 'resource' | 'onUIAction'>;
 };
 
-function getContentType(resource: Partial<Resource>): ResourceContentType | undefined {
+function getContentType(
+  resource: Partial<EmbeddedResource['resource']>,
+): ResourceContentType | undefined {
   if (resource.contentType) {
     return resource.contentType as ResourceContentType;
   }
