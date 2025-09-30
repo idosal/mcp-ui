@@ -4,6 +4,7 @@
 
 | Host      | Rendering | UI Actions |
 | :-------- | :-------: | :--------: |
+| [Nanobot](https://www.nanobot.ai/)    |     ✅    |     ✅     |
 | [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
 | [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
 | [LibreChat](https://www.librechat.ai/)    |     ✅    |     ⚠️     |

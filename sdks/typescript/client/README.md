@@ -347,8 +347,10 @@ Drop those URLs into any MCP-compatible host to see `mcp-ui` in action. For a su
 
 | Host      | Rendering | UI Actions |
 | :-------- | :-------: | :--------: |
+| [Nanobot](https://www.nanobot.ai/)    |     ✅    |     ✅     |
 | [Postman](https://www.postman.com/)   |     ✅    |     ⚠️      |
 | [Goose](https://block.github.io/goose/)     |     ✅    |     ⚠️      |
+| [LibreChat](https://www.librechat.ai/)    |     ✅    |     ⚠️     |
 | [Smithery](https://smithery.ai/playground)  |     ✅    |     ❌     |
 | [MCPJam](https://www.mcpjam.com/)    |     ✅    |     ❌     |
 | [fast-agent](https://fast-agent.ai/mcp/mcp-ui/) | ✅ | ❌ |
