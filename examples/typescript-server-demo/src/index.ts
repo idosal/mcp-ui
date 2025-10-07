@@ -1,10 +1,14 @@
 import express from 'express';
+import { z } from "zod";
 import cors from 'cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createUIResource } from '@mcp-ui/server';
 import { randomUUID } from 'crypto';
+import { generateFlightResultsHTML } from './utils/htmlResource.js';
+import { getFlightRequestSchemaAsZod, getFlightResponseSchemaAsZod } from './utils/schema.js';
+import { getAvailableFlights } from './utils/data.js';
 
 const app = express();
 const port = 3000;
@@ -44,7 +48,7 @@ app.post('/mcp', async (req, res) => {
         delete transports[transport.sessionId];
       }
     };
-    
+
     // Create a new server instance for this specific session.
     const server = new McpServer({
       name: "typescript-server-demo",
@@ -52,15 +56,50 @@ app.post('/mcp', async (req, res) => {
     });
 
     // Register our tools on the new server instance.
-    server.registerTool('showExternalUrl', {
-      title: 'Show External URL',
-      description: 'Creates a UI resource displaying an external URL (example.com).',
-      inputSchema: {},
+    server.registerTool('getFlightResultsAsStructuredContent', {
+      title: 'Search Flights',
+      description: 'Search for available flights between two cities on a specific date. Returns flight details including prices and times.',
+      inputSchema: getFlightRequestSchemaAsZod(),
+      outputSchema: getFlightResponseSchemaAsZod(),
+    }, async ({ originCity, destinationCity, dateOfTravel, filters }) => {
+      console.log(`Flight search - Origin: ${originCity}, Destination: ${destinationCity}, Date: ${dateOfTravel}, Filters: ${JSON.stringify(filters)}`);
+      const flightData = getAvailableFlights(originCity, destinationCity, filters.price, filters.discountPercentage);
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify(flightData),
+        }],
+        structuredContent: flightData,
+      };
+    });
+
+    server.registerTool('getFlightResultsAsRawHtml', {
+      title: 'Search Flights',
+      description: 'Search for available flights between two cities on a specific date. Returns flight details including prices and times.  Returns the results as raw HTML.',
+      inputSchema: getFlightRequestSchemaAsZod(),
+    }, async ({ originCity, destinationCity, dateOfTravel, filters }) => {
+      console.log(`Flight search - Origin: ${originCity}, Destination: ${destinationCity}, Date: ${dateOfTravel}, Filters: ${JSON.stringify(filters)}`);
+      const flightData = getAvailableFlights(originCity, destinationCity, filters.price, filters.discountPercentage);
+      const flightDataHtml = generateFlightResultsHTML(flightData, originCity, destinationCity, dateOfTravel);
+      const uiResource = createUIResource({
+        uri: 'ui://raw-html-demo',
+        content: { type: 'rawHtml', htmlString: flightDataHtml },
+        encoding: 'text',
+      });
+      return {
+        content: [uiResource]
+      };
+    });
+
+    server.registerTool('getFlightsAsExternalUrl', {
+      title: 'Search Flights',
+      description: 'Search for available flights between two cities on a specific date. Returns flight details including prices and times.  Returns the results as a Lightning Out component',
+      inputSchema: getFlightRequestSchemaAsZod()
     }, async () => {
       // Create the UI resource to be returned to the client
       // This is the only MCP-UI specific code in this example
       const uiResource = createUIResource({
-        uri: 'ui://greeting',
+        uri: 'ui://external-url-demo',
         content: { type: 'externalUrl', iframeUrl: 'https://example.com' },
         encoding: 'text',
       });
@@ -70,25 +109,28 @@ app.post('/mcp', async (req, res) => {
       };
     });
 
-    server.registerTool('showRawHtml', {
-      title: 'Show Raw HTML',
-      description: 'Creates a UI resource displaying raw HTML.',
-      inputSchema: {},
-    }, async () => {
+    server.registerTool('getFlightResultsAsUem', {
+      title: 'Search Flights',
+      description: 'Search for available flights between two cities on a specific date. Returns flight details including prices and times.  Returns the results as UEM that is translated client-side.',
+      inputSchema: getFlightRequestSchemaAsZod()
+    }, async ({ originCity, destinationCity, dateOfTravel, filters }) => {
+      console.log(`Flight search - Origin: ${originCity}, Destination: ${destinationCity}, Date: ${dateOfTravel}, Filters: ${JSON.stringify(filters)}`);
+      const flightData = getAvailableFlights(originCity, destinationCity, filters.price, filters.discountPercentage);
+      const flightDataHtml = generateFlightResultsHTML(flightData, originCity, destinationCity, dateOfTravel, dateOfTravel);
+      // TODO: Create a new UEM UIResource type
       const uiResource = createUIResource({
-        uri: 'ui://raw-html-demo',
-        content: { type: 'rawHtml', htmlString: '<h1>Hello from Raw HTML</h1>' },
+        uri: 'ui://uem-demo',
+        content: { type: 'rawHtml', htmlString: flightDataHtml },
         encoding: 'text',
       });
-
       return {
-        content: [uiResource],
+        content: [uiResource]
       };
     });
 
     server.registerTool('showRemoteDom', {
       title: 'Show Remote DOM',
-      description: 'Creates a UI resource displaying a remote DOM script.',
+      description: 'Shows todays weather forecast using remote DOM script.',
       inputSchema: {},
     }, async () => {
       const remoteDomScript = `
@@ -110,7 +152,7 @@ app.post('/mcp', async (req, res) => {
         content: [uiResource],
       };
     });
-  
+
     // Connect the server instance to the transport for this session.
     await server.connect(transport);
   } else {
@@ -130,7 +172,7 @@ const handleSessionRequest = async (req: express.Request, res: express.Response)
   if (!sessionId || !transports[sessionId]) {
     return res.status(404).send('Session not found');
   }
-  
+
   const transport = transports[sessionId];
   await transport.handleRequest(req, res);
 };
