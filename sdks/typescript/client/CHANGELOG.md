@@ -1,3 +1,10 @@
+## [5.12.1](https://github.com/idosal/mcp-ui/compare/v5.12.0...v5.12.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* update isUIResource to use EmbeddedResource type ([#122](https://github.com/idosal/mcp-ui/issues/122)) ([5a65a0b](https://github.com/idosal/mcp-ui/commit/5a65a0b1ba63e6cfda26b8da41239a532f00d60a)), closes [#117](https://github.com/idosal/mcp-ui/issues/117)
+
 # [5.12.0](https://github.com/idosal/mcp-ui/compare/v5.11.0...v5.12.0) (2025-09-23)
 
 
