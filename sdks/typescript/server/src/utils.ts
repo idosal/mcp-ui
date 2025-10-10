@@ -1,5 +1,6 @@
-import type { CreateUIResourceOptions, UIResourceProps } from './types.js';
+import type { CreateUIResourceOptions, UIResourceProps, AdaptersConfig } from './types.js';
 import { UI_METADATA_PREFIX } from './types.js';
+import { getAppsSdkAdapterScript } from './adapters/appssdk/adapter.js';
 
 export function getAdditionalResourceProps(
   resourceOptions: Partial<CreateUIResourceOptions>,
@@ -59,4 +60,56 @@ export function utf8ToBase64(str: string): string {
       );
     }
   }
+}
+
+/**
+ * Wraps HTML content with enabled adapter scripts.
+ * This allows the HTML to communicate with different platform environments.
+ *
+ * @param htmlContent - The HTML content to wrap
+ * @param adaptersConfig - Configuration for all adapters
+ * @returns The wrapped HTML content with adapter scripts injected
+ */
+export function wrapHtmlWithAdapters(
+  htmlContent: string,
+  adaptersConfig?: AdaptersConfig,
+): string {
+  if (!adaptersConfig) {
+    return htmlContent;
+  }
+
+  let wrappedHtml = htmlContent;
+  const adapterScripts: string[] = [];
+
+  // Apps SDK adapter
+  if (adaptersConfig.appsSdk?.enabled) {
+    const script = getAppsSdkAdapterScript(adaptersConfig.appsSdk.config);
+    adapterScripts.push(script);
+  }
+
+  // Future adapters can be added here
+  // if (adaptersConfig.anotherPlatform?.enabled) {
+  //   adapterScripts.push(getAnotherPlatformAdapterScript(adaptersConfig.anotherPlatform.config));
+  // }
+
+  // If no adapters are enabled, return original HTML
+  if (adapterScripts.length === 0) {
+    return htmlContent;
+  }
+
+  // Combine all adapter scripts
+  const combinedScripts = adapterScripts.join('\n');
+
+  // If the HTML already has a <head> tag, inject the adapter scripts into it
+  if (wrappedHtml.includes('<head>')) {
+    return wrappedHtml.replace('<head>', `<head>\n${combinedScripts}`);
+  }
+
+  // If the HTML has an <html> tag but no <head>, add a <head> with the adapter scripts
+  if (wrappedHtml.includes('<html>')) {
+    return wrappedHtml.replace('<html>', `<html>\n<head>\n${combinedScripts}\n</head>`);
+  }
+
+  // Otherwise, prepend the adapter scripts before the content
+  return `${combinedScripts}\n${wrappedHtml}`;
 }
