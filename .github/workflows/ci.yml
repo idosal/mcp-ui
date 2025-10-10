@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - alpha
   pull_request:
     branches:
       - main
+      - alpha
   release:
     types: [published]
 
@@ -141,7 +143,7 @@ jobs:
 
   release_ts_client:
     needs: [js_build_and_test, filter_changed_paths]
-    if: github.ref == 'refs/heads/main' && needs.filter_changed_paths.outputs.ts_client_files == 'true'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') && needs.filter_changed_paths.outputs.ts_client_files == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -169,7 +171,7 @@ jobs:
     needs: [js_build_and_test, release_ts_client, filter_changed_paths]
     if: >
       always() &&
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
       needs.filter_changed_paths.outputs.ts_server_files == 'true' &&
       needs.js_build_and_test.result == 'success'
     runs-on: ubuntu-latest
@@ -180,8 +182,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - name: Pull latest changes from main
-        run: git pull --rebase origin main
+      - name: Pull latest changes
+        run: git pull --rebase origin ${{ github.ref_name }}
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
@@ -202,7 +204,7 @@ jobs:
     needs: [ruby_sdk_test, release_ts_server, filter_changed_paths]
     if: >
       always() &&
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
       needs.filter_changed_paths.outputs.ruby_sdk_files == 'true' &&
       needs.ruby_sdk_test.result == 'success'
     runs-on: ubuntu-latest
@@ -215,8 +217,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - name: Pull latest changes from main
-        run: git pull --rebase origin main
+      - name: Pull latest changes
+        run: git pull --rebase origin ${{ github.ref_name }}
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
@@ -245,7 +247,7 @@ jobs:
     needs: [python_sdk_test, release_ruby_sdk, filter_changed_paths]
     if: >
       always() &&
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
       needs.filter_changed_paths.outputs.python_sdk_files == 'true' &&
       needs.python_sdk_test.result == 'success'
     runs-on: ubuntu-latest
