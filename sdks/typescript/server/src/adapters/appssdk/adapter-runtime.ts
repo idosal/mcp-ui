@@ -18,7 +18,7 @@ import type { UIActionResult } from '../../types.js';
  */
 class MCPUIAppsSdkAdapter {
   private config: Required<AppsSdkAdapterConfig>;
-  private pendingRequests: Map<string, PendingRequest<any>> = new Map();
+  private pendingRequests: Map<string, PendingRequest<unknown>> = new Map();
   private messageIdCounter = 0;
   private originalPostMessage: typeof window.parent.postMessage | null = null;
 
@@ -69,7 +69,8 @@ class MCPUIAppsSdkAdapter {
     // Restore original postMessage if we saved it
     if (this.originalPostMessage) {
       try {
-        (window.parent as any).postMessage = this.originalPostMessage;
+        const originalPostMessage = this.originalPostMessage;
+        (window.parent as Window & { postMessage: typeof originalPostMessage }).postMessage = originalPostMessage;
         this.config.logger.log('[MCPUI-Apps SDK Adapter] Restored original parent.postMessage');
       } catch (error) {
         this.config.logger.error('[MCPUI-Apps SDK Adapter] Failed to restore original postMessage:', error);
@@ -94,16 +95,17 @@ class MCPUIAppsSdkAdapter {
     }
 
     // Create the interceptor function
-    const postMessageInterceptor = (message: any, targetOrigin?: any, transfer?: any): void => {
+    const postMessageInterceptor = (message: unknown, targetOrigin?: string, transfer?: Transferable[]): void => {
       // Check if this is an MCP-UI message
       if (this.isMCPUIMessage(message)) {
-        this.config.logger.debug('[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:', message.type);
-        this.handleMCPUIMessage(message as MCPUIMessage);
+        const mcpMessage = message as MCPUIMessage;
+        this.config.logger.debug('[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:', mcpMessage.type);
+        this.handleMCPUIMessage(mcpMessage);
       } else {
         // Forward non-MCP-UI messages to the original postMessage if it exists
         if (this.originalPostMessage) {
           this.config.logger.debug('[MCPUI-Apps SDK Adapter] Forwarding non-MCP-UI message to original postMessage');
-          this.originalPostMessage(message, targetOrigin, transfer);
+          this.originalPostMessage(message, targetOrigin ?? '*', transfer);
         } else {
           this.config.logger.warn('[MCPUI-Apps SDK Adapter] No original postMessage to forward to, ignoring message:', message);
         }
@@ -112,7 +114,7 @@ class MCPUIAppsSdkAdapter {
 
     try {
       // Replace parent.postMessage with our interceptor
-      (window.parent as any).postMessage = postMessageInterceptor;
+      (window.parent as Window & { postMessage: typeof postMessageInterceptor }).postMessage = postMessageInterceptor;
     } catch (error) {
       this.config.logger.error('[MCPUI-Apps SDK Adapter] Failed to monkey-patch parent.postMessage:', error);
     }
@@ -395,7 +397,7 @@ class MCPUIAppsSdkAdapter {
       this.pendingRequests.set(requestId, {
         messageId: requestId,
         type: 'generic',
-        resolve,
+        resolve: resolve as (value: unknown) => void,
         reject,
         timeoutId,
       });
@@ -458,7 +460,7 @@ export function uninstallAdapter(): void {
  * Auto-install the adapter when this module is loaded
  * Can be disabled by setting window.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL = true before loading
  */
-if (typeof window !== 'undefined' && !(window as any).MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL) {
+if (typeof window !== 'undefined' && !(window as Window & { MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL?: boolean }).MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL) {
   initAdapter();
 }
 

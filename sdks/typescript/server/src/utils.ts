@@ -78,7 +78,7 @@ export function wrapHtmlWithAdapters(
     return htmlContent;
   }
 
-  let wrappedHtml = htmlContent;
+  const wrappedHtml = htmlContent;
   const adapterScripts: string[] = [];
 
   // Apps SDK adapter
