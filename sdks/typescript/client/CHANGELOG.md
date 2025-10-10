@@ -1,3 +1,10 @@
+# [5.13.0-alpha.2](https://github.com/idosal/mcp-ui/compare/v5.13.0-alpha.1...v5.13.0-alpha.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* adapter version ([259c842](https://github.com/idosal/mcp-ui/commit/259c84247a00933575e1fff08674cce52be59973))
+
 # [5.13.0-alpha.1](https://github.com/idosal/mcp-ui/compare/v5.12.1...v5.13.0-alpha.1) (2025-10-10)
 
 
