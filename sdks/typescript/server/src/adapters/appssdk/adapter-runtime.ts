@@ -246,7 +246,7 @@ class MCPUIAppsSdkAdapter {
 
     // Convert to prompt
     const { intent, params } = message.payload;
-    const prompt = `${intent}${params ? ': ' + JSON.stringify(params) : ''}`;
+    const prompt = `${intent}${params ? `: ${JSON.stringify(params)}` : ''}`;
 
     try {
       if (!window.openai?.sendFollowUpMessage) {
