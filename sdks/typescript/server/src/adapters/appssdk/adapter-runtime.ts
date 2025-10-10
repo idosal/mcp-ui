@@ -14,7 +14,7 @@ import type {
 import type { UIActionResult } from '../../types.js';
 
 /**
- * Main adapter class that handles protocol translation
+ * Main adapter class that handles the protocol translation
  */
 class MCPUIAppsSdkAdapter {
   private config: Required<AppsSdkAdapterConfig>;
