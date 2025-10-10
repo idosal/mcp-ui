@@ -307,7 +307,7 @@ class MCPUIAppsSdkAdapter {
    * Setup listeners for Apps SDK events
    */
   private setupAppsSdkEventListeners(): void {
-    window.addEventListener('openai:set_globals', ((_: Event) => {
+    window.addEventListener('openai:set_globals', (() => {
       this.config.logger.debug('[MCPUI-Apps SDK Adapter] Globals updated');
       this.sendRenderData();
     }));
