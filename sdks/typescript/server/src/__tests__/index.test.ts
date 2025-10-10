@@ -265,6 +265,79 @@ describe('@mcp-ui/server', () => {
         "MCP-UI SDK: content.script must be provided as a string when content.type is 'remoteDom'.",
       );
     });
+
+    it('should use text/html+skybridge mime type when appsSdk adapter is enabled', () => {
+      const options = {
+        uri: 'ui://test-html-adapter' as const,
+        content: { type: 'rawHtml' as const, htmlString: '<p>Test with adapter</p>' },
+        encoding: 'text' as const,
+        adapters: {
+          appsSdk: { enabled: true },
+        },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.mimeType).toBe('text/html+skybridge');
+      expect(resource.resource.text).toContain('<script>');
+      expect(resource.resource.text).toContain('MCP_APPSSDK_ADAPTER');
+    });
+
+    it('should use custom mime type from appsSdk adapter config', () => {
+      const options = {
+        uri: 'ui://test-html-adapter-custom' as const,
+        content: { type: 'rawHtml' as const, htmlString: '<p>Test with custom adapter</p>' },
+        encoding: 'text' as const,
+        adapters: {
+          appsSdk: { enabled: true, mimeType: 'text/html+custom-platform' },
+        },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.mimeType).toBe('text/html+custom-platform');
+      expect(resource.resource.text).toContain('<script>');
+    });
+
+    it('should use text/html mime type when no adapters are enabled', () => {
+      const options = {
+        uri: 'ui://test-html-no-adapter' as const,
+        content: { type: 'rawHtml' as const, htmlString: '<p>Test without adapter</p>' },
+        encoding: 'text' as const,
+        adapters: {
+          appsSdk: { enabled: false },
+        },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.mimeType).toBe('text/html');
+      expect(resource.resource.text).toBe('<p>Test without adapter</p>');
+    });
+
+    it('should use text/html mime type when adapters config is not provided', () => {
+      const options = {
+        uri: 'ui://test-html-no-config' as const,
+        content: { type: 'rawHtml' as const, htmlString: '<p>Test no config</p>' },
+        encoding: 'text' as const,
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.mimeType).toBe('text/html');
+      expect(resource.resource.text).toBe('<p>Test no config</p>');
+    });
+
+    it('should work with blob encoding and appsSdk adapter', () => {
+      const options = {
+        uri: 'ui://test-html-adapter-blob' as const,
+        content: { type: 'rawHtml' as const, htmlString: '<p>Test blob with adapter</p>' },
+        encoding: 'blob' as const,
+        adapters: {
+          appsSdk: { enabled: true },
+        },
+      };
+      const resource = createUIResource(options);
+      expect(resource.resource.mimeType).toBe('text/html+skybridge');
+      expect(resource.resource.blob).toBeDefined();
+      expect(resource.resource.text).toBeUndefined();
+      // Decode blob to verify adapter was injected
+      const decodedHtml = Buffer.from(resource.resource.blob!, 'base64').toString('utf-8');
+      expect(decodedHtml).toContain('<script>');
+      expect(decodedHtml).toContain('MCP_APPSSDK_ADAPTER');
+    });
   });
 });
 

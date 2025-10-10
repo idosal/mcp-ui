@@ -171,71 +171,74 @@ describe('Apps SDK Adapter Integration', () => {
   describe('wrapHtmlWithAdapters', () => {
     it('should return original HTML when no adapters provided', () => {
       const html = '<div>Test</div>';
-      const wrapped = wrapHtmlWithAdapters(html);
-      expect(wrapped).toBe(html);
+      const result = wrapHtmlWithAdapters(html);
+      expect(result.htmlContent).toBe(html);
+      expect(result.mimeType).toBeUndefined();
     });
 
     it('should return original HTML when adapters config is empty', () => {
       const html = '<div>Test</div>';
-      const wrapped = wrapHtmlWithAdapters(html, {});
-      expect(wrapped).toBe(html);
+      const result = wrapHtmlWithAdapters(html, {});
+      expect(result.htmlContent).toBe(html);
+      expect(result.mimeType).toBeUndefined();
     });
 
     it('should wrap HTML with Apps SDK adapter', () => {
       const html = '<div>Test</div>';
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
         },
       });
 
-      expect(wrapped).toContain('<script>');
-      expect(wrapped).toContain('</script>');
-      expect(wrapped).toContain(html);
+      expect(result.htmlContent).toContain('<script>');
+      expect(result.htmlContent).toContain('</script>');
+      expect(result.htmlContent).toContain(html);
+      expect(result.mimeType).toBe('text/html+skybridge');
     });
 
     it('should inject script in head tag if present', () => {
       const html = '<html><head></head><body><div>Test</div></body></html>';
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
         },
       });
 
-      const headIndex = wrapped.indexOf('<head>');
-      const scriptIndex = wrapped.indexOf('<script>');
+      const headIndex = result.htmlContent.indexOf('<head>');
+      const scriptIndex = result.htmlContent.indexOf('<script>');
       expect(scriptIndex).toBeGreaterThan(headIndex);
-      expect(scriptIndex).toBeLessThan(wrapped.indexOf('</head>'));
+      expect(scriptIndex).toBeLessThan(result.htmlContent.indexOf('</head>'));
     });
 
     it('should create head tag if html tag present but no head', () => {
       const html = '<html><body><div>Test</div></body></html>';
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
         },
       });
 
-      expect(wrapped).toContain('<head>');
-      expect(wrapped).toContain('<script>');
+      expect(result.htmlContent).toContain('<head>');
+      expect(result.htmlContent).toContain('<script>');
     });
 
     it('should prepend script if no html structure', () => {
       const html = '<div>Test</div>';
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
         },
       });
 
-      expect(wrapped.indexOf('<script>')).toBe(0);
+      expect(result.htmlContent.indexOf('<script>')).toBe(0);
     });
 
     it('should handle multiple adapter configurations', () => {
       const html = '<div>Test</div>';
-      
+
       // Even though we only have appsSdk now, test that the structure supports multiple
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
           config: {
@@ -245,13 +248,13 @@ describe('Apps SDK Adapter Integration', () => {
         // Future adapters would go here
       });
 
-      expect(wrapped).toContain('<script>');
-      expect(wrapped).toContain('5000');
+      expect(result.htmlContent).toContain('<script>');
+      expect(result.htmlContent).toContain('5000');
     });
 
     it('should pass config to adapter script', () => {
       const html = '<div>Test</div>';
-      const wrapped = wrapHtmlWithAdapters(html, {
+      const result = wrapHtmlWithAdapters(html, {
         appsSdk: {
           enabled: true,
           config: {
@@ -262,9 +265,9 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      expect(wrapped).toContain('10000');
-      expect(wrapped).toContain('ignore');
-      expect(wrapped).toContain('https://test.com');
+      expect(result.htmlContent).toContain('10000');
+      expect(result.htmlContent).toContain('ignore');
+      expect(result.htmlContent).toContain('https://test.com');
     });
   });
 

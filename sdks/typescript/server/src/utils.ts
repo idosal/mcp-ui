@@ -68,45 +68,55 @@ export function utf8ToBase64(str: string): string {
  *
  * @param htmlContent - The HTML content to wrap
  * @param adaptersConfig - Configuration for all adapters
- * @returns The wrapped HTML content with adapter scripts injected
+ * @returns Object containing the wrapped HTML content and optional MIME type
  */
 export function wrapHtmlWithAdapters(
   htmlContent: string,
   adaptersConfig?: AdaptersConfig,
-): string {
+): { htmlContent: string; mimeType?: string } {
   if (!adaptersConfig) {
-    return htmlContent;
+    return { htmlContent };
   }
 
   const wrappedHtml = htmlContent;
   const adapterScripts: string[] = [];
+  let mimeType: string | undefined;
 
   // Apps SDK adapter
   if (adaptersConfig.appsSdk?.enabled) {
     const script = getAppsSdkAdapterScript(adaptersConfig.appsSdk.config);
     adapterScripts.push(script);
+    // Use the adapter's mime type if specified, otherwise use default
+    if (!mimeType) {
+      mimeType = adaptersConfig.appsSdk.mimeType ?? 'text/html+skybridge';
+    }
   }
 
   // Future adapters can be added here by checking for their config and pushing their scripts to adapterScripts.
+  // They can also set mimeType if it hasn't been set yet.
 
   // If no adapters are enabled, return original HTML
   if (adapterScripts.length === 0) {
-    return htmlContent;
+    return { htmlContent };
   }
 
   // Combine all adapter scripts
   const combinedScripts = adapterScripts.join('\n');
 
+  let finalHtmlContent: string;
+
   // If the HTML already has a <head> tag, inject the adapter scripts into it
   if (wrappedHtml.includes('<head>')) {
-    return wrappedHtml.replace('<head>', `<head>\n${combinedScripts}`);
+    finalHtmlContent = wrappedHtml.replace('<head>', `<head>\n${combinedScripts}`);
   }
-
   // If the HTML has an <html> tag but no <head>, add a <head> with the adapter scripts
-  if (wrappedHtml.includes('<html>')) {
-    return wrappedHtml.replace('<html>', `<html>\n<head>\n${combinedScripts}\n</head>`);
+  else if (wrappedHtml.includes('<html>')) {
+    finalHtmlContent = wrappedHtml.replace('<html>', `<html>\n<head>\n${combinedScripts}\n</head>`);
+  }
+  // Otherwise, prepend the adapter scripts before the content
+  else {
+    finalHtmlContent = `${combinedScripts}\n${wrappedHtml}`;
   }
 
-  // Otherwise, prepend the adapter scripts before the content
-  return `${combinedScripts}\n${wrappedHtml}`;
+  return { htmlContent: finalHtmlContent, mimeType };
 }

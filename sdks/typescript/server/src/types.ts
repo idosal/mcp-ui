@@ -6,6 +6,7 @@ export type URI = `ui://${string}`;
 // text/html for rawHtml content, text/uri-list for externalUrl content
 export type MimeType =
   | 'text/html'
+  | 'text/html+skybridge'
   | 'text/uri-list'
   | 'application/vnd.mcp-ui.remote-dom+javascript; framework=react'
   | 'application/vnd.mcp-ui.remote-dom+javascript; framework=webcomponents';
@@ -99,6 +100,12 @@ export interface AppsSdkAdapterOptions {
      */
     hostOrigin?: string;
   };
+
+  /**
+   * MIME type to use when this adapter is enabled.
+   * @default 'text/html+skybridge'
+   */
+  mimeType?: string;
 }
 
 export type UIResourceProps = Omit<Partial<Resource>, 'uri' | 'mimeType'>;

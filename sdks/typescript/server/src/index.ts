@@ -42,10 +42,13 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
 
     // Wrap with adapters if any are enabled
     if (options.adapters) {
-      actualContentString = wrapHtmlWithAdapters(actualContentString, options.adapters);
+      const wrapped = wrapHtmlWithAdapters(actualContentString, options.adapters);
+      actualContentString = wrapped.htmlContent;
+      // Use adapter's mime type if provided, otherwise fall back to 'text/html'
+      mimeType = (wrapped.mimeType as MimeType) ?? 'text/html';
+    } else {
+      mimeType = 'text/html';
     }
-
-    mimeType = 'text/html';
   } else if (options.content.type === 'externalUrl') {
     if (!options.uri.startsWith('ui://')) {
       throw new Error(
