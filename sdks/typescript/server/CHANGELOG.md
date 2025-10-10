@@ -1,3 +1,20 @@
+# [5.12.0-alpha.1](https://github.com/idosal/mcp-ui/compare/server/v5.11.0...server/v5.12.0-alpha.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* adapter version ([259c842](https://github.com/idosal/mcp-ui/commit/259c84247a00933575e1fff08674cce52be59973))
+* release ([420efc0](https://github.com/idosal/mcp-ui/commit/420efc0a82bf8de2731514648268cad1209320e2))
+* server alpha versioning ([7f35d3b](https://github.com/idosal/mcp-ui/commit/7f35d3be2cfa6a535d3fbd5f86fbec1b20432dca))
+* server versioning ([2324371](https://github.com/idosal/mcp-ui/commit/2324371ed636381bb44a1feae1b59a87c84c6666))
+* update isUIResource to use EmbeddedResource type ([#122](https://github.com/idosal/mcp-ui/issues/122)) ([5a65a0b](https://github.com/idosal/mcp-ui/commit/5a65a0b1ba63e6cfda26b8da41239a532f00d60a)), closes [#117](https://github.com/idosal/mcp-ui/issues/117)
+
+
+### Features
+
+* add adapters infra (appssdk) ([#125](https://github.com/idosal/mcp-ui/issues/125)) ([2e016cd](https://github.com/idosal/mcp-ui/commit/2e016cdc05d08c2f7c2e4a40efbec2b0704e7ef6))
+* add ui-request-render-data message type ([#111](https://github.com/idosal/mcp-ui/issues/111)) ([26135ce](https://github.com/idosal/mcp-ui/commit/26135ce2c7f7d586b0b81a03623cd77dc1bc7f90))
+
 # 1.0.0-alpha.1 (2025-10-10)
 
 
