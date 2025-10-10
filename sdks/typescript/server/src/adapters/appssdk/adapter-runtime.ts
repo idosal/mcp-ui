@@ -2,7 +2,7 @@
  * MCP-UI to Apps SDK Adapter Runtime
  *
  * This module enables MCP-UI embeddable widgets to run in Apps SDK environments (e.g., ChatGPT)
- * by intercepting postMessage calls and translating them to the Apps SDK API (e.g., window.openai).
+ * by intercepting MCP-UI protocol messages and translating them to the Apps SDK API (e.g., window.openai).
  */
 
 import type {

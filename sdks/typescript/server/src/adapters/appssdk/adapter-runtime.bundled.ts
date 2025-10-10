@@ -50,7 +50,8 @@ export const ADAPTER_RUNTIME_SCRIPT = `"use strict";
       this.pendingRequests.clear();
       if (this.originalPostMessage) {
         try {
-          window.parent.postMessage = this.originalPostMessage;
+          const originalPostMessage = this.originalPostMessage;
+          window.parent.postMessage = originalPostMessage;
           this.config.logger.log("[MCPUI-Apps SDK Adapter] Restored original parent.postMessage");
         } catch (error) {
           this.config.logger.error("[MCPUI-Apps SDK Adapter] Failed to restore original postMessage:", error);
@@ -71,12 +72,13 @@ export const ADAPTER_RUNTIME_SCRIPT = `"use strict";
       }
       const postMessageInterceptor = (message, targetOrigin, transfer) => {
         if (this.isMCPUIMessage(message)) {
-          this.config.logger.debug("[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:", message.type);
-          this.handleMCPUIMessage(message);
+          const mcpMessage = message;
+          this.config.logger.debug("[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:", mcpMessage.type);
+          this.handleMCPUIMessage(mcpMessage);
         } else {
           if (this.originalPostMessage) {
             this.config.logger.debug("[MCPUI-Apps SDK Adapter] Forwarding non-MCP-UI message to original postMessage");
-            this.originalPostMessage(message, targetOrigin, transfer);
+            this.originalPostMessage(message, targetOrigin ?? "*", transfer);
           } else {
             this.config.logger.warn("[MCPUI-Apps SDK Adapter] No original postMessage to forward to, ignoring message:", message);
           }
@@ -200,7 +202,7 @@ export const ADAPTER_RUNTIME_SCRIPT = `"use strict";
         return;
       }
       const { intent, params } = message.payload;
-      const prompt = \`\${intent}\${params ? ": " + JSON.stringify(params) : ""}\`;
+      const prompt = \`\${intent}\${params ? \`: \${JSON.stringify(params)}\` : ""}\`;
       try {
         if (!window.openai?.sendFollowUpMessage) {
           throw new Error("Followup turns are not supported in this environment");
