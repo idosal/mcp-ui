@@ -10,7 +10,7 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, utf8ToBase64 } from './utils.js';
+import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters } from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -39,6 +39,12 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         "MCP-UI SDK: content.htmlString must be provided as a string when content.type is 'rawHtml'.",
       );
     }
+
+    // Wrap with adapters if any are enabled
+    if (options.adapters) {
+      actualContentString = wrapHtmlWithAdapters(actualContentString, options.adapters);
+    }
+
     mimeType = 'text/html';
   } else if (options.content.type === 'externalUrl') {
     if (!options.uri.startsWith('ui://')) {
@@ -102,7 +108,17 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
   };
 }
 
-export type { CreateUIResourceOptions, ResourceContentPayload, UIActionResult } from './types.js';
+export type {
+  CreateUIResourceOptions,
+  ResourceContentPayload,
+  UIActionResult,
+  AdaptersConfig,
+  AppsSdkAdapterOptions,
+} from './types.js';
+
+// Export adapters
+export { wrapHtmlWithAdapters } from './utils.js';
+export * from './adapters/index.js';
 
 export function postUIActionResult(result: UIActionResult): void {
   if (window.parent) {

@@ -143,6 +143,89 @@ Rendered using the internal `<RemoteDOMResourceRenderer />` component, which uti
 
 UI snippets must be able to interact with the agent. In `mcp-ui`, this is done by hooking into events sent from the UI snippet and reacting to them in the host (see `onUIAction` prop). For example, an HTML may trigger a tool call when a button is clicked by sending an event which will be caught handled by the client.
 
+### Platform Adapters
+
+`@mcp-ui/server` includes adapter support for host-specific implementations, enabling your open MCP-UI widgets to work seamlessly regardless of host. Adapters automatically translate between MCP-UI's `postMessage` protocol and host-specific APIs. Over time, as hosts become compatible with the open spec, these adapters wouldn't be needed.
+
+#### Available Adapters
+
+##### Apps SDK Adapter
+
+For Apps SDK environments (e.g., ChatGPT), this adapter translates MCP-UI protocol to Apps SDK API calls (e.g., `window.openai`).
+
+**How it Works:**
+- Intercepts MCP-UI `postMessage` calls from your widgets
+- Translates them to appropriate Apps SDK API calls
+- Handles bidirectional communication (tools, prompts, state management)
+- Works transparently - your existing MCP-UI code continues to work without changes
+
+**Usage:**
+
+```ts
+import { createUIResource } from '@mcp-ui/server';
+
+const htmlResource = createUIResource({
+  uri: 'ui://greeting/1',
+  content: { 
+    type: 'rawHtml', 
+    htmlString: `
+      <button onclick="window.parent.postMessage({ type: 'tool', payload: { toolName: 'myTool', params: {} } }, '*')">
+        Call Tool
+      </button>
+    ` 
+  },
+  encoding: 'text',
+  // Enable adapters
+  adapters: {
+    appsSdk: {
+      enabled: true,
+      config: {
+        intentHandling: 'prompt', // or 'ignore'
+        timeout: 30000, // optional, in milliseconds
+      }
+    }
+    // Future adapters can be enabled here
+    // anotherPlatform: { enabled: true }
+  }
+});
+```
+
+The adapter scripts are automatically injected into your HTML content and handle all protocol translation.
+
+**Supported Actions:**
+- ✅ **Tool calls** - `{ type: 'tool', payload: { toolName, params } }`
+- ✅ **Prompts** - `{ type: 'prompt', payload: { prompt } }`
+- ✅ **Intents** - `{ type: 'intent', payload: { intent, params } }` (converted to prompts)
+- ✅ **Notifications** - `{ type: 'notify', payload: { message } }`
+- ✅ **Render data** - Access to `toolInput`, `toolOutput`, `widgetState`, `theme`, `locale`
+- ⚠️ **Links** - `{ type: 'link', payload: { url } }` (may not be supported, returns error in some environments)
+
+#### Advanced Usage
+
+You can manually wrap HTML with adapters or access adapter scripts directly:
+
+```ts
+import { wrapHtmlWithAdapters, getAppsSdkAdapterScript } from '@mcp-ui/server';
+
+// Manually wrap HTML with adapters
+const wrappedHtml = wrapHtmlWithAdapters(
+  '<button>Click me</button>',
+  {
+    appsSdk: {
+      enabled: true,
+      config: { intentHandling: 'ignore' }
+    }
+  }
+);
+
+// Get a specific adapter script
+const appsSdkScript = getAppsSdkAdapterScript({ timeout: 60000 });
+```
+
+#### Future Adapters
+
+The adapters architecture is designed to support multiple platforms. Future adapters can be added to the `adapters` configuration object as they become available.
+
 ## 🏗️ Installation
 
 ### TypeScript

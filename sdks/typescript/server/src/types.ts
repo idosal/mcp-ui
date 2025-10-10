@@ -47,6 +47,58 @@ export interface CreateUIResourceOptions {
   resourceProps?: UIResourceProps;
   // additional resource props to be passed on the top-level embedded resource (i.e. annotations)
   embeddedResourceProps?: EmbeddedUIResourceProps;
+  // Adapters for different environments (e.g., Apps SDK)
+  adapters?: AdaptersConfig;
+}
+
+/**
+ * Configuration for all available adapters
+ * Adapters enable MCP-UI widgets to work in different environments
+ */
+export interface AdaptersConfig {
+  /**
+   * Apps SDK adapter (e.g., ChatGPT)
+   * Translates MCP-UI protocol to Apps SDK API calls (window.openai)
+   */
+  appsSdk?: AppsSdkAdapterOptions;
+  
+  // Future adapters can be added here
+  // e.g., anotherPlatform?: AnotherPlatformAdapterOptions;
+}
+
+/**
+ * Configuration options for Apps SDK adapter
+ */
+export interface AppsSdkAdapterOptions {
+  /**
+   * Whether to enable the Apps SDK adapter.
+   * When enabled, the adapter script will be automatically injected into HTML content,
+   * allowing MCP-UI widgets to work in Apps SDK environments (e.g., ChatGPT).
+   * @default false
+   */
+  enabled: boolean;
+
+  /**
+   * Custom configuration for the adapter
+   */
+  config?: {
+    /**
+     * How to handle 'intent' messages (defaults to 'prompt')
+     * - 'prompt': Convert to sendFollowupTurn with intent description
+     * - 'ignore': Log and acknowledge but take no action
+     */
+    intentHandling?: 'prompt' | 'ignore';
+
+    /**
+     * Timeout in milliseconds for async operations (defaults to 30000)
+     */
+    timeout?: number;
+
+    /**
+     * Origin to use when dispatching MessageEvents to the iframe (defaults to window.location.origin)
+     */
+    hostOrigin?: string;
+  };
 }
 
 export type UIResourceProps = Omit<Partial<Resource>, 'uri' | 'mimeType'>;
