@@ -87,10 +87,7 @@ export function wrapHtmlWithAdapters(
     adapterScripts.push(script);
   }
 
-  // Future adapters can be added here
-  // if (adaptersConfig.anotherPlatform?.enabled) {
-  //   adapterScripts.push(getAnotherPlatformAdapterScript(adaptersConfig.anotherPlatform.config));
-  // }
+  // Future adapters can be added here by checking for their config and pushing their scripts to adapterScripts.
 
   // If no adapters are enabled, return original HTML
   if (adapterScripts.length === 0) {
