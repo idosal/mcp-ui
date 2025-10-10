@@ -1,3 +1,10 @@
+# [5.13.0-alpha.1](https://github.com/idosal/mcp-ui/compare/v5.12.1...v5.13.0-alpha.1) (2025-10-10)
+
+
+### Features
+
+* add adapters infra (appssdk) ([#125](https://github.com/idosal/mcp-ui/issues/125)) ([2e016cd](https://github.com/idosal/mcp-ui/commit/2e016cdc05d08c2f7c2e4a40efbec2b0704e7ef6))
+
 ## [5.12.1](https://github.com/idosal/mcp-ui/compare/v5.12.0...v5.12.1) (2025-10-08)
 
 
