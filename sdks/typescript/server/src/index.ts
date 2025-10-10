@@ -10,7 +10,7 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters } from './utils.js';
+import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -42,10 +42,9 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
 
     // Wrap with adapters if any are enabled
     if (options.adapters) {
-      const wrapped = wrapHtmlWithAdapters(actualContentString, options.adapters);
-      actualContentString = wrapped.htmlContent;
+      actualContentString = wrapHtmlWithAdapters(actualContentString, options.adapters);
       // Use adapter's mime type if provided, otherwise fall back to 'text/html'
-      mimeType = (wrapped.mimeType as MimeType) ?? 'text/html';
+      mimeType = (getAdapterMimeType(options.adapters) as MimeType) ?? 'text/html';
     } else {
       mimeType = 'text/html';
     }
@@ -120,7 +119,7 @@ export type {
 } from './types.js';
 
 // Export adapters
-export { wrapHtmlWithAdapters } from './utils.js';
+export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 export * from './adapters/index.js';
 
 export function postUIActionResult(result: UIActionResult): void {
