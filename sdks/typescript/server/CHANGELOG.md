@@ -1,3 +1,10 @@
+# [5.12.0-alpha.2](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.1...server/v5.12.0-alpha.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* set the mime type as text/html+skybridge for apps SDK ([bc47423](https://github.com/idosal/mcp-ui/commit/bc474232a249e5cc40f348e3a26f93c806fcc602))
+
 # [5.12.0-alpha.1](https://github.com/idosal/mcp-ui/compare/server/v5.11.0...server/v5.12.0-alpha.1) (2025-10-10)
 
 
