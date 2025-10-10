@@ -205,7 +205,7 @@ jobs:
 
   release_ruby_sdk:
     name: Release Ruby SDK
-    needs: [ruby_sdk_test, release_ts_server, filter_changed_paths]
+    needs: [ruby_sdk_test, filter_changed_paths]
     if: >
       always() &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
@@ -248,7 +248,7 @@ jobs:
 
   release_python_sdk:
     name: Release Python SDK
-    needs: [python_sdk_test, release_ruby_sdk, filter_changed_paths]
+    needs: [python_sdk_test, filter_changed_paths]
     if: >
       always() &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
