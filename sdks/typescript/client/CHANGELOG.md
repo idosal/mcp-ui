@@ -1,3 +1,10 @@
+# [1.0.0-alpha.2](https://github.com/idosal/mcp-ui/compare/client/v1.0.0-alpha.1...client/v1.0.0-alpha.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* server versioning ([2324371](https://github.com/idosal/mcp-ui/commit/2324371ed636381bb44a1feae1b59a87c84c6666))
+
 # 1.0.0-alpha.1 (2025-10-10)
 
 
