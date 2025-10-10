@@ -221,7 +221,7 @@ describe('Apps SDK Adapter', () => {
       const script = getAppsSdkAdapterScript();
       
       // Extract just the JavaScript code (remove <script> tags)
-      const jsCode = script.replace(/<\/?script>/g, '');
+      const jsCode = script.replace(/<\/?script>/gi, '');
       
       // This should not throw a SyntaxError
       expect(() => new Function(jsCode)).not.toThrow();
@@ -235,7 +235,7 @@ describe('Apps SDK Adapter', () => {
       const script = getAppsSdkAdapterScript(config);
       
       // Should properly escape and not break the script
-      const jsCode = script.replace(/<\/?script>/g, '');
+      const jsCode = script.replace(/<\/?script>/gi, '');
       expect(() => new Function(jsCode)).not.toThrow();
     });
   });
