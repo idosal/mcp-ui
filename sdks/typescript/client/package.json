@@ -11,7 +11,7 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
     "./ui-resource-renderer.wc.js": "./dist/ui-resource-renderer.wc.js"
   },
