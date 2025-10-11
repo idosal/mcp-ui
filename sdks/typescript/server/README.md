@@ -39,7 +39,7 @@
 
 ## 💡 What's `mcp-ui`?
 
-`mcp-ui` is a collection of SDKs comprising:
+`mcp-ui` is a playground for the open spec of UI over MCP. It offers a collection of community SDKs comprising:
 
 * **`@mcp-ui/server` (TypeScript)**: Utilities to generate UI resources (`UIResource`) on your MCP server.
 * **`@mcp-ui/client` (TypeScript)**: UI components (e.g., `<UIResourceRenderer />`) to render the UI resources and handle their events.
@@ -143,9 +143,10 @@ Rendered using the internal `<RemoteDOMResourceRenderer />` component, which uti
 
 UI snippets must be able to interact with the agent. In `mcp-ui`, this is done by hooking into events sent from the UI snippet and reacting to them in the host (see `onUIAction` prop). For example, an HTML may trigger a tool call when a button is clicked by sending an event which will be caught handled by the client.
 
+
 ### Platform Adapters
 
-`@mcp-ui/server` includes adapter support for host-specific implementations, enabling your open MCP-UI widgets to work seamlessly regardless of host. Adapters automatically translate between MCP-UI's `postMessage` protocol and host-specific APIs. Over time, as hosts become compatible with the open spec, these adapters wouldn't be needed.
+MCP-UI SDKs includes adapter support for host-specific implementations, enabling your open MCP-UI widgets to work seamlessly regardless of host. Adapters automatically translate between MCP-UI's `postMessage` protocol and host-specific APIs. Over time, as hosts become compatible with the open spec, these adapters wouldn't be needed.
 
 #### Available Adapters
 
@@ -179,13 +180,9 @@ const htmlResource = createUIResource({
   adapters: {
     appsSdk: {
       enabled: true,
-      config: {
-        intentHandling: 'prompt', // or 'ignore'
-        timeout: 30000, // optional, in milliseconds
-      }
+      config: ...
     }
     // Future adapters can be enabled here
-    // anotherPlatform: { enabled: true }
   }
 });
 ```
@@ -221,10 +218,6 @@ const wrappedHtml = wrapHtmlWithAdapters(
 // Get a specific adapter script
 const appsSdkScript = getAppsSdkAdapterScript({ timeout: 60000 });
 ```
-
-#### Future Adapters
-
-The adapters architecture is designed to support multiple platforms. Future adapters can be added to the `adapters` configuration object as they become available.
 
 ## 🏗️ Installation
 
