@@ -1,3 +1,10 @@
+# [5.12.0-alpha.4](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.3...server/v5.12.0-alpha.4) (2025-10-11)
+
+
+### Bug Fixes
+
+* exports ([0018c17](https://github.com/idosal/mcp-ui/commit/0018c17dd8b184ee549327f1742d9da71edfd576))
+
 # [5.12.0-alpha.3](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.2...server/v5.12.0-alpha.3) (2025-10-11)
 
 
