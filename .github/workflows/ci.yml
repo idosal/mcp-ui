@@ -28,7 +28,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
-          base: ${{ github.event_name == 'push' && 'HEAD~1' || github.base_ref }}
+          base: ${{ github.event_name == 'push' && github.event.before || github.base_ref }}
           filters: |
             ts_client_files:
               - 'sdks/typescript/client/**'
