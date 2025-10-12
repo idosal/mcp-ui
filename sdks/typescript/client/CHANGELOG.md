@@ -1,3 +1,10 @@
+# [5.13.0-alpha.4](https://github.com/idosal/mcp-ui/compare/client/v5.13.0-alpha.3...client/v5.13.0-alpha.4) (2025-10-12)
+
+
+### Bug Fixes
+
+* exports vite ([4de2b0c](https://github.com/idosal/mcp-ui/commit/4de2b0cfae91813ad68fb1ce68b1cf7c2a161baf))
+
 # [5.13.0-alpha.3](https://github.com/idosal/mcp-ui/compare/client/v5.13.0-alpha.2...client/v5.13.0-alpha.3) (2025-10-11)
 
 
