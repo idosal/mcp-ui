@@ -156,4 +156,5 @@ This project is an experimental playground for MCP-UI ideas, that aims to test o
 - [Client SDK](./client/overview.md) - Learn to render UI resources
 - [Typescript Server SDK](./server/typescript/overview.md) - Learn to create UI resources in Typescript
 - [Ruby Server SDK](./server/ruby/overview.md) - Learn to create UI resources in Ruby
+- [Apps SDK Integration](./apps-sdk.md) - Wire the existing adapter into ChatGPT's Apps SDK
 - [Protocol Details](./protocol-details.md) - Understand the underlying protocol
