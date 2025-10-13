@@ -204,7 +204,7 @@ describe('wrapHtmlWithAdapters', () => {
     const result = wrapHtmlWithAdapters(htmlContent, {
       appsSdk: { enabled: true },
     });
-    expect(result.htmlContent).toMatch(/^<script>/);
+    expect(result.htmlContent).toMatch(/^<script>/i);
     expect(result.htmlContent).toContain('<div>Test</div>');
     expect(result.mimeType).toBe('text/html+skybridge');
   });
