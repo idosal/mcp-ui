@@ -1,3 +1,10 @@
+# [5.13.0](https://github.com/idosal/mcp-ui/compare/client/v5.12.1...client/v5.13.0) (2025-10-13)
+
+
+### Features
+
+* support adapters ([#127](https://github.com/idosal/mcp-ui/issues/127)) ([d4bd152](https://github.com/idosal/mcp-ui/commit/d4bd152db0a1bd27081502098f3cd9aa54ca359e))
+
 # [5.13.0-alpha.4](https://github.com/idosal/mcp-ui/compare/client/v5.13.0-alpha.3...client/v5.13.0-alpha.4) (2025-10-12)
 
 
