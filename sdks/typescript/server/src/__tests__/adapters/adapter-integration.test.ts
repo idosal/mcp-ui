@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createUIResource } from '../../index';
-import { wrapHtmlWithAdapters } from '../../utils';
+import { wrapHtmlWithAdapters, getAdapterMimeType } from '../../utils';
 
 describe('Apps SDK Adapter Integration', () => {
   describe('createUIResource with adapters', () => {
@@ -172,15 +172,13 @@ describe('Apps SDK Adapter Integration', () => {
     it('should return original HTML when no adapters provided', () => {
       const html = '<div>Test</div>';
       const result = wrapHtmlWithAdapters(html);
-      expect(result.htmlContent).toBe(html);
-      expect(result.mimeType).toBeUndefined();
+      expect(result).toBe(html);
     });
 
     it('should return original HTML when adapters config is empty', () => {
       const html = '<div>Test</div>';
       const result = wrapHtmlWithAdapters(html, {});
-      expect(result.htmlContent).toBe(html);
-      expect(result.mimeType).toBeUndefined();
+      expect(result).toBe(html);
     });
 
     it('should wrap HTML with Apps SDK adapter', () => {
@@ -191,10 +189,9 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      expect(result.htmlContent).toContain('<script>');
-      expect(result.htmlContent).toContain('</script>');
-      expect(result.htmlContent).toContain(html);
-      expect(result.mimeType).toBe('text/html+skybridge');
+      expect(result).toContain('<script>');
+      expect(result).toContain('</script>');
+      expect(result).toContain(html);
     });
 
     it('should inject script in head tag if present', () => {
@@ -205,10 +202,10 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      const headIndex = result.htmlContent.indexOf('<head>');
-      const scriptIndex = result.htmlContent.indexOf('<script>');
+      const headIndex = result.indexOf('<head>');
+      const scriptIndex = result.indexOf('<script>');
       expect(scriptIndex).toBeGreaterThan(headIndex);
-      expect(scriptIndex).toBeLessThan(result.htmlContent.indexOf('</head>'));
+      expect(scriptIndex).toBeLessThan(result.indexOf('</head>'));
     });
 
     it('should create head tag if html tag present but no head', () => {
@@ -219,8 +216,8 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      expect(result.htmlContent).toContain('<head>');
-      expect(result.htmlContent).toContain('<script>');
+      expect(result).toContain('<head>');
+      expect(result).toContain('<script>');
     });
 
     it('should prepend script if no html structure', () => {
@@ -231,7 +228,7 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      expect(result.htmlContent.indexOf('<script>')).toBe(0);
+      expect(result.indexOf('<script>')).toBe(0);
     });
 
     it('should handle multiple adapter configurations', () => {
@@ -248,8 +245,8 @@ describe('Apps SDK Adapter Integration', () => {
         // Future adapters would go here
       });
 
-      expect(result.htmlContent).toContain('<script>');
-      expect(result.htmlContent).toContain('5000');
+      expect(result).toContain('<script>');
+      expect(result).toContain('5000');
     });
 
     it('should pass config to adapter script', () => {
@@ -265,9 +262,42 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      expect(result.htmlContent).toContain('10000');
-      expect(result.htmlContent).toContain('ignore');
-      expect(result.htmlContent).toContain('https://test.com');
+      expect(result).toContain('10000');
+      expect(result).toContain('ignore');
+      expect(result).toContain('https://test.com');
+    });
+  });
+
+  describe('getAdapterMimeType', () => {
+    it('should return undefined when no adapters provided', () => {
+      const result = getAdapterMimeType();
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when adapters config is empty', () => {
+      const result = getAdapterMimeType({});
+      expect(result).toBeUndefined();
+    });
+
+    it('should return default mime type for Apps SDK adapter', () => {
+      const result = getAdapterMimeType({
+        appsSdk: {
+          enabled: true,
+        },
+      });
+
+      expect(result).toBe('text/html+skybridge');
+    });
+
+    it('should return custom mime type when provided', () => {
+      const result = getAdapterMimeType({
+        appsSdk: {
+          enabled: true,
+          mimeType: 'text/html+custom',
+        },
+      });
+
+      expect(result).toBe('text/html+custom');
     });
   });
 

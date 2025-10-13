@@ -199,23 +199,29 @@ The adapter scripts are automatically injected into your HTML content and handle
 
 #### Advanced Usage
 
-You can manually wrap HTML with adapters or access adapter scripts directly:
+You can manually wrap HTML with adapters, get MIME types, or access adapter scripts directly:
 
 ```ts
-import { wrapHtmlWithAdapters, getAppsSdkAdapterScript } from '@mcp-ui/server';
+import { wrapHtmlWithAdapters, getAdapterMimeType, getAppsSdkAdapterScript } from '@mcp-ui/server';
 
-// Manually wrap HTML with adapters
+const adaptersConfig = {
+  appsSdk: {
+    enabled: true,
+    config: { intentHandling: 'ignore' }
+  }
+};
+
+// Manually wrap HTML with adapters (returns string)
 const wrappedHtml = wrapHtmlWithAdapters(
   '<button>Click me</button>',
-  {
-    appsSdk: {
-      enabled: true,
-      config: { intentHandling: 'ignore' }
-    }
-  }
+  adaptersConfig
 );
 
-// Get a specific adapter script
+// Get the MIME type for the enabled adapters
+const mimeType = getAdapterMimeType(adaptersConfig);
+// Returns: 'text/html+skybridge'
+
+// Get a specific adapter script directly
 const appsSdkScript = getAppsSdkAdapterScript({ timeout: 60000 });
 ```
 
