@@ -198,11 +198,11 @@ npm install @mcp-ui/server
 
 2. Create your MCP server with the examples above.
 
-3. **Register an Apps SDK template resource** – call `createUIResource` with the adapter enabled and expose it via `server.registerResource` (or the equivalent in your language SDK). The adapter wraps the HTML and switches the MIME type to `text/html+skybridge` so ChatGPT accepts it as an output template.
+3. **Register an Apps SDK template resource** – call `createUIResource` with the adapter enabled and expose it via `server.registerResource` (or the equivalent in your language SDK). Use `metadata` to add Apps widget hints such as `openai/widgetDescription` or `openai/widgetCSP`. The adapter wraps the HTML and switches the MIME type to `text/html+skybridge` so ChatGPT accepts it as an output template.
 
 4. **Reference that template from your tool definition** – when calling `registerTool`, set `_meta["openai/outputTemplate"]` to the template URI and include any other Apps SDK metadata (`openai/toolInvocation/*`, `openai/widgetAccessible`, `securitySchemes`, etc.).
 
-5. **Return plain MCP content from the tool runtime** – send text parts and/or `structuredContent` that match your declared schema. The template from step 3 is what ChatGPT actually renders, while other MCP hosts can still consume the textual/structured result.
+5. **Return Apps data plus an MCP-UI resource** – include text and/or `structuredContent` for ChatGPT **and** append a `createUIResource` payload (with adapters disabled) so MCP-UI-native hosts receive the embedded resource.
 
 6. Deploy your server and connect it to the target environment (e.g., ChatGPT). The manual wiring ensures both MCP-UI-native clients and Apps SDK clients share the same UI implementation.
 
