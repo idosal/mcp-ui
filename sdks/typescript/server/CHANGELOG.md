@@ -1,3 +1,16 @@
+# [5.12.0](https://github.com/idosal/mcp-ui/compare/server/v5.11.0...server/v5.12.0) (2025-10-13)
+
+
+### Bug Fixes
+
+* update isUIResource to use EmbeddedResource type ([#122](https://github.com/idosal/mcp-ui/issues/122)) ([5a65a0b](https://github.com/idosal/mcp-ui/commit/5a65a0b1ba63e6cfda26b8da41239a532f00d60a)), closes [#117](https://github.com/idosal/mcp-ui/issues/117)
+
+
+### Features
+
+* add ui-request-render-data message type ([#111](https://github.com/idosal/mcp-ui/issues/111)) ([26135ce](https://github.com/idosal/mcp-ui/commit/26135ce2c7f7d586b0b81a03623cd77dc1bc7f90))
+* support adapters ([#127](https://github.com/idosal/mcp-ui/issues/127)) ([d4bd152](https://github.com/idosal/mcp-ui/commit/d4bd152db0a1bd27081502098f3cd9aa54ca359e))
+
 # [5.12.0-alpha.6](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.5...server/v5.12.0-alpha.6) (2025-10-13)
 
 
