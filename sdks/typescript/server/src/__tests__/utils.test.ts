@@ -231,7 +231,7 @@ describe('wrapHtmlWithAdapters', () => {
     const result = wrapHtmlWithAdapters(htmlContent, {
       appsSdk: { enabled: true },
     });
-    expect(result).toMatch(/^<script>/);
+    expect(result).toMatch(/^<script>/i);
     expect(result).toContain('<div>Test</div>');
   });
 

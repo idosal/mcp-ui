@@ -9,7 +9,7 @@
  */
 
 import type { AppsSdkAdapterConfig } from './types.js';
-import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled';
+import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.js';
 
 /**
  * Returns the complete adapter script as a string that can be injected into HTML.
