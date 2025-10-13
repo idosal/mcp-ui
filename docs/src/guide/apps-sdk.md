@@ -1,6 +1,6 @@
 # OpenAI Apps SDK Integration
 
-The Apps SDK adapter in `@mcp-ui/server` ensures your HTML runs inside ChatGPT, but you still need to wire the resource into the Apps lifecycle so existing MCP clients keep working. This guide walks through the manual flow the adapter expects today.
+The Apps SDK adapter in `@mcp-ui/server` ensures your MCP-UI HTML runs inside ChatGPT. However, for now, you still need to manually wire the resource according to the Apps SDK resource pattern. This guide walks through the manual flow the adapter expects today.
 
 ## Why two resources?
 
