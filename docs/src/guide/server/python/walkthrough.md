@@ -397,7 +397,7 @@ To test your server with a visual interface:
 2. Open the inspector in your browser (usually `http://localhost:6274`)
 3. Configure the connection:
    - **Transport Type**: "SSE" (for HTTP mode) or "Stdio" (for stdio mode)
-   - **Server URL**: `http://localhost:3000/mcp` (for HTTP mode)
+   - **Server URL**: `http://localhost:3000/sse` (for HTTP mode)
 4. Click "Connect"
 
 The inspector will show your tools:

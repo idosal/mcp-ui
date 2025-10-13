@@ -12,14 +12,8 @@ Usage:
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-from mcp_ui_server import create_UIResource
+from mcp_ui_server import create_ui_resource
 from mcp_ui_server.core import UIResource
-from mcp_ui_server.types import (
-    CreateUIResourceOptions,
-    RawHtmlPayload,
-    ExternalUrlPayload,
-    RemoteDomPayload,
-)
 
 # Create FastMCP instance
 mcp = FastMCP("python-server-demo")
@@ -27,7 +21,7 @@ mcp = FastMCP("python-server-demo")
 @mcp.tool()
 def show_external_url() -> list[UIResource]:
     """Creates a UI resource displaying an external URL (example.com)."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://greeting",
         "content": {
             "type": "externalUrl",
@@ -41,7 +35,7 @@ def show_external_url() -> list[UIResource]:
 @mcp.tool()
 def show_raw_html() -> list[UIResource]:
     """Creates a UI resource displaying raw HTML."""
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://raw-html-demo",
         "content": {
             "type": "rawHtml",
@@ -61,7 +55,7 @@ def show_remote_dom() -> list[UIResource]:
     root.appendChild(p);
     """
 
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://remote-dom-demo",
         "content": {
             "type": "remoteDom",
@@ -134,7 +128,7 @@ def show_action_html() -> list[UIResource]:
     </script>
     """
 
-    ui_resource = create_UIResource({
+    ui_resource = create_ui_resource({
         "uri": "ui://action-html-demo",
         "content": {
             "type": "rawHtml",

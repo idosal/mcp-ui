@@ -14,7 +14,7 @@ MCP-UI provides SDKs for multiple languages, including:
 - **`@mcp-ui/client`**: A Typescript package with UI components for easy rendering of interactive UI. It includes a React component (`<UIResourceRenderer />`) and a standard Web Component (`<ui-resource-renderer>`).
 - **`@mcp-ui/server`**: A Typescript package with helper functions (like `createUIResource`) for server-side logic to easily construct `UIResource` objects.
 - **`mcp_ui_server`**: A Ruby gem with helper methods (like `create_ui_resource`) for server-side logic in Ruby applications.
-- **`mcp-ui-server`**: A Python package with helper methods (like `create_UIResource`) for server-side logic in Python applications.
+- **`mcp-ui-server`**: A Python package with helper methods (like `create_ui_resource`) for server-side logic in Python applications.
 
 ## The Interactive UI Resource Protocol
 
