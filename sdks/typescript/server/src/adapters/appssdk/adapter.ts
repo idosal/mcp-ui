@@ -9,7 +9,14 @@
  */
 
 import type { AppsSdkAdapterConfig } from './types.js';
-import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.js';
+/*
+ * The bundler generates both JavaScript and TypeScript variants of the bundled runtime.
+ * We import the TypeScript file here so that TypeScript compilation works even when the
+ * JavaScript output has not been generated yet (e.g., in tests).
+ *
+ * Runtime consumers will still resolve to the JavaScript build via package exports.
+ */
+import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.ts';
 
 /**
  * Returns the complete adapter script as a string that can be injected into HTML.
