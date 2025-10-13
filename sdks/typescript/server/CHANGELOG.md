@@ -1,3 +1,10 @@
+# [5.12.0-alpha.6](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.5...server/v5.12.0-alpha.6) (2025-10-13)
+
+
+### Bug Fixes
+
+* separate adapter wrappers for flexibility ([#128](https://github.com/idosal/mcp-ui/issues/128)) ([a636844](https://github.com/idosal/mcp-ui/commit/a6368448c44b15da87c883cb3a65ebfe6119e85d))
+
 # [5.12.0-alpha.5](https://github.com/idosal/mcp-ui/compare/server/v5.12.0-alpha.4...server/v5.12.0-alpha.5) (2025-10-12)
 
 
