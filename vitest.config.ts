@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true, // Use global APIs (describe, it, expect)
     environment: 'jsdom', // Default environment, can be overridden per package/file
     setupFiles: './vitest.setup.ts',
+    globalSetup: './vitest.global-setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
