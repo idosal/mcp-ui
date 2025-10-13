@@ -33,6 +33,10 @@ const appsSdkTemplate = createUIResource({
     type: 'rawHtml',
     htmlString: renderInitialShell(),
   },
+  metadata: {
+    'openai/widgetDescription': widget.description,
+    'openai/widgetPrefersBorder': true,
+  },
 });
 
 server.registerResource(TEMPLATE_URI, async () => appsSdkTemplate.resource);
@@ -72,6 +76,14 @@ server.registerTool(
           type: 'text',
           text: `Forecast prepared for ${city}.`,
         },
+        createUIResource({
+          uri: TEMPLATE_URI,
+          encoding: 'text',
+          content: {
+            type: 'rawHtml',
+            htmlString: renderInitialShell(),
+          },
+        }),
       ],
       structuredContent: {
         forecast,
