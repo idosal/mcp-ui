@@ -10,7 +10,7 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, utf8ToBase64 } from './utils.js';
+import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -39,7 +39,15 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         "MCP-UI SDK: content.htmlString must be provided as a string when content.type is 'rawHtml'.",
       );
     }
-    mimeType = 'text/html';
+
+    // Wrap with adapters if any are enabled
+    if (options.adapters) {
+      actualContentString = wrapHtmlWithAdapters(actualContentString, options.adapters);
+      // Use adapter's mime type if provided, otherwise fall back to 'text/html'
+      mimeType = (getAdapterMimeType(options.adapters) as MimeType) ?? 'text/html';
+    } else {
+      mimeType = 'text/html';
+    }
   } else if (options.content.type === 'externalUrl') {
     if (!options.uri.startsWith('ui://')) {
       throw new Error(
@@ -102,7 +110,17 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
   };
 }
 
-export type { CreateUIResourceOptions, ResourceContentPayload, UIActionResult } from './types.js';
+export type {
+  CreateUIResourceOptions,
+  ResourceContentPayload,
+  UIActionResult,
+  AdaptersConfig,
+  AppsSdkAdapterOptions,
+} from './types.js';
+
+// Export adapters
+export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
+export * from './adapters/index.js';
 
 export function postUIActionResult(result: UIActionResult): void {
   if (window.parent) {

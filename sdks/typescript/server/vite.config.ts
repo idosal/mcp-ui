@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      insertTypesEntry: true,
+      insertTypesEntry: false,
       tsconfigPath: path.resolve(__dirname, 'tsconfig.json'),
       exclude: ['**/__tests__/**', '**/*.test.ts', '**/*.spec.ts'],
     }),

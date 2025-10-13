@@ -23,9 +23,12 @@ jobs:
       example_files: ${{ steps.filter.outputs.example_files }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dorny/paths-filter@v2
         id: filter
         with:
+          base: ${{ github.event_name == 'push' && github.event.before || github.base_ref }}
           filters: |
             ts_client_files:
               - 'sdks/typescript/client/**'
@@ -152,6 +155,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - name: Fetch all tags
+        run: git fetch --tags --force
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
@@ -184,6 +189,8 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Pull latest changes
         run: git pull --rebase origin ${{ github.ref_name }}
+      - name: Fetch all tags
+        run: git fetch --tags --force
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with: { version: 10 }
@@ -201,7 +208,7 @@ jobs:
 
   release_ruby_sdk:
     name: Release Ruby SDK
-    needs: [ruby_sdk_test, release_ts_server, filter_changed_paths]
+    needs: [ruby_sdk_test, filter_changed_paths, release_ts_server]
     if: >
       always() &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&
@@ -244,7 +251,7 @@ jobs:
 
   release_python_sdk:
     name: Release Python SDK
-    needs: [python_sdk_test, release_ruby_sdk, filter_changed_paths]
+    needs: [python_sdk_test, filter_changed_paths, release_ruby_sdk]
     if: >
       always() &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alpha') &&

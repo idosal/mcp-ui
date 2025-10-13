@@ -24,6 +24,8 @@ hero:
       link: /about
 
 features:
+  - title: 🌐 Open Protocol
+    details: MCP-UI is an open spec to standardize UI over MCP. Write once, run everywhere!
   - title: ⚛️ Client SDK
     details: Provides a React component and Web Component for easy frontend integration. Render interactive UI resources and handle UI actions effortlessly.
   - title: 🛠️ Server SDKs

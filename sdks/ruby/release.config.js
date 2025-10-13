@@ -1,5 +1,11 @@
 module.exports = {
-  branches: ['main'],
+  branches: [
+    'main',
+    {
+      name: 'alpha',
+      prerelease: true,
+    },
+  ],
   repositoryUrl: 'https://github.com/idosal/mcp-ui',
   tagFormat: 'ruby-server-sdk/v${version}',
   plugins: [

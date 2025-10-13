@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getAdditionalResourceProps, utf8ToBase64 } from '../utils.js';
+import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from '../utils.js';
 import { UI_METADATA_PREFIX } from '../types.js';
 
 describe('getAdditionalResourceProps', () => {
@@ -142,5 +142,104 @@ describe('utf8ToBase64', () => {
     global.Buffer = bufferBackup;
     global.TextEncoder = textEncoderBackup;
     global.btoa = btoaBackup;
+  });
+});
+
+describe('getAdapterMimeType', () => {
+  it('should return undefined when no adapters are provided', () => {
+    const result = getAdapterMimeType();
+    expect(result).toBeUndefined();
+  });
+
+  it('should return undefined when adapters config is empty', () => {
+    const result = getAdapterMimeType({});
+    expect(result).toBeUndefined();
+  });
+
+  it('should return default mime type when appsSdk adapter is enabled', () => {
+    const result = getAdapterMimeType({
+      appsSdk: { enabled: true },
+    });
+    expect(result).toBe('text/html+skybridge');
+  });
+
+  it('should use custom mimeType from appsSdk config when provided', () => {
+    const result = getAdapterMimeType({
+      appsSdk: { enabled: true, mimeType: 'text/html+custom' },
+    });
+    expect(result).toBe('text/html+custom');
+  });
+
+  it('should return undefined when appsSdk is disabled', () => {
+    const result = getAdapterMimeType({
+      appsSdk: { enabled: false },
+    });
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('wrapHtmlWithAdapters', () => {
+  it('should return original HTML when no adapters are provided', () => {
+    const htmlContent = '<html><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent);
+    expect(result).toBe(htmlContent);
+  });
+
+  it('should return original HTML when adapters config is empty', () => {
+    const htmlContent = '<html><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {});
+    expect(result).toBe(htmlContent);
+  });
+
+  it('should inject adapter script when appsSdk adapter is enabled', () => {
+    const htmlContent = '<html><head></head><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: true },
+    });
+    expect(result).toContain('<script>');
+    expect(result).toContain('MCP_APPSSDK_ADAPTER');
+  });
+
+  it('should inject adapter script with custom mimeType config', () => {
+    const htmlContent = '<html><head></head><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: true, mimeType: 'text/html+custom' },
+    });
+    expect(result).toContain('<script>');
+  });
+
+  it('should inject adapter script into existing <head> tag', () => {
+    const htmlContent = '<html><head><title>Test</title></head><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: true },
+    });
+    expect(result).toContain('<head>\n<script>');
+    expect(result).toContain('<title>Test</title>');
+  });
+
+  it('should create <head> tag if <html> exists but no <head>', () => {
+    const htmlContent = '<html><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: true },
+    });
+    expect(result).toContain('<html>\n<head>\n<script>');
+    expect(result).toContain('</head>');
+  });
+
+  it('should prepend script when no <html> or <head> tags exist', () => {
+    const htmlContent = '<div>Test</div>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: true },
+    });
+    expect(result).toMatch(/^<script>/i);
+    expect(result).toContain('<div>Test</div>');
+  });
+
+  it('should return original HTML when appsSdk is disabled', () => {
+    const htmlContent = '<html><body>Test</body></html>';
+    const result = wrapHtmlWithAdapters(htmlContent, {
+      appsSdk: { enabled: false },
+    });
+    expect(result).toBe(htmlContent);
   });
 });
