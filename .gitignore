@@ -193,4 +193,7 @@ __pycache__/
 
 # Husky
 .husky/_/
-.husky/.gitignore 
+.husky/.gitignore
+
+# Auto-generated files
+adapter-runtime.bundled.ts
