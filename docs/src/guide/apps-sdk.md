@@ -42,7 +42,7 @@ const appsSdkTemplate = createUIResource({
 server.registerResource(TEMPLATE_URI, async () => appsSdkTemplate.resource);
 ```
 
-> **Note:** The adapter switches the MIME type to `text/html+skybridge` and injects the Apps bridge script automatically. The bridge translates MCP-UI primitives to Apps SDK compatible code so  no HTML changes are required.
+> **Note:** The adapter switches the MIME type to `text/html+skybridge` and injects the Apps bridge script automatically. The bridge translates MCP-UI primitives to Apps SDK compatible code so no HTML changes are required.
 
 ### Add Apps SDK widget metadata
 
