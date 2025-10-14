@@ -1,6 +1,6 @@
 # OpenAI Apps SDK Integration
 
-The Apps SDK adapter in `@mcp-ui/server` ensures your MCP-UI HTML runs inside ChatGPT. However, for now, you still need to manually wire the resource according to the Apps SDK resource pattern. This guide walks through the manual flow the adapter expects today.
+The Apps SDK adapter in `@mcp-ui/server` enables your MCP-UI HTML widget to run inside ChatGPT. However, for now, you still need to manually serve the resource according to the Apps SDK spec. This guide walks through the manual flow the adapter expects today to support both MCP-UI hosts and ChatGPT.
 
 ## Why two resources?
 
@@ -31,7 +31,7 @@ const appsSdkTemplate = createUIResource({
   },
   content: {
     type: 'rawHtml',
-    htmlString: renderInitialShell(),
+    htmlString: renderForecastWidget(),
   },
   metadata: {
     'openai/widgetDescription': widget.description,
@@ -55,7 +55,7 @@ const appsSdkTemplate = createUIResource({
   adapters: { appsSdk: { enabled: true } },
   content: {
     type: 'rawHtml',
-    htmlString: renderInitialShell(),
+    htmlString: renderForecastWidget(),
   },
   metadata: {
     'openai/widgetDescription': 'Interactive calculator',
@@ -94,21 +94,12 @@ server.registerTool(
   async ({ city }) => {
     const forecast = await fetchForecast(city);
 
-    // Step 3 happens inside the handler.
     return {
       content: [
         {
           type: 'text',
           text: `Forecast prepared for ${city}.`,
         },
-        createUIResource({
-          uri: TEMPLATE_URI,
-          encoding: 'text',
-          content: {
-            type: 'rawHtml',
-            htmlString: renderInitialShell(),
-          },
-        }),
       ],
       structuredContent: {
         forecast,
@@ -149,7 +140,7 @@ server.registerTool(
         encoding: 'text',
         content: {
         type: 'rawHtml',
-        htmlString: renderForecastHtml(forecast),
+        htmlString: renderForecastWidget(forecast),
         },
     });
 
