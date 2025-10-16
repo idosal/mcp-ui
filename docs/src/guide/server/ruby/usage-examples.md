@@ -114,6 +114,7 @@ puts "Resource 5: #{JSON.pretty_generate(resource5)}"
 
 # These resource objects would then be included in the 'content' array
 # of a toolResult in an MCP interaction.
+```
 
 ## Error Handling
 
