@@ -11,6 +11,7 @@ export type HTMLResourceRendererProps = {
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
+  useSrcDoc?: boolean;
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
     ref?: React.RefObject<HTMLIFrameElement>;
@@ -39,11 +40,13 @@ export const HTMLResourceRenderer = ({
   proxy,
   iframeRenderData,
   autoResizeIframe,
+  useSrcDoc,
   sandboxPermissions,
   iframeProps,
 }: HTMLResourceRendererProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   useImperativeHandle(iframeProps?.ref, () => iframeRef.current as HTMLIFrameElement);
+  const iframeSrcBlobUrl = useRef<string | null>(null);
 
   const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
     () => processHTMLResource(resource, proxy),
@@ -87,6 +90,10 @@ export const HTMLResourceRenderer = ({
             renderData: initialRenderData,
           },
         );
+      }
+      if (iframeSrcBlobUrl.current && typeof window?.URL?.revokeObjectURL === 'function') {
+        window.URL.revokeObjectURL(iframeSrcBlobUrl.current);
+        iframeSrcBlobUrl.current = null;
       }
       iframeProps?.onLoad?.(event);
     },
@@ -189,9 +196,24 @@ export const HTMLResourceRenderer = ({
       }
       return null;
     }
+    let iframeSrcProp: {
+      srcDoc?: string;
+    } | {
+      src?: string;
+    } = {
+      srcDoc: htmlString,
+    }
+    if (!useSrcDoc && typeof URL.createObjectURL === 'function') {
+      const blob = new Blob([htmlString], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      iframeSrcBlobUrl.current = blobUrl;
+      iframeSrcProp = {
+        src: blobUrl,
+      };
+    }
     return (
       <iframe
-        srcDoc={htmlString}
+        {...iframeSrcProp}
         sandbox={sandbox}
         style={{ width: preferredFrameSize[0], height: preferredFrameSize[1], ...style }}
         title="MCP HTML Resource (Embedded Content)"
