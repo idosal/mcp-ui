@@ -1,3 +1,10 @@
+## [5.13.1](https://github.com/idosal/mcp-ui/compare/client/v5.13.0...client/v5.13.1) (2025-10-21)
+
+
+### Bug Fixes
+
+* fix file extension reference in package.json ([927989c](https://github.com/idosal/mcp-ui/commit/927989c4f81742106b6f5e2f68343fb7ea7d016a))
+
 # [5.13.0](https://github.com/idosal/mcp-ui/compare/client/v5.12.1...client/v5.13.0) (2025-10-13)
 
 
