@@ -34,39 +34,23 @@ You can find a complete example for a site with restrictive CSP that uses the ho
 ## Architecture
 
 ```mermaid
-flowchart TD
-  Host[Host App (CSP)] -->|iframe src=proxy| Proxy[Proxy Page (different origin)]
-  Proxy -->|creates| Inner[Nested iframe]
-
-  Decision{Content type?}
-  Proxy --> Decision
-
-  Decision -->|External URL| URLPath[Set Inner src to ?url]
-  Decision -->|rawHtml| HTMLPath[Emit ready → receive { html, sandbox } → set Inner srcDoc]
-
-  Host -. ui-html-content { html, sandbox } .-> Proxy
-  Host -. UI control/messages .-> Proxy -. relay .-> Inner
-  Inner -. UI events/size .-> Proxy -. relay .-> Host
-```
-
-```mermaid
 sequenceDiagram
-  participant Host as Host Page (CSP)
-  participant Proxy as Proxy iframe (other origin)
-  participant Inner as Nested iframe (content)
-  Host->>Proxy: Load proxy (?url or ?contentType=rawhtml)
+  participant Host as Host Page
+  participant Proxy as Proxy iframe
+  participant Inner as Inner iframe (UI widget)
+  Host->>Proxy: Load proxy (with "?url" or "?contentType=rawhtml")
   alt External URL
-    Proxy->>Inner: Create with src = decoded ?url
+    Proxy->>Inner: Create with src = decoded url
   else rawHtml
-    Proxy-->>Host: ui-proxy-iframe-ready
-    Host->>Proxy: ui-html-content { html, sandbox }
-    Proxy->>Inner: Create (apply sandbox)
+    Proxy-->>Host: ui-proxy-iframe-ready message
+    Host->>Proxy: ui-html-content message ({ html, sandbox })
+    Proxy->>Inner: Create with sandbox
     Proxy->>Inner: Set srcDoc to HTML
   end
-  Inner-->>Proxy: UI events / size
-  Proxy-->>Host: Relay (inner -> host)
-  Host-->>Proxy: UI control / actions
-  Proxy-->>Inner: Relay (host -> inner)
+  Inner-->>Proxy: Messages (e.g., UI actions)
+  Proxy-->>Host: Relay (Inner -> Host)
+  Host-->>Proxy: Message responses
+  Proxy-->>Inner: Relay (Host -> Inner)
 ```
 
 ## Self-Hosting the Proxy Script
