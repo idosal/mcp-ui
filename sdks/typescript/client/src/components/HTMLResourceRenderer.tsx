@@ -26,6 +26,11 @@ export const InternalMessageType = {
   UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
   UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
   UI_REQUEST_RENDER_DATA: 'ui-request-render-data',
+  
+  // Proxy-only lifecycle for outer iframe (distinct from widget readiness)
+  UI_PROXY_IFRAME_READY: 'ui-proxy-iframe-ready',
+  // Content transport for raw HTML when using proxy
+  UI_HTML_CONTENT: 'ui-html-content',
 } as const;
 
 export const ReservedUrlParams = {
@@ -88,6 +93,7 @@ export const HTMLResourceRenderer = ({
           },
         );
       }
+
       iframeProps?.onLoad?.(event);
     },
     [initialRenderData, iframeSrcToRender, iframeProps?.onLoad],
@@ -98,17 +104,42 @@ export const HTMLResourceRenderer = ({
       const { source, origin, data } = event;
       // Only process the message if it came from this specific iframe
       if (iframeRef.current && source === iframeRef.current.contentWindow) {
-        // if the iframe is ready, send the render data to the iframe
-        if (data?.type === InternalMessageType.UI_LIFECYCLE_IFRAME_READY && initialRenderData) {
-          postToFrame(
-            InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
-            source,
-            origin,
-            undefined,
-            {
-              renderData: initialRenderData,
-            },
-          );
+        // if the proxy iframe is ready, send the HTML content
+        if (data?.type === InternalMessageType.UI_PROXY_IFRAME_READY) {
+          // Send HTML content if in rawhtml proxy mode
+          if (
+            iframeRenderMode === 'src' &&
+            htmlString &&
+            iframeSrcToRender?.includes('contentType=rawhtml')
+          ) {
+            postToFrame(
+              InternalMessageType.UI_HTML_CONTENT,
+              source,
+              origin,
+              undefined,
+              {
+                html: htmlString,
+                sandbox,
+              },
+            );
+          }
+          return;
+        }
+
+        // if the widget iframe is ready, send the render data
+        if (data?.type === InternalMessageType.UI_LIFECYCLE_IFRAME_READY) {
+          // Send render data if present
+          if (initialRenderData) {
+            postToFrame(
+              InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+              source,
+              origin,
+              undefined,
+              {
+                renderData: initialRenderData,
+              },
+            );
+          }
           return;
         }
 
@@ -170,7 +201,7 @@ export const HTMLResourceRenderer = ({
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onUIAction]);
+  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 

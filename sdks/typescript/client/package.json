@@ -28,6 +28,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
+    "@types/jsdom": "^27.0.0",
     "@types/react": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",
     "esbuild": "^0.25.5",

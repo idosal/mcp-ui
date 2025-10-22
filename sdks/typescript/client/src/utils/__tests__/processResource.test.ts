@@ -241,6 +241,89 @@ describe('processHTMLResource', () => {
         expect(result.iframeSrc).toBe('https://example.com');
         expect(result.iframeRenderMode).toBe('src');
       });
+
+      it('should use proxy when provided for rawHtml (text/html)', () => {
+        const html = '<h1>Test HTML</h1>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          text: html,
+        };
+        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('src');
+        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
+        // HTML should be preserved to send via postMessage
+        expect(result.htmlString).toBe(html);
+      });
+
+      it('should use proxy for rawHtml from blob content', () => {
+        const html = '<p>Blob HTML</p>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          blob: btoa(html),
+        };
+        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('src');
+        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
+        // HTML should be preserved to send via postMessage
+        expect(result.htmlString).toBe(html);
+      });
+
+      it('should fallback to srcDoc for rawHtml if proxy is invalid', () => {
+        const html = '<h1>Test HTML</h1>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          text: html,
+        };
+        const result = processHTMLResource(resource, 'not-a-valid-url');
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('srcDoc');
+        expect(result.htmlString).toBe(html);
+        expect(result.iframeSrc).toBeUndefined();
+      });
+
+      it('should not use proxy for rawHtml when proxy is empty string', () => {
+        const html = '<h1>Test HTML</h1>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          text: html,
+        };
+        const result = processHTMLResource(resource, '');
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('srcDoc');
+        expect(result.htmlString).toBe(html);
+        expect(result.iframeSrc).toBeUndefined();
+      });
+
+      it('should not use proxy for rawHtml when proxy is not provided', () => {
+        const html = '<h1>Test HTML</h1>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          text: html,
+        };
+        const result = processHTMLResource(resource);
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('srcDoc');
+        expect(result.htmlString).toBe(html);
+        expect(result.iframeSrc).toBeUndefined();
+      });
+
+      it('should handle very large HTML content with proxy (no URL length limits)', () => {
+        // Create a large HTML document (100KB+)
+        const largeHtml = '<div>' + 'x'.repeat(100000) + '</div>';
+        const resource = {
+          mimeType: 'text/html' as const,
+          text: largeHtml,
+        };
+        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        expect(result.error).toBeUndefined();
+        expect(result.iframeRenderMode).toBe('src');
+        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
+        // HTML should be preserved regardless of size (sent via postMessage)
+        expect(result.htmlString).toBe(largeHtml);
+        expect(result.htmlString?.length).toBeGreaterThan(100000);
+      });
     });
   });
 

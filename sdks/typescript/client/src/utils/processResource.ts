@@ -111,20 +111,15 @@ export function processHTMLResource(
     };
   } else if (resource.mimeType === 'text/html') {
     // Handle HTML content
+    let htmlContent = '';
+    
     if (typeof resource.text === 'string') {
-      return {
-        htmlString: resource.text,
-        iframeRenderMode: 'srcDoc',
-      };
+      htmlContent = resource.text;
     } else if (typeof resource.blob === 'string') {
       try {
-        const decodedHtml = new TextDecoder().decode(
+        htmlContent = new TextDecoder().decode(
           Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
         );
-        return {
-          htmlString: decodedHtml,
-          iframeRenderMode: 'srcDoc',
-        };
       } catch (e) {
         console.error('Error decoding base64 blob for HTML content:', e);
         return {
@@ -136,6 +131,35 @@ export function processHTMLResource(
         error: 'HTML resource requires text or blob content.',
       };
     }
+
+    if (proxy && proxy.trim() !== '') {
+      try {
+        const proxyUrl = new URL(proxy);
+        // The proxy host MUST NOT be the host URL, or the proxy can escape the sandbox
+        if (typeof window !== 'undefined' && proxyUrl.host === window.location.host) {
+          console.error(
+            'For security, the proxy origin must not be the same as the host origin. Using srcDoc rendering instead.',
+          );
+        } else {
+          proxyUrl.searchParams.set('contentType', 'rawhtml');
+          return {
+            iframeSrc: proxyUrl.toString(),
+            iframeRenderMode: 'src',
+            htmlString: htmlContent, // Pass HTML so it can be sent to the proxy via postMessage
+          };
+        }
+      } catch (e: unknown) {
+        console.error(
+          `Invalid proxy URL provided: "${proxy}". Falling back to srcDoc rendering.`,
+          e instanceof Error ? e.message : String(e),
+        );
+      }
+    }
+
+    return {
+      htmlString: htmlContent,
+      iframeRenderMode: 'srcDoc',
+    };
   } else {
     return {
       error: 'Unsupported mimeType. Expected text/html or text/uri-list.',

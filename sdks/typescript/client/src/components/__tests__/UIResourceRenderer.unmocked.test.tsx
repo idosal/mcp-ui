@@ -68,6 +68,60 @@ describe('UIResourceRenderer', () => {
     expect(ref.current?.style.width).toBe('200px');
     expect(ref.current?.style.height).toBe('100px');
   });
+
+  describe('Proxy', () => {
+    function nextTick(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    it('should render proxy iframe and send data when proxy iframe is ready', async () => {
+      const ref = React.createRef<HTMLIFrameElement>();
+      const proxy = 'https://proxy.example/';
+      const resource: Partial<Resource> = {
+        mimeType: 'text/html',
+        text: '<!doctype html><html><body><form><input></form></body></html>',
+      };
+
+      render(
+        <UIResourceRenderer
+          resource={resource}
+          htmlProps={{ proxy, sandboxPermissions: 'allow-forms', iframeProps: { ref } }}
+        />,
+      );
+
+      expect(ref.current).toBeInTheDocument();
+      // Outer iframe should target the proxy with contentType=rawhtml
+      expect(ref.current?.src).toContain('contentType=rawhtml');
+
+      // Stub and simulate proxy ready
+      const postMessageMock = vi.fn();
+      Object.defineProperty(ref.current as HTMLIFrameElement, 'contentWindow', {
+        value: { postMessage: postMessageMock },
+        writable: false,
+      });
+
+      const MsgEvent: typeof MessageEvent = window.MessageEvent;
+      window.dispatchEvent(
+        new MsgEvent('message', {
+          data: { type: 'ui-proxy-iframe-ready' },
+          source: (ref.current as HTMLIFrameElement).contentWindow as Window,
+          origin: 'https://proxy.example',
+        }),
+      );
+
+      await nextTick();
+
+      const calls = postMessageMock.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const [sentMessage, targetOrigin] = calls[0];
+      expect(targetOrigin).toBe('https://proxy.example');
+      expect(sentMessage?.type).toBe('ui-html-content');
+      expect(sentMessage?.payload?.html).toContain('<form>');
+      const payloadSandbox: string = sentMessage?.payload?.sandbox || '';
+      expect(payloadSandbox.includes('allow-scripts')).toBe(true);
+      expect(payloadSandbox.includes('allow-forms')).toBe(true);
+    });
+  });
 });
 
 const dispatchMessage = (source: Window | null, data: Record<string, unknown> | null) => {

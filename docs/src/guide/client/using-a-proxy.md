@@ -1,8 +1,11 @@
-# Using a Proxy Script for External URLs
+# Using a Proxy Script for External URLs and Raw HTML
 
-When rendering external URLs (`text/uri-list`), you may need to use a "proxy" to comply with your host's restrictive Content Security Policy (CSP). The proxy domain must be whitelisted as a `frame-src`. The `proxy` prop on `<UIResourceRenderer>` allows you to specify a URL for a proxy script that will render the external content in a nested iframe.
+When rendering external URLs (`text/uri-list`) or raw HTML (`text/html`), you may need to use a "proxy" to comply with your host's restrictive Content Security Policy (CSP). The proxy domain must be whitelisted as a `frame-src`. The `proxy` prop on `<UIResourceRenderer>` allows you to specify a URL for a proxy script that will render the content in a nested iframe on a different origin.
 
-When `proxy` is set, the external URL is encoded and appended to the proxy URL. For example, if `proxy` is `https://my-proxy.com/`, the final URL will be `https://my-proxy.com/?url=<encoded_original_url>`.
+There are two proxy flows:
+
+- External URLs: the external URL is encoded and appended as `?url=<encoded_original_url>` to the proxy URL. For example: `https://my-proxy.com/?url=<encoded_original_url>`.
+- Raw HTML: the proxy is loaded with `?contentType=rawhtml`, and the actual HTML (and inner iframe sandbox) are delivered via `postMessage` after the proxy iframe signals it's ready.
 
 ::: tip Important
 The term "proxy" in this context does not refer to a real proxy server. It is a static, client-side script that nests the external URL content within an iframe. This process occurs locally in the user's browser. User data never reaches a remote server.
@@ -28,6 +31,44 @@ Please verify that the host whitelists `https://proxy.mcpui.dev` as a `frame-src
 
 You can find a complete example for a site with restrictive CSP that uses the hosted proxy at `examples/external-url-demo`.
 
+## Architecture
+
+```mermaid
+flowchart TD
+  Host[Host App (CSP)] -->|iframe src=proxy| Proxy[Proxy Page (different origin)]
+  Proxy -->|creates| Inner[Nested iframe]
+
+  Decision{Content type?}
+  Proxy --> Decision
+
+  Decision -->|External URL| URLPath[Set Inner src to ?url]
+  Decision -->|rawHtml| HTMLPath[Emit ready → receive { html, sandbox } → set Inner srcDoc]
+
+  Host -. ui-html-content { html, sandbox } .-> Proxy
+  Host -. UI control/messages .-> Proxy -. relay .-> Inner
+  Inner -. UI events/size .-> Proxy -. relay .-> Host
+```
+
+```mermaid
+sequenceDiagram
+  participant Host as Host Page (CSP)
+  participant Proxy as Proxy iframe (other origin)
+  participant Inner as Nested iframe (content)
+  Host->>Proxy: Load proxy (?url or ?contentType=rawhtml)
+  alt External URL
+    Proxy->>Inner: Create with src = decoded ?url
+  else rawHtml
+    Proxy-->>Host: ui-proxy-iframe-ready
+    Host->>Proxy: ui-html-content { html, sandbox }
+    Proxy->>Inner: Create (apply sandbox)
+    Proxy->>Inner: Set srcDoc to HTML
+  end
+  Inner-->>Proxy: UI events / size
+  Proxy-->>Host: Relay (inner -> host)
+  Host-->>Proxy: UI control / actions
+  Proxy-->>Inner: Relay (host -> inner)
+```
+
 ## Self-Hosting the Proxy Script
 
 If you prefer to host your own proxy script, you can create a simple HTML file with embedded JavaScript. This is a useful alternative to the hosted version when you want more control or a custom domain.
@@ -38,14 +79,22 @@ If you prefer to host your own proxy script, you can create a simple HTML file w
 
 A valid proxy script must:
 
-1.  **Accept a `url` query parameter**: The script should retrieve the target URL from the `url` query parameter in its own URL.
-2.  **Validate the URL**: It must validate that the provided URL is a valid `http:` or `https:` URL to prevent abuse.
-3.  **Render in an Iframe**: The script should dynamically create an iframe and set its `src` to the validated target URL.
-4.  **Sandbox the Iframe**: The iframe must be sandboxed to restrict its capabilities. A minimal sandbox policy would be `allow-scripts allow-same-origin`.
-5.  **Forward `postMessage` Events**: To allow communication between the host application and the embedded external URL, the proxy needs to forward `message` events between `window.parent` and the iframe's `contentWindow`. For security, it's critical to use a specific `targetOrigin` instead of `*` in `postMessage` calls whenever possible. The `targetOrigin` for messages to the iframe should be the external URL's origin; Messages to the parent will resort to `*`.
+1.  **External URLs (`url` query parameter)**: Retrieve `url` from the query string, validate it as `http:`/`https:`, and render it in a nested iframe.
+2.  **Raw HTML (`contentType=rawhtml`)**: When `contentType=rawhtml` is present, the proxy must:
+    - Create a nested iframe and emit a ready signal (`ui-proxy-iframe-ready`) to `window.parent`.
+    - Receive a single `postMessage` with `{ html: string, sandbox?: string }` (message type e.g. `ui-html-content`).
+    - Apply `sandbox` to the inner iframe, then set the inner iframe `srcdoc` to the provided HTML.
+3.  **Sandbox the Iframe**: The nested iframe must be sandboxed to restrict capabilities. For external URLs a minimal policy is `allow-scripts allow-same-origin`; for raw HTML a minimal policy is `allow-scripts` unless you explicitly need additional capabilities.
+4.  **Forward `postMessage` Events**: To allow communication between the host application 
+and the embedded external URL, the proxy needs to forward `message` events between `window.
+parent` and the iframe's `contentWindow`. For security, it's critical to use a specific 
+`targetOrigin` instead of `*` in `postMessage` calls whenever possible. The `targetOrigin` 
+for messages to the iframe should be the external URL's origin; Messages to the parent will 
+default to `*`.
+5.  **Permissive Proxy CSP**: Serve the proxy page with a permissive CSP that does not block nested iframe content (e.g., allowing scripts, styles, images) since the host CSP is intentionally not applied on the proxy origin.
 
 ### Example Self-Hosted Proxy
 
-Here is an example of a self-hosted proxy script that meets these requirements. You can find this file in `sdks/typescript/client/scripts/proxy/index.html`.
+Here is an example of a self-hosted proxy script that meets these requirements (supports both `url` for external URLs and `contentType=rawhtml` + `postMessage` for raw HTML). You can find this file in `sdks/typescript/client/scripts/proxy/index.html`.
 
 <<< @/../../sdks/typescript/client/scripts/proxy/index.html 
