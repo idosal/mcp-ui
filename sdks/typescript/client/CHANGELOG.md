@@ -1,3 +1,10 @@
+# [5.14.0](https://github.com/idosal/mcp-ui/compare/client/v5.13.1...client/v5.14.0) (2025-10-22)
+
+
+### Features
+
+* support proxy for rawHtml ([#132](https://github.com/idosal/mcp-ui/issues/132)) ([1bbeb09](https://github.com/idosal/mcp-ui/commit/1bbeb093bc9c389f4ccfd9e8df06dc7f1eaadde0))
+
 ## [5.13.1](https://github.com/idosal/mcp-ui/compare/client/v5.13.0...client/v5.13.1) (2025-10-21)
 
 
