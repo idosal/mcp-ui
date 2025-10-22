@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <!-- Permissive CSP so nested content is not constrained by host CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; connect-src *; frame-src *;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src * 'unsafe-inline'; connect-src *; frame-src 'none'; base-uri 'self'; upgrade-insecure-requests;" />
     <title>MCP-UI Proxy</title>
     <style>
       html,

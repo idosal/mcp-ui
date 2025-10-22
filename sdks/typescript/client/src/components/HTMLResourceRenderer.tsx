@@ -99,6 +99,14 @@ export const HTMLResourceRenderer = ({
     [initialRenderData, iframeSrcToRender, iframeProps?.onLoad],
   );
 
+  const sandbox = useMemo(() => {
+    if (iframeRenderMode === 'srcDoc') {
+      // with raw HTML we don't set allow-same-origin for security reasons
+      return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts');
+    }
+    return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts allow-same-origin');
+  }, [sandboxPermissions, iframeRenderMode]);
+
   useEffect(() => {
     async function handleMessage(event: MessageEvent) {
       const { source, origin, data } = event;
@@ -201,17 +209,11 @@ export const HTMLResourceRenderer = ({
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender]);
+  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender, sandbox]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 
-  const sandbox = useMemo(() => {
-    if (iframeRenderMode === 'srcDoc') {
-      // with raw HTML we don't set allow-same-origin for security reasons
-      return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts');
-    }
-    return mergeSandboxPermissions(sandboxPermissions ?? '', 'allow-scripts allow-same-origin');
-  }, [sandboxPermissions, iframeRenderMode]);
+
 
   if (iframeRenderMode === 'srcDoc') {
     if (htmlString === null || htmlString === undefined) {
