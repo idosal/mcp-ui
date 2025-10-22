@@ -1,3 +1,15 @@
+# [5.13.0](https://github.com/idosal/mcp-ui/compare/server/v5.12.0...server/v5.13.0) (2025-10-22)
+
+
+### Bug Fixes
+
+* fix file extension reference in package.json ([927989c](https://github.com/idosal/mcp-ui/commit/927989c4f81742106b6f5e2f68343fb7ea7d016a))
+
+
+### Features
+
+* support proxy for rawHtml ([#132](https://github.com/idosal/mcp-ui/issues/132)) ([1bbeb09](https://github.com/idosal/mcp-ui/commit/1bbeb093bc9c389f4ccfd9e8df06dc7f1eaadde0))
+
 # [5.12.0](https://github.com/idosal/mcp-ui/compare/server/v5.11.0...server/v5.12.0) (2025-10-13)
 
 
