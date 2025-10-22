@@ -90,12 +90,15 @@ describe('<UIResourceRenderer />', () => {
     );
   });
 
-  it('should not pass proxy prop to HTMLResourceRenderer for HTML content', () => {
+  it('should pass proxy prop to HTMLResourceRenderer for raw HTML', () => {
     const resource = { ...baseResource, mimeType: 'text/html' };
     render(
       <UIResourceRenderer resource={resource} htmlProps={{ proxy: 'https://proxy.mcpui.dev/' }} />,
     );
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
-    expect(HTMLResourceRenderer).toHaveBeenCalledWith({ resource }, {});
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(
+      { resource, proxy: 'https://proxy.mcpui.dev/' },
+      {},
+    );
   });
 });
