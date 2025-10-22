@@ -20,14 +20,17 @@ mcp = FastMCP("python-server-demo")
 
 @mcp.tool()
 def show_external_url() -> list[UIResource]:
-    """Creates a UI resource displaying an external URL (example.com)."""
+    """Creates a UI resource displaying an external URL (example.com) with preferred frame size."""
     ui_resource = create_ui_resource({
         "uri": "ui://greeting",
         "content": {
             "type": "externalUrl",
             "iframeUrl": "https://example.com"
         },
-        "encoding": "text"
+        "encoding": "text",
+        "uiMetadata": {
+            "preferred-frame-size": [800, 600]
+        }
     })
     return [ui_resource]
 
