@@ -5,10 +5,10 @@ When rendering external URLs (`text/uri-list`) or raw HTML (`text/html`), you ma
 There are two proxy flows:
 
 - External URLs: the external URL is encoded and appended as `?url=<encoded_original_url>` to the proxy URL. For example: `https://my-proxy.com/?url=<encoded_original_url>`.
-- Raw HTML: the proxy is loaded with `?contentType=rawhtml`, and the actual HTML (and inner iframe sandbox) are delivered via `postMessage` after the proxy iframe signals it's ready.
+- Raw HTML: the proxy is loaded with `?contentType=rawhtml`, and the HTML and inner iframe sandbox are delivered via `postMessage` after the proxy iframe signals it's ready.
 
 ::: tip Important
-The term "proxy" in this context does not refer to a real proxy server. It is a static, client-side script that nests the external URL content within an iframe. This process occurs locally in the user's browser. User data never reaches a remote server.
+The term "proxy" in this context does not refer to a real proxy server. It is a static, client-side script that nests the UI resource's iframe within a "proxy" iframe. This process occurs locally in the user's browser. User data never reaches a remote server.
 :::
 
 ## Using the Hosted Proxy
