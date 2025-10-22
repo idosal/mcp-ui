@@ -136,6 +136,8 @@ export const InternalMessageType = {
 
   UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
   UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
+  
+  UI_RAWHTML_CONTENT: 'ui-html-content',
 };
 
 export const ReservedUrlParams = {
