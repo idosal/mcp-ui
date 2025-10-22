@@ -71,5 +71,3 @@ describe('Proxy script', () => {
     expect(srcdocAttr.includes('<form>')).toBe(true);
   });
 });
-
-

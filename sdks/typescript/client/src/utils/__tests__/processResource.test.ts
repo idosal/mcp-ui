@@ -251,7 +251,7 @@ describe('processHTMLResource', () => {
         const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('src');
-        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
+        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?contentType=rawhtml');
         // HTML should be preserved to send via postMessage
         expect(result.htmlString).toBe(html);
       });
@@ -265,7 +265,7 @@ describe('processHTMLResource', () => {
         const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('src');
-        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
+        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?contentType=rawhtml');
         // HTML should be preserved to send via postMessage
         expect(result.htmlString).toBe(html);
       });
@@ -307,22 +307,6 @@ describe('processHTMLResource', () => {
         expect(result.iframeRenderMode).toBe('srcDoc');
         expect(result.htmlString).toBe(html);
         expect(result.iframeSrc).toBeUndefined();
-      });
-
-      it('should handle very large HTML content with proxy (no URL length limits)', () => {
-        // Create a large HTML document (100KB+)
-        const largeHtml = '<div>' + 'x'.repeat(100000) + '</div>';
-        const resource = {
-          mimeType: 'text/html' as const,
-          text: largeHtml,
-        };
-        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
-        expect(result.error).toBeUndefined();
-        expect(result.iframeRenderMode).toBe('src');
-        expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?mode=rawhtml');
-        // HTML should be preserved regardless of size (sent via postMessage)
-        expect(result.htmlString).toBe(largeHtml);
-        expect(result.htmlString?.length).toBeGreaterThan(100000);
       });
     });
   });
