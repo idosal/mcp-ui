@@ -8,6 +8,7 @@ from pydantic import AnyUrl
 
 from .exceptions import InvalidContentError, InvalidURIError
 from .types import (
+    UI_METADATA_PREFIX,
     CreateUIResourceOptions,
     MimeType,
     UIActionResultIntent,
@@ -28,6 +29,39 @@ class UIResource(EmbeddedResource):
             resource=resource,
             **kwargs
         )
+
+
+def _get_additional_resource_props(options: CreateUIResourceOptions) -> dict[str, Any]:
+    """Get additional resource properties including metadata.
+    
+    Prefixes UI-specific metadata with the UI metadata prefix to be recognized by the client.
+    
+    Args:
+        options: The UI resource options
+        
+    Returns:
+        Dictionary of additional properties to merge into the resource
+    """
+    additional_props: dict[str, Any] = {}
+    
+    # Prefix ui specific metadata with the prefix to be recognized by the client
+    if options.uiMetadata or options.metadata:
+        ui_prefixed_metadata: dict[str, Any] = {}
+        
+        if options.uiMetadata:
+            for key, value in options.uiMetadata.items():
+                ui_prefixed_metadata[f"{UI_METADATA_PREFIX}{key}"] = value
+        
+        # Allow user defined metadata to override ui metadata
+        _meta: dict[str, Any] = {
+            **ui_prefixed_metadata,
+            **(options.metadata or {}),
+        }
+        
+        if _meta:
+            additional_props["_meta"] = _meta
+    
+    return additional_props
 
 
 def create_ui_resource(options_dict: dict[str, Any]) -> UIResource:
@@ -108,17 +142,22 @@ def create_ui_resource(options_dict: dict[str, Any]) -> UIResource:
     # Create resource based on encoding type
     encoding = options.encoding
     
+    # Get additional properties including metadata
+    additional_props = _get_additional_resource_props(options)
+    
     if encoding == "text":
         resource: TextResourceContents | BlobResourceContents = TextResourceContents(
             uri=AnyUrl(options.uri),
             mimeType=mime_type,
             text=actual_content_string,
+            **additional_props,
         )
     elif encoding == "blob":
         resource = BlobResourceContents(
             uri=AnyUrl(options.uri),
             mimeType=mime_type,
             blob=base64.b64encode(actual_content_string.encode('utf-8')).decode('ascii'),
+            **additional_props,
         )
     else:
         raise InvalidContentError(f"Invalid encoding type: {encoding}")

@@ -40,11 +40,23 @@ class RemoteDomPayload(BaseModel):
 ResourceContentPayload = RawHtmlPayload | ExternalUrlPayload | RemoteDomPayload
 
 
+# UI Metadata constants
+UI_METADATA_PREFIX = "mcpui.dev/ui-"
+
+
+class UIMetadataKey:
+    """Keys for UI metadata."""
+    PREFERRED_FRAME_SIZE = "preferred-frame-size"
+    INITIAL_RENDER_DATA = "initial-render-data"
+
+
 class CreateUIResourceOptions(BaseModel):
     """Options for creating a UI resource."""
     uri: URI
     content: ResourceContentPayload
     encoding: Literal["text", "blob"]
+    uiMetadata: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class GenericActionMessage(BaseModel):
