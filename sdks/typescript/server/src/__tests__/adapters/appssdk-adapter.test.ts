@@ -76,19 +76,12 @@ describe('Apps SDK Adapter', () => {
       expect(script).toContain('https://test.example.com');
     });
 
-    it('should set MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL flag', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      // Should prevent the bundled code from auto-initializing
-      expect(script).toContain('MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL');
-      expect(script).toContain('window.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL = true');
-    });
-
     it('should expose global MCPUIAppsSdkAdapter API', () => {
       const script = getAppsSdkAdapterScript();
       
       expect(script).toContain('window.MCPUIAppsSdkAdapter');
       expect(script).toContain('init: initAdapter');
+      expect(script).toContain('initWithConfig: () => initAdapter({})')
       expect(script).toContain('uninstall: uninstallAdapter');
     });
 
