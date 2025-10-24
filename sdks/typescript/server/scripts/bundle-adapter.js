@@ -10,9 +10,9 @@ const __dirname = dirname(__filename);
 try {
   const result = await build({
     entryPoints: [join(__dirname, '../src/adapters/appssdk/adapter-runtime.ts')],
-    bundle: true,
+    bundle: false,
     write: false,
-    format: 'iife',
+    format: 'esm',
     platform: 'browser',
     target: 'es2020',
     minify: false, // Keep readable for debugging

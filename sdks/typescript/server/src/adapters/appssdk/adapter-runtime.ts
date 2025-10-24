@@ -14,9 +14,6 @@ import type {
 import type { UIActionResult } from '../../types.js';
 
 type ParentPostMessage = Window['postMessage'];
-type AdapterWindow = Window & {
-  MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL?: boolean;
-};
 
 /**
  * Main adapter class that handles protocol translations
@@ -456,7 +453,8 @@ let adapterInstance: MCPUIAppsSdkAdapter | null = null;
  * @param config - Optional configuration
  * @returns true if adapter was initialized, false if Apps SDK not detected
  */
-export function initAdapter(config?: AppsSdkAdapterConfig): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function initAdapter(config?: AppsSdkAdapterConfig): boolean {
   if (adapterInstance) {
     console.warn('[MCPUI-Apps SDK Adapter] Adapter already initialized');
     return true;
@@ -469,21 +467,10 @@ export function initAdapter(config?: AppsSdkAdapterConfig): boolean {
 /**
  * Uninstall the adapter and restore original behavior
  */
-export function uninstallAdapter(): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function uninstallAdapter(): void {
   if (adapterInstance) {
     adapterInstance.uninstall();
     adapterInstance = null;
   }
 }
-
-/**
- * Auto-install the adapter when this module is loaded
- * Can be disabled by setting window.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL = true before loading
- */
-if (typeof window !== 'undefined') {
-  const adapterWindow = window as AdapterWindow;
-  if (!adapterWindow.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL) {
-    initAdapter();
-  }
-}
-

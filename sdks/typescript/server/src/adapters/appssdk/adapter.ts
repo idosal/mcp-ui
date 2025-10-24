@@ -38,10 +38,13 @@ export function getAppsSdkAdapterScript(config?: AppsSdkAdapterConfig): string {
   
   // Override auto-init from runtime and initialize with provided config
   if (typeof window !== 'undefined') {
-    window.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL = true; // Prevent auto-init from bundled code
+    // If the functions are not defined, just return, we can't do anything.
+    if (typeof initAdapter !== 'function' || typeof uninstallAdapter !== 'function') {
+      return;
+    }
     
-    // Initialize with config from server
-    if (typeof initAdapter === 'function') {
+    // If auto-init is enabled, initialize with config from server 
+    if (!window.MCP_APPSSDK_ADAPTER_NO_AUTO_INSTALL) {
       initAdapter(${configJson});
     }
     
@@ -49,6 +52,7 @@ export function getAppsSdkAdapterScript(config?: AppsSdkAdapterConfig): string {
     if (typeof window.MCPUIAppsSdkAdapter === 'undefined') {
       window.MCPUIAppsSdkAdapter = {
         init: initAdapter,
+        initWithConfig: () => initAdapter(${configJson}),
         uninstall: uninstallAdapter,
       };
     }
