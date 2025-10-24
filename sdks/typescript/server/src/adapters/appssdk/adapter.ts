@@ -40,6 +40,7 @@ export function getAppsSdkAdapterScript(config?: AppsSdkAdapterConfig): string {
   if (typeof window !== 'undefined') {
     // If the functions are not defined, just return, we can't do anything.
     if (typeof initAdapter !== 'function' || typeof uninstallAdapter !== 'function') {
+      console.warn('[MCPUI-Apps SDK Adapter] Adapter runtime not found with the correct methods. Adapter will not activate.')    
       return;
     }
     

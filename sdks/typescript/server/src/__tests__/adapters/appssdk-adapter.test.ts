@@ -85,6 +85,18 @@ describe('Apps SDK Adapter', () => {
       expect(script).toContain('uninstall: uninstallAdapter');
     });
 
+    it('should expose an initWithConfig with multiple config options', () => {
+       const config: AppsSdkAdapterConfig = {
+         timeout: 10000,
+         intentHandling: 'prompt',
+         hostOrigin: 'https://test.example.com',
+       };
+
+       const script = getAppsSdkAdapterScript(config);
+
+       expect(script).toContain(`initWithConfig: () => initAdapter(${JSON.stringify(config)})`);
+    });
+
     it('should check for window before initialization', () => {
       const script = getAppsSdkAdapterScript();
       
