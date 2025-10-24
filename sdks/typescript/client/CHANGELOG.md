@@ -1,3 +1,10 @@
+## [5.14.1](https://github.com/idosal/mcp-ui/compare/client/v5.14.0...client/v5.14.1) (2025-10-24)
+
+
+### Bug Fixes
+
+* Enable bidirectional message relay in rawhtml proxy mode ([#138](https://github.com/idosal/mcp-ui/issues/138)) ([f0bdefb](https://github.com/idosal/mcp-ui/commit/f0bdefb818aca5a3bfbdfe28fc4fe057b1818cb5))
+
 # [5.14.0](https://github.com/idosal/mcp-ui/compare/client/v5.13.1...client/v5.14.0) (2025-10-22)
 
 
