@@ -54,15 +54,21 @@
 
         // Wait for HTML content from parent
         window.addEventListener('message', (event) => {
-          if (event.source === window.parent && event.data && event.data.type === 'ui-html-content') {
-            const payload = event.data.payload || {};
-            const html = payload.html;
-            const sandbox = payload.sandbox;
-            if (typeof sandbox === 'string') {
-              inner.setAttribute('sandbox', sandbox);
-            }
-            if (typeof html === 'string') {
-              inner.srcdoc = html;
+          if (event.source === window.parent) {
+            if (event.data && event.data.type === 'ui-html-content') {
+              const payload = event.data.payload || {};
+              const html = payload.html;
+              const sandbox = payload.sandbox;
+              if (typeof sandbox === 'string') {
+                inner.setAttribute('sandbox', sandbox);
+              }
+              if (typeof html === 'string') {
+                inner.srcdoc = html;
+              }
+            } else {
+              if (inner && inner.contentWindow) {
+                inner.contentWindow.postMessage(event.data, '*');
+              }
             }
           } else if (event.source === inner.contentWindow) {
             // Relay messages from inner to parent
