@@ -45,13 +45,63 @@ UI_METADATA_PREFIX = "mcpui.dev/ui-"
 
 
 class UIMetadataKey:
-    """Keys for UI metadata."""
+    """Keys for UI metadata with their expected value types.
+    
+    These constants should be used as keys in the uiMetadata dictionary to avoid typos
+    and improve code maintainability.
+    
+    Attributes:
+        PREFERRED_FRAME_SIZE: Key for specifying preferred iframe dimensions.
+            - Expected value type: list[str, str] or tuple[str, str]
+            - Format: [width, height] as CSS dimension strings
+            - Examples: 
+                * ["800px", "600px"] - Fixed pixel dimensions
+                * ["100%", "50vh"] - Responsive with percentage and viewport height
+                * ["50rem", "80%"] - Relative and percentage units
+            - Important: Must be strings with CSS units (px, %, vh, vw, rem, em, etc.)
+            - Applied directly to iframe's CSS width and height properties
+            
+        INITIAL_RENDER_DATA: Key for passing initial data to the UI component.
+            - Expected value type: dict[str, Any]
+            - Format: Any JSON-serializable dictionary
+            - Examples:
+                * {"user": {"id": "123", "name": "John"}}
+                * {"config": {"theme": "dark", "language": "en"}}
+            - Data is passed to the iframe on initial render
+    
+    Example usage:
+        ```python
+        from mcp_ui_server import create_ui_resource, UIMetadataKey
+        
+        ui_resource = create_ui_resource({
+            "uri": "ui://my-component",
+            "content": {"type": "rawHtml", "htmlString": "<h1>Hello</h1>"},
+            "encoding": "text",
+            "uiMetadata": {
+                UIMetadataKey.PREFERRED_FRAME_SIZE: ["800px", "600px"],
+                UIMetadataKey.INITIAL_RENDER_DATA: {"user": {"id": "123"}}
+            }
+        })
+        ```
+    """
     PREFERRED_FRAME_SIZE = "preferred-frame-size"
     INITIAL_RENDER_DATA = "initial-render-data"
 
 
 class CreateUIResourceOptions(BaseModel):
-    """Options for creating a UI resource."""
+    """Options for creating a UI resource.
+    
+    Attributes:
+        uri: The resource identifier. Must start with 'ui://'
+        content: The resource content payload (rawHtml, externalUrl, or remoteDom)
+        encoding: Whether to encode as 'text' or 'blob' (base64)
+        uiMetadata: UI-specific metadata that will be prefixed with 'mcpui.dev/ui-'
+            Use UIMetadataKey constants for type-safe keys:
+            - UIMetadataKey.PREFERRED_FRAME_SIZE: list[str, str] - CSS dimensions
+            - UIMetadataKey.INITIAL_RENDER_DATA: dict[str, Any] - Initial data
+        metadata: Custom metadata (not prefixed). Merged with prefixed uiMetadata.
+            Example: {"custom.author": "Server Name", "custom.version": "1.0.0"}
+    """
     uri: URI
     content: ResourceContentPayload
     encoding: Literal["text", "blob"]

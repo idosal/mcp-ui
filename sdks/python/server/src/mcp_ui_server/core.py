@@ -70,15 +70,33 @@ def create_ui_resource(options_dict: dict[str, Any]) -> UIResource:
     This is the object that should be included in the 'content' array of a toolResult.
     
     Args:
-        options: Configuration for the interactive resource
+        options_dict: Configuration dictionary for the interactive resource. Keys:
+            - uri (str): Resource identifier starting with 'ui://'
+            - content (dict): Content payload (type: rawHtml, externalUrl, or remoteDom)
+            - encoding (str): 'text' or 'blob'
+            - uiMetadata (dict, optional): UI metadata. Use UIMetadataKey constants:
+                * UIMetadataKey.PREFERRED_FRAME_SIZE: list[str, str] - CSS dimensions like ["800px", "600px"]
+                * UIMetadataKey.INITIAL_RENDER_DATA: dict - Initial data for the UI
+            - metadata (dict, optional): Custom metadata (not prefixed)
         
     Returns:
-        A UIResource instance
+        A UIResource instance ready to be included in tool results
         
     Raises:
         InvalidURIError: If the URI doesn't start with 'ui://'
         InvalidContentError: If content validation fails
         MCPUIServerError: For other errors
+        
+    Example:
+        >>> from mcp_ui_server import create_ui_resource, UIMetadataKey
+        >>> resource = create_ui_resource({
+        ...     "uri": "ui://my-widget",
+        ...     "content": {"type": "rawHtml", "htmlString": "<h1>Hello</h1>"},
+        ...     "encoding": "text",
+        ...     "uiMetadata": {
+        ...         UIMetadataKey.PREFERRED_FRAME_SIZE: ["800px", "600px"]
+        ...     }
+        ... })
     """
     options = CreateUIResourceOptions.model_validate(options_dict)
     # Validate URI

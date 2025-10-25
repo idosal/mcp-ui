@@ -54,16 +54,31 @@ Each tool returns an MCP resource that can be rendered by MCP UI clients:
 
 ## UI Metadata
 
-The SDK supports UI metadata through the `uiMetadata` parameter in `create_ui_resource()`:
-1. Prefixes all `uiMetadata` keys with `mcpui.dev/ui-`
-2. Merges prefixed metadata with any custom metadata
-3. Adds the combined metadata to the resource's `_meta` field
+The SDK supports UI metadata through the `uiMetadata` parameter in `create_ui_resource()`.
+
+### Metadata Keys
+
+Use the `UIMetadataKey` constants for type-safe metadata keys:
+
+- **`UIMetadataKey.PREFERRED_FRAME_SIZE`**: CSS dimensions for the iframe
+  - Type: `list[str, str]` - [width, height] as CSS dimension strings
+  - Examples: `["800px", "600px"]`, `["100%", "50vh"]`, `["50rem", "80%"]`
+  - Must include CSS units (px, %, vh, vw, rem, em, etc.)
+
+- **`UIMetadataKey.INITIAL_RENDER_DATA`**: Initial data for the UI component
+  - Type: `dict[str, Any]` - Any JSON-serializable dictionary
+
+### How It Works
+
+1. All `uiMetadata` keys are automatically prefixed with `mcpui.dev/ui-`
+2. Prefixed metadata is merged with any custom `metadata`
+3. The combined metadata is added to the resource's `_meta` field
 4. Custom metadata keys are preserved as-is (not prefixed)
 
 ### Example Usage
 
 ```python
-from mcp_ui_server import create_ui_resource
+from mcp_ui_server import create_ui_resource, UIMetadataKey
 
 ui_resource = create_ui_resource({
     "uri": "ui://my-component",
@@ -73,7 +88,8 @@ ui_resource = create_ui_resource({
     },
     "encoding": "text",
     "uiMetadata": {
-        "preferred-frame-size": ["1200", "800"],
+        UIMetadataKey.PREFERRED_FRAME_SIZE: ["1200px", "800px"],
+        # Or use string literal: "preferred-frame-size": ["1200px", "800px"]
     },
     # Optional: custom metadata (not prefixed)
     "metadata": {
