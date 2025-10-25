@@ -133,6 +133,110 @@ blob_resource = create_ui_resource({
 })
 ```
 
+### UI Metadata
+
+Enhance resources with metadata for client-side handling. The SDK automatically prefixes UI-specific metadata with `mcpui.dev/ui-` to distinguish it from custom metadata.
+
+#### Preferred Frame Size
+
+Specify preferred dimensions for UI rendering:
+
+```python
+resource = create_ui_resource({
+    "uri": "ui://chart",
+    "content": {
+        "type": "externalUrl",
+        "iframeUrl": "https://charts.example.com/widget"
+    },
+    "encoding": "text",
+    "uiMetadata": {
+        "preferred-frame-size": [800, 600]  # width, height in pixels or css units
+    }
+})
+```
+
+#### Initial Render Data
+
+Provide data to components at initialization:
+
+```python
+resource = create_ui_resource({
+    "uri": "ui://dashboard",
+    "content": {
+        "type": "remoteDom",
+        "script": """
+            function Dashboard({ theme, userId }) {
+                // Component receives initial data
+                return <div>Dashboard for user {userId}</div>;
+            }
+        """,
+        "framework": "react"
+    },
+    "encoding": "text",
+    "uiMetadata": {
+        "initial-render-data": {
+            "theme": "dark",
+            "userId": "123"
+        }
+    }
+})
+```
+
+#### Multiple Metadata Fields
+
+Combine multiple metadata fields:
+
+```python
+resource = create_ui_resource({
+    "uri": "ui://data-viz",
+    "content": {
+        "type": "rawHtml",
+        "htmlString": "<canvas id='chart'></canvas>"
+    },
+    "encoding": "text",
+    "uiMetadata": {
+        "preferred-frame-size": ["800px", "600px"],
+        "initial-render-data": {
+            "chartType": "bar",
+            "dataSet": "quarterly-sales"
+        }
+    }
+})
+```
+
+#### Custom Metadata
+
+Add custom metadata alongside UI metadata:
+
+```python
+resource = create_ui_resource({
+    "uri": "ui://custom-widget",
+    "content": {
+        "type": "rawHtml",
+        "htmlString": "<div>Widget</div>"
+    },
+    "encoding": "text",
+    "uiMetadata": {
+        "preferred-frame-size": [640, 480]
+    },
+    "metadata": {
+        "customKey": "customValue",
+        "version": "1.0.0"
+    }
+})
+
+# Result includes both prefixed UI metadata and custom metadata:
+# {
+#   "resource": {
+#     "meta": {
+#       "mcpui.dev/ui-preferred-frame-size": [640, 480],
+#       "customKey": "customValue",
+#       "version": "1.0.0"
+#     }
+#   }
+# }
+```
+
 ### UI Actions
 
 Create action results for user interactions:
@@ -266,7 +370,9 @@ Creates a UI resource from the given options.
 {
     "uri": str,  # Must start with "ui://"
     "content": Union[RawHtmlPayload, ExternalUrlPayload, RemoteDomPayload],
-    "encoding": Literal["text", "blob"]
+    "encoding": Literal["text", "blob"],
+    "uiMetadata": Optional[dict[str, Any]],  # UI-specific metadata (auto-prefixed)
+    "metadata": Optional[dict[str, Any]]     # Custom metadata
 }
 ```
 

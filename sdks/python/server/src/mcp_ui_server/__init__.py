@@ -24,6 +24,7 @@ from .types import (
     UIActionResultPrompt,
     UIActionResultToolCall,
     UIActionType,
+    UIMetadataKey,
 )
 
 __version__ = "5.2.0"
@@ -40,6 +41,7 @@ __all__ = [
     "UIActionResultLink",
     "UIActionResultIntent",
     "UIActionResultNotification",
+    "UIMetadataKey",
     "UIResource",
     "create_ui_resource",
     "ui_action_result_tool_call",
