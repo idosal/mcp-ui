@@ -1,3 +1,11 @@
+## [5.13.1](https://github.com/idosal/mcp-ui/compare/server/v5.13.0...server/v5.13.1) (2025-10-25)
+
+
+### Bug Fixes
+
+* Enable bidirectional message relay in rawhtml proxy mode ([#138](https://github.com/idosal/mcp-ui/issues/138)) ([f0bdefb](https://github.com/idosal/mcp-ui/commit/f0bdefb818aca5a3bfbdfe28fc4fe057b1818cb5))
+* ensure Apps SDK adapter is bundled properly and initialized wth config ([#137](https://github.com/idosal/mcp-ui/issues/137)) ([4f7c25c](https://github.com/idosal/mcp-ui/commit/4f7c25ce7e6f25e36cfc188016b012d31d722204))
+
 # [5.13.0](https://github.com/idosal/mcp-ui/compare/server/v5.12.0...server/v5.13.0) (2025-10-22)
 
 
