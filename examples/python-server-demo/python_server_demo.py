@@ -12,7 +12,7 @@ Usage:
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-from mcp_ui_server import create_ui_resource
+from mcp_ui_server import create_ui_resource, UIMetadataKey
 from mcp_ui_server.core import UIResource
 
 # Create FastMCP instance
@@ -29,7 +29,7 @@ def show_external_url() -> list[UIResource]:
         },
         "encoding": "text",
         "uiMetadata": {
-            "preferred-frame-size": [800, 600]
+            UIMetadataKey.PREFERRED_FRAME_SIZE: ["800px", "600px"]  # CSS dimension strings (can be px, %, vh, etc.)
         }
     })
     return [ui_resource]

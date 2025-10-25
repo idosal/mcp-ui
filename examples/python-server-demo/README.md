@@ -4,11 +4,13 @@ A Python MCP server implementation inspired by the TypeScript server demo. This 
 
 ## Features
 
-This server provides three tools that create different types of UI resources:
+This server provides multiple tools that demonstrate different types of UI resources and metadata capabilities:
 
-- **showExternalUrl** - Creates a UI resource displaying an external URL (example.com)
-- **showRawHtml** - Creates a UI resource with raw HTML content
-- **showRemoteDom** - Creates a UI resource with remote DOM script using React framework
+### Basic UI Resources
+- **show_external_url** - Creates a UI resource displaying an external URL (example.com) with preferred frame size metadata
+- **show_raw_html** - Creates a UI resource with raw HTML content
+- **show_remote_dom** - Creates a UI resource with remote DOM script using React framework
+- **show_action_html** - Creates a UI resource with interactive buttons demonstrating intent actions
 
 ## Installation
 
@@ -49,6 +51,38 @@ Each tool returns an MCP resource that can be rendered by MCP UI clients:
 - **External URL**: Returns a resource that displays example.com in an iframe
 - **Raw HTML**: Returns a resource with HTML content `<h1>Hello from Raw HTML</h1>`
 - **Remote DOM**: Returns a resource with JavaScript that creates UI elements dynamically
+
+## UI Metadata
+
+The SDK supports UI metadata through the `uiMetadata` parameter in `create_ui_resource()`:
+1. Prefixes all `uiMetadata` keys with `mcpui.dev/ui-`
+2. Merges prefixed metadata with any custom metadata
+3. Adds the combined metadata to the resource's `_meta` field
+4. Custom metadata keys are preserved as-is (not prefixed)
+
+### Example Usage
+
+```python
+from mcp_ui_server import create_ui_resource
+
+ui_resource = create_ui_resource({
+    "uri": "ui://my-component",
+    "content": {
+        "type": "rawHtml",
+        "htmlString": "<h1>Hello</h1>"
+    },
+    "encoding": "text",
+    "uiMetadata": {
+        "preferred-frame-size": ["1200", "800"],
+    },
+    # Optional: custom metadata (not prefixed)
+    "metadata": {
+        "custom.author": "My Server",
+        "custom.version": "1.0.0"
+    }
+})
+```
+
 
 ## Development
 
