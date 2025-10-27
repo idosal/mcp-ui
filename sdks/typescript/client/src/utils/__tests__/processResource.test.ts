@@ -190,7 +190,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/uri-list',
           text: 'https://example.com',
         };
-        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        const result = processHTMLResource(resource, { proxy: 'https://proxy.mcpui.dev/' });
         expect(result.error).toBeUndefined();
         expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?url=https%3A%2F%2Fexample.com');
         expect(result.iframeRenderMode).toBe('src');
@@ -201,7 +201,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/uri-list',
           text: 'https://example.com',
         };
-        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/?a=1&b=2');
+        const result = processHTMLResource(resource, { proxy: 'https://proxy.mcpui.dev/?a=1&b=2' });
         expect(result.error).toBeUndefined();
         expect(result.iframeSrc).toBe(
           'https://proxy.mcpui.dev/?a=1&b=2&url=https%3A%2F%2Fexample.com',
@@ -214,7 +214,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/uri-list',
           text: 'https://example.com',
         };
-        const result = processHTMLResource(resource, 'not-a-valid-url');
+        const result = processHTMLResource(resource, { proxy: 'not-a-valid-url' });
         expect(result.error).toBeUndefined();
         expect(result.iframeSrc).toBe('https://example.com');
         expect(result.iframeRenderMode).toBe('src');
@@ -225,7 +225,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/uri-list',
           text: 'https://example.com',
         };
-        const result = processHTMLResource(resource, '');
+        const result = processHTMLResource(resource, { proxy: '' });
         expect(result.error).toBeUndefined();
         expect(result.iframeSrc).toBe('https://example.com');
         expect(result.iframeRenderMode).toBe('src');
@@ -248,7 +248,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/html' as const,
           text: html,
         };
-        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        const result = processHTMLResource(resource, { proxy: 'https://proxy.mcpui.dev/' });
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('src');
         expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?contentType=rawhtml');
@@ -262,7 +262,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/html' as const,
           blob: btoa(html),
         };
-        const result = processHTMLResource(resource, 'https://proxy.mcpui.dev/');
+        const result = processHTMLResource(resource, { proxy: 'https://proxy.mcpui.dev/' });
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('src');
         expect(result.iframeSrc).toBe('https://proxy.mcpui.dev/?contentType=rawhtml');
@@ -276,7 +276,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/html' as const,
           text: html,
         };
-        const result = processHTMLResource(resource, 'not-a-valid-url');
+        const result = processHTMLResource(resource, { proxy: 'not-a-valid-url' });
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('srcDoc');
         expect(result.htmlString).toBe(html);
@@ -289,7 +289,7 @@ describe('processHTMLResource', () => {
           mimeType: 'text/html' as const,
           text: html,
         };
-        const result = processHTMLResource(resource, '');
+        const result = processHTMLResource(resource, { proxy: '' });
         expect(result.error).toBeUndefined();
         expect(result.iframeRenderMode).toBe('srcDoc');
         expect(result.htmlString).toBe(html);
@@ -309,6 +309,54 @@ describe('processHTMLResource', () => {
         expect(result.iframeSrc).toBeUndefined();
       });
     });
+
+    it('should inject MCP and client context into skybridge HTML', () => {
+      const resource = {
+        mimeType: 'text/html+skybridge' as const,
+        text: '<html><head><title>Test</title></head><body></body></html>',
+      };
+      const result = processHTMLResource(resource, {
+        initialRenderData: { fallback: true },
+        mcpContextProps: {
+          toolInput: { foo: 'bar' },
+          toolOutput: { override: 'yes' },
+          toolName: 'demo-tool',
+          toolResponseMetadata: { traceId: 'abc' },
+        },
+        clientContextProps: {
+          theme: 'light',
+          userAgent: 'jest-agent',
+          model: 'gpt-test',
+        },
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.htmlString).toContain('openai-widget-state:demo-tool:');
+      expect(result.htmlString).toContain('toolInput: {"foo":"bar"}');
+      expect(result.htmlString).toContain('toolOutput: {"override":"yes"}');
+      expect(result.htmlString).toContain('toolResponseMetadata: {"traceId":"abc"}');
+      expect(result.htmlString).toContain('toolName: "demo-tool"');
+      expect(result.htmlString).toContain('theme: "light"');
+      expect(result.htmlString).toContain('userAgent: "jest-agent"');
+      expect(result.htmlString).toContain('model: "gpt-test"');
+    });
+
+    it('should fall back to initialRenderData when toolOutput is undefined', () => {
+      const resource = {
+        mimeType: 'text/html+skybridge' as const,
+        text: '<html><head></head><body></body></html>',
+      };
+      const initialRenderData = { fallback: true };
+      const result = processHTMLResource(resource, {
+        initialRenderData,
+        mcpContextProps: {
+          toolInput: { foo: 'bar' },
+        },
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.htmlString).toContain('toolOutput: {"fallback":true}');
+    });
   });
 
   describe('Unsupported mimeType', () => {
@@ -319,7 +367,7 @@ describe('processHTMLResource', () => {
       };
       const result = processHTMLResource(resource);
       expect(result.error).toBe(
-        'Resource must be of type text/html (for HTML content) or text/uri-list (for URL content).',
+        'Resource must be of type text/html (for HTML content), text/html+skybridge, or text/uri-list (for URL content).',
       );
     });
   });

@@ -102,3 +102,16 @@ export type UIResourceMetadata = {
   [UIMetadataKey.PREFERRED_FRAME_SIZE]?: [string, string];
   [UIMetadataKey.INITIAL_RENDER_DATA]?: Record<string, unknown>;
 };
+
+export type MCPContextProps = {
+  toolInput?: Record<string, unknown>;
+  toolOutput?: Record<string, unknown>;
+  toolName?: string;
+  toolResponseMetadata?: Record<string, unknown>;
+};
+
+export type ClientContextProps = {
+  theme?: string;
+  userAgent?: string;
+  model?: string;
+};

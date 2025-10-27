@@ -98,6 +98,8 @@ It accepts the following props:
   - **`iframeProps`**: Optional props passed to the iframe element
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
   - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
+- **`mcpContextProps`**: Optional MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). Providing `toolOutput` here overrides `iframeRenderData` for the sandbox payload.
+- **`clientContextProps`**: Optional host context (e.g., `theme`, `userAgent`, `model`) exposed to sandboxed HTML content. Both context props can also be supplied via `htmlProps` when you need HTML-specific overrides.
 - **`remoteDomProps`**: Optional props for the internal `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: remote element definitions for Remote DOM resources.

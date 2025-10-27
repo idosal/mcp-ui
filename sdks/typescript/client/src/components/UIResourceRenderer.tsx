@@ -1,5 +1,5 @@
 import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
-import { ResourceContentType, UIActionResult } from '../types';
+import { ResourceContentType, UIActionResult, ClientContextProps, MCPContextProps } from '../types';
 import { HTMLResourceRenderer, HTMLResourceRendererProps } from './HTMLResourceRenderer';
 import { RemoteDOMResourceProps, RemoteDOMResourceRenderer } from './RemoteDOMResourceRenderer';
 import { basicComponentLibrary } from '../remote-dom/component-libraries/basic';
@@ -8,8 +8,10 @@ export type UIResourceRendererProps = {
   resource: Partial<EmbeddedResource>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
-  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction'>;
-  remoteDomProps?: Omit<RemoteDOMResourceProps, 'resource' | 'onUIAction'>;
+  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcpContextProps' | 'clientContextProps'>;
+  remoteDomProps?: RemoteDOMResourceProps;
+  mcpContextProps?: MCPContextProps;
+  clientContextProps?: ClientContextProps;
 };
 
 function getContentType(
@@ -34,7 +36,7 @@ function getContentType(
 }
 
 export const UIResourceRenderer = (props: UIResourceRendererProps) => {
-  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps } = props;
+  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps, mcpContextProps, clientContextProps } = props;
   const contentType = getContentType(resource);
 
   if (supportedContentTypes && contentType && !supportedContentTypes.includes(contentType)) {
@@ -45,7 +47,15 @@ export const UIResourceRenderer = (props: UIResourceRendererProps) => {
     case 'rawHtml':
     case 'skybridge':
     case 'externalUrl': {
-      return <HTMLResourceRenderer resource={resource} onUIAction={onUIAction} {...htmlProps} />;
+      return (
+        <HTMLResourceRenderer
+          resource={resource}
+          onUIAction={onUIAction}
+          {...htmlProps}
+          {...mcpContextProps}
+          {...clientContextProps}
+        />
+      );
     }
     case 'remoteDom':
       return (
