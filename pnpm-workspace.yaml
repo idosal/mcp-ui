@@ -1,5 +1,6 @@
 packages:
-  # all packages in subdirs of sdks/typescript/
-  - 'sdks/typescript/*'
-  - 'examples/*'
-  - 'docs'
+  - sdks/typescript/*
+  - examples/*
+  - docs
+onlyBuiltDependencies:
+  - esbuild

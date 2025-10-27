@@ -22,6 +22,9 @@ function getContentType(
   if (resource.mimeType === 'text/html') {
     return 'rawHtml';
   }
+  if (resource.mimeType === 'text/html+skybridge') {
+    return 'skybridge';
+  }
   if (resource.mimeType === 'text/uri-list') {
     return 'externalUrl';
   }
@@ -40,6 +43,7 @@ export const UIResourceRenderer = (props: UIResourceRendererProps) => {
 
   switch (contentType) {
     case 'rawHtml':
+    case 'skybridge':
     case 'externalUrl': {
       return <HTMLResourceRenderer resource={resource} onUIAction={onUIAction} {...htmlProps} />;
     }
