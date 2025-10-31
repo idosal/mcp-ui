@@ -450,6 +450,7 @@ Host and user security is one of `mcp-ui`'s primary concerns. In all content typ
 - [ ] Add component libraries (in progress)
 - [ ] Add SDKs for additional programming languages (in progress; Ruby, Python available)
 - [ ] Support additional frontend frameworks
+- [ ] Explore providing a UI SDK (in addition to the client and server one)
 - [ ] Add declarative UI content type
 - [ ] Support generative UI?
       
