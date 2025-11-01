@@ -21,8 +21,8 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "sed -i.bak 's/version = \".*\"/version = \"${nextRelease.version}\"/' pyproject.toml && rm -f pyproject.toml.bak && uv sync && uv build",
-        publishCmd: 'echo "Publishing handled by pypa/gh-action-pypi-publish"',
+          "sed -i 's/^version = \".*\"/version = \"${nextRelease.version}\"/' pyproject.toml && rm -f pyproject.toml.bak && uv sync && uv build",
+        publishCmd: 'uv run twine upload --skip-existing dist/*',
       },
     ],
     '@semantic-release/github',
