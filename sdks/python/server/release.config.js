@@ -21,7 +21,7 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "sed -i.bak 's/version = \".*\"/version = \"${nextRelease.version}\"/' pyproject.toml && rm -f pyproject.toml.bak && uv sync && uv build",
+          "sed -i.bak 's/^version = \".*\"/version = \"${nextRelease.version}\"/' pyproject.toml && rm -f pyproject.toml.bak && uv sync && uv build",
         publishCmd: 'echo "Publishing handled by pypa/gh-action-pypi-publish"',
       },
     ],
