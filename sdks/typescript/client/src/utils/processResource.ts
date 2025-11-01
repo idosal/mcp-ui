@@ -1,4 +1,4 @@
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 
 type ProcessResourceResult = {
   error?: string;
@@ -6,6 +6,154 @@ type ProcessResourceResult = {
   iframeRenderMode?: 'src' | 'srcDoc';
   htmlString?: string;
 };
+
+const apiScript = (
+  widgetStateKey: string,
+  toolInput?: Record<string, unknown>,
+  initialRenderData?:  Record<string, unknown>,
+  toolResponseMetadata?: Record<string, unknown>,
+) => `
+<script>
+  (function() {
+    'use strict';
+
+    const openaiAPI = {
+      toolInput: ${JSON.stringify(toolInput)},
+      toolOutput: ${JSON.stringify(initialRenderData)},
+      toolResponseMetadata: ${JSON.stringify(toolResponseMetadata ?? null)},
+      displayMode: 'inline',
+      maxHeight: 600,
+      theme: 'dark',
+      locale: 'en-US',
+      safeArea: { insets: { top: 0, bottom: 0, left: 0, right: 0 } },
+      userAgent: {},
+      widgetState: null,
+
+      async setWidgetState(state) {
+        this.widgetState = state;
+        try {
+          localStorage.setItem(${JSON.stringify(
+            widgetStateKey
+          )}, JSON.stringify(state));
+        } catch (err) {
+          console.error('[OpenAI Widget] Failed to save widget state:', err);
+        }
+        window.parent.postMessage({
+          type: 'openai:setWidgetState',
+          state
+        }, '*');
+      },
+
+      async callTool(toolName, params = {}) {
+        return new Promise((resolve, reject) => {
+          const requestId = \`tool_\${Date.now()}_\${Math.random()}\`;
+          const handler = (event) => {
+            if (event.data.type === 'openai:callTool:response' &&
+                event.data.requestId === requestId) {
+              window.removeEventListener('message', handler);
+              if (event.data.error) {
+                reject(new Error(event.data.error));
+              } else {
+                resolve(event.data.result);
+              }
+            }
+          };
+          window.addEventListener('message', handler);
+          window.parent.postMessage({
+            type: 'openai:callTool',
+            requestId,
+            toolName,
+            params
+          }, '*');
+          setTimeout(() => {
+            window.removeEventListener('message', handler);
+            reject(new Error('Tool call timeout'));
+          }, 30000);
+        });
+      },
+
+      async sendFollowupTurn(message) {
+        const payload = typeof message === 'string'
+          ? { prompt: message }
+          : message;
+        window.parent.postMessage({
+          type: 'openai:sendFollowup',
+          message: payload.prompt || payload
+        }, '*');
+      },
+
+      async requestDisplayMode(options = {}) {
+        const mode = options.mode || 'inline';
+        this.displayMode = mode;
+        window.parent.postMessage({
+          type: 'openai:requestDisplayMode',
+          mode
+        }, '*');
+        return { mode };
+      },
+
+      async sendFollowUpMessage(args) {
+        const prompt = typeof args === 'string' ? args : (args?.prompt || '');
+        return this.sendFollowupTurn(prompt);
+      },
+
+      async openExternal(options) {
+        const href = typeof options === 'string' ? options : options?.href;
+        if (!href) {
+          throw new Error('href is required for openExternal');
+        }
+        window.parent.postMessage({
+          type: 'openai:openExternal',
+          href
+        }, '*');
+        // Also open in new tab as fallback
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    };
+
+    Object.defineProperty(window, 'openai', {
+      value: openaiAPI,
+      writable: false,
+      configurable: false,
+      enumerable: true
+    });
+
+    Object.defineProperty(window, 'webplus', {
+      value: openaiAPI,
+      writable: false,
+      configurable: false,
+      enumerable: true
+    });
+
+    setTimeout(() => {
+      try {
+        const globalsEvent = new CustomEvent('webplus:set_globals', {
+          detail: {
+            globals: {
+              displayMode: openaiAPI.displayMode,
+              maxHeight: openaiAPI.maxHeight,
+              theme: openaiAPI.theme,
+              locale: openaiAPI.locale,
+              safeArea: openaiAPI.safeArea,
+              userAgent: openaiAPI.userAgent
+            }
+          }
+        });
+        window.dispatchEvent(globalsEvent);
+      } catch (err) {}
+    }, 0);
+
+    setTimeout(() => {
+      try {
+        const stored = localStorage.getItem(${JSON.stringify(widgetStateKey)});
+        if (stored && window.openai) {
+          window.openai.widgetState = JSON.parse(stored);
+        }
+      } catch (err) {}
+    }, 0);
+  })();
+</script>
+`;
 
 function isValidHttpUrl(string: string): boolean {
   let url;
@@ -21,11 +169,19 @@ function isValidHttpUrl(string: string): boolean {
 export function processHTMLResource(
   resource: Partial<Resource>,
   proxy?: string,
+  initialRenderData?: Record<string, unknown>,
+  toolInput?: Record<string, unknown>,
+  toolName?: string,
+  toolResponseMetadata?: Record<string, unknown>
 ): ProcessResourceResult {
-  if (resource.mimeType !== 'text/html' && resource.mimeType !== 'text/uri-list') {
+  if (
+    resource.mimeType !== 'text/html' &&
+    resource.mimeType !== 'text/html+skybridge' &&
+    resource.mimeType !== 'text/uri-list'
+  ) {
     return {
       error:
-        'Resource must be of type text/html (for HTML content) or text/uri-list (for URL content).',
+        'Resource must be of type text/html (for HTML content), text/html+skybridge, or text/uri-list (for URL content).',
     };
   }
 
@@ -76,7 +232,7 @@ export function processHTMLResource(
     if (lines.length > 1) {
       console.warn(
         `Multiple URLs found in uri-list content. Using the first URL: "${lines[0]}". Other URLs ignored:`,
-        lines.slice(1),
+        lines.slice(1)
       );
     }
 
@@ -86,9 +242,12 @@ export function processHTMLResource(
       try {
         const proxyUrl = new URL(proxy);
         // The proxy host MUST NOT be the host URL, or the proxy can escape the sandbox
-        if (typeof window !== 'undefined' && proxyUrl.host === window.location.host) {
+        if (
+          typeof window !== 'undefined' &&
+          proxyUrl.host === window.location.host
+        ) {
           console.error(
-            'For security, the proxy origin must not be the same as the host origin. Using original URL instead.',
+            'For security, the proxy origin must not be the same as the host origin. Using original URL instead.'
           );
         } else {
           proxyUrl.searchParams.set('url', originalUrl);
@@ -100,7 +259,7 @@ export function processHTMLResource(
       } catch (e: unknown) {
         console.error(
           `Invalid proxy URL provided: "${proxy}". Falling back to direct URL.`,
-          e instanceof Error ? e.message : String(e),
+          e instanceof Error ? e.message : String(e)
         );
       }
     }
@@ -109,16 +268,19 @@ export function processHTMLResource(
       iframeSrc: originalUrl,
       iframeRenderMode: 'src',
     };
-  } else if (resource.mimeType === 'text/html') {
+  } else if (
+    resource.mimeType === 'text/html' ||
+    resource.mimeType === 'text/html+skybridge'
+  ) {
     // Handle HTML content
     let htmlContent = '';
-    
+
     if (typeof resource.text === 'string') {
       htmlContent = resource.text;
     } else if (typeof resource.blob === 'string') {
       try {
         htmlContent = new TextDecoder().decode(
-          Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
+          Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0))
         );
       } catch (e) {
         console.error('Error decoding base64 blob for HTML content:', e);
@@ -132,13 +294,40 @@ export function processHTMLResource(
       };
     }
 
+    if (resource.mimeType === 'text/html+skybridge') {
+      const widgetStateKey = `openai-widget-state:${toolName}:`;
+      htmlContent = htmlContent.replace(
+        /<head([^>]*)>/i,
+        `<head$1>\n${apiScript(
+          widgetStateKey,
+          toolInput,
+          initialRenderData,
+          toolResponseMetadata
+        )}\n`
+      );
+      if (!/<head[^>]*>/i.test(htmlContent)) {
+        htmlContent = htmlContent.replace(
+          /<html([^>]*)>/i,
+          `<html$1><head>${apiScript(
+            widgetStateKey,
+            toolInput,
+            initialRenderData,
+            toolResponseMetadata,
+          )}</head>`
+        );
+      }
+    }
+
     if (proxy && proxy.trim() !== '') {
       try {
         const proxyUrl = new URL(proxy);
         // The proxy host MUST NOT be the host URL, or the proxy can escape the sandbox
-        if (typeof window !== 'undefined' && proxyUrl.host === window.location.host) {
+        if (
+          typeof window !== 'undefined' &&
+          proxyUrl.host === window.location.host
+        ) {
           console.error(
-            'For security, the proxy origin must not be the same as the host origin. Using srcDoc rendering instead.',
+            'For security, the proxy origin must not be the same as the host origin. Using srcDoc rendering instead.'
           );
         } else {
           proxyUrl.searchParams.set('contentType', 'rawhtml');
@@ -151,7 +340,7 @@ export function processHTMLResource(
       } catch (e: unknown) {
         console.error(
           `Invalid proxy URL provided: "${proxy}". Falling back to srcDoc rendering.`,
-          e instanceof Error ? e.message : String(e),
+          e instanceof Error ? e.message : String(e)
         );
       }
     }
@@ -162,7 +351,8 @@ export function processHTMLResource(
     };
   } else {
     return {
-      error: 'Unsupported mimeType. Expected text/html or text/uri-list.',
+      error:
+        'Unsupported mimeType. Expected text/html, text/html+skybridge, or text/uri-list.',
     };
   }
 }
@@ -173,7 +363,7 @@ type ProcessRemoteDOMResourceResult = {
 };
 
 export function processRemoteDOMResource(
-  resource: Partial<Resource>,
+  resource: Partial<Resource>
 ): ProcessRemoteDOMResourceResult {
   if (typeof resource.text === 'string' && resource.text.trim() !== '') {
     return {
@@ -184,7 +374,7 @@ export function processRemoteDOMResource(
   if (typeof resource.blob === 'string') {
     try {
       const decodedCode = new TextDecoder().decode(
-        Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
+        Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0))
       );
       return {
         code: decodedCode,

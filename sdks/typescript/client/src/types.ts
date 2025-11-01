@@ -3,7 +3,12 @@ import React from 'react';
 
 export type UIActionType = 'tool' | 'prompt' | 'link' | 'intent' | 'notify';
 
-export const ALL_RESOURCE_CONTENT_TYPES = ['rawHtml', 'externalUrl', 'remoteDom'] as const;
+export const ALL_RESOURCE_CONTENT_TYPES = [
+  'rawHtml',
+  'externalUrl',
+  'remoteDom',
+  'skybridge',
+] as const;
 export type ResourceContentType = (typeof ALL_RESOURCE_CONTENT_TYPES)[number];
 
 type GenericActionMessage = {

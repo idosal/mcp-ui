@@ -10,6 +10,9 @@ export type HTMLResourceRendererProps = {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
+  toolInput?: Record<string, unknown>;
+  toolName?: string;
+  toolResponseMetadata?: Record<string, unknown>;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
@@ -43,17 +46,15 @@ export const HTMLResourceRenderer = ({
   style,
   proxy,
   iframeRenderData,
+  toolInput,
+  toolName,
+  toolResponseMetadata,
   autoResizeIframe,
   sandboxPermissions,
   iframeProps,
 }: HTMLResourceRendererProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   useImperativeHandle(iframeProps?.ref, () => iframeRef.current as HTMLIFrameElement);
-
-  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
-    () => processHTMLResource(resource, proxy),
-    [resource, proxy],
-  );
 
   const uiMetadata = useMemo(() => getUIResourceMetadata(resource), [resource]);
   const preferredFrameSize = uiMetadata[UIMetadataKey.PREFERRED_FRAME_SIZE] ?? ['100%', '100%'];
@@ -68,6 +69,20 @@ export const HTMLResourceRenderer = ({
       ...iframeRenderData,
     };
   }, [iframeRenderData, metadataInitialRenderData]);
+
+  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
+    () =>
+      processHTMLResource(
+        resource,
+        proxy,
+        initialRenderData,
+        toolInput,
+        toolName,
+        toolResponseMetadata
+      ),
+    [resource, proxy]
+  );
+
 
   const iframeSrcToRender = useMemo(() => {
     if (iframeSrc && initialRenderData) {
