@@ -68,10 +68,15 @@ export const HTMLResourceRenderer = ({
     };
   }, [iframeRenderData, metadataInitialRenderData]);
 
-  const initialRenderData = useMemo(
-    () => mcpContextProps?.toolOutput ?? combinedRenderData,
-    [mcpContextProps?.toolOutput, combinedRenderData],
-  );
+  const initialRenderData = useMemo(() => {
+    if (!combinedRenderData && !mcpContextProps?.toolOutput) {
+      return undefined;
+    }
+    return {
+      ...combinedRenderData,
+      ...(mcpContextProps?.toolOutput ?? {}),
+    };
+  }, [combinedRenderData, mcpContextProps?.toolOutput]);
 
   const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
     () =>
