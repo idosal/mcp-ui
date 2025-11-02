@@ -80,7 +80,7 @@ interface UIResourceRendererProps {
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
   - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
 - **`mcpContextProps`**: Optional MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). When `toolOutput` is provided, it merges with `iframeRenderData` for the sandbox payload (with `toolOutput` fields taking precedence). These can also be provided via `htmlProps` for HTML-only overrides.
-- **`clientContextProps`**: Optional host context for HTML resources (e.g., `theme`, `userAgent`, `model`). When unspecified, defaults are used. Like `mcpContextProps`, these can be supplied in `htmlProps` to scope them to HTML resources.
+- **`clientContextProps`**: Optional host context for HTML resources (e.g., `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, `capabilities`). When unspecified, sensible defaults are used (`capabilities` defaults to `{ hover: true, touch: false }`). Like `mcpContextProps`, these can be supplied in `htmlProps` to scope them to HTML resources.
 - **`remoteDomProps`**: Optional props for the `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: Optional remote element definitions for Remote DOM resources. REQUIRED for Remote DOM snippets.

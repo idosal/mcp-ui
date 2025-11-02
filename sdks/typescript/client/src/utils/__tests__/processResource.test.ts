@@ -327,6 +327,13 @@ describe('processHTMLResource', () => {
           theme: 'light',
           userAgent: 'jest-agent',
           model: 'gpt-test',
+          locale: 'en-GB',
+          displayMode: 'overlay',
+          maxHeight: 720,
+          safeArea: {
+            insets: { top: 10, bottom: 20, left: 0, right: 5 },
+          },
+          capabilities: { hover: false },
         },
       });
 
@@ -339,6 +346,11 @@ describe('processHTMLResource', () => {
       expect(result.htmlString).toContain('theme: "light"');
       expect(result.htmlString).toContain('userAgent: "jest-agent"');
       expect(result.htmlString).toContain('model: "gpt-test"');
+      expect(result.htmlString).toContain('locale: "en-GB"');
+      expect(result.htmlString).toContain('displayMode: "overlay"');
+      expect(result.htmlString).toContain('maxHeight: 720');
+      expect(result.htmlString).toContain('"insets":{"top":10,"bottom":20,"left":0,"right":5}');
+      expect(result.htmlString).toContain('capabilities: {"hover":false,"touch":false}');
     });
 
     it('should fall back to initialRenderData when toolOutput is undefined', () => {

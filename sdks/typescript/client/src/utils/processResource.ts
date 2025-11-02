@@ -1,6 +1,20 @@
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 import type { ClientContextProps, MCPContextProps } from '../types';
 
+const DEFAULT_SAFE_AREA = {
+  insets: {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+};
+
+const DEFAULT_CAPABILITIES = {
+  hover: true,
+  touch: false,
+};
+
 type ProcessResourceResult = {
   error?: string;
   iframeSrc?: string;
@@ -15,8 +29,13 @@ type ApiScriptOptions = {
   toolResponseMetadata?: Record<string, unknown>;
   toolName?: string;
   theme?: string;
+  locale?: string;
   userAgent?: unknown;
   model?: string;
+  displayMode?: string;
+  maxHeight?: number;
+  safeArea?: ClientContextProps['safeArea'];
+  capabilities?: ClientContextProps['capabilities'];
 };
 
 const apiScript = ({
@@ -26,25 +45,54 @@ const apiScript = ({
   toolResponseMetadata,
   toolName,
   theme,
+  locale,
   userAgent,
   model,
-}: ApiScriptOptions) => `
+  displayMode,
+  maxHeight,
+  safeArea,
+  capabilities,
+}: ApiScriptOptions) => {
+  const resolvedDisplayMode = displayMode ?? 'inline';
+  const resolvedMaxHeight = typeof maxHeight === 'number' ? maxHeight : 600;
+  const resolvedTheme = theme ?? 'light';
+  const resolvedLocale = locale ?? 'en-US';
+  const resolvedSafeArea = safeArea ?? DEFAULT_SAFE_AREA;
+  const mergedCapabilities = {
+    ...DEFAULT_CAPABILITIES,
+    ...(capabilities ?? {}),
+  };
+
+  const serializedToolInput = JSON.stringify(toolInput ?? null);
+  const serializedToolOutput = JSON.stringify(toolOutput ?? null);
+  const serializedToolResponseMetadata = JSON.stringify(toolResponseMetadata ?? null);
+  const serializedToolName = JSON.stringify(toolName ?? null);
+  const serializedTheme = JSON.stringify(resolvedTheme);
+  const serializedLocale = JSON.stringify(resolvedLocale);
+  const serializedSafeArea = JSON.stringify(resolvedSafeArea);
+  const serializedUserAgent = JSON.stringify(userAgent ?? null);
+  const serializedModel = JSON.stringify(model ?? null);
+  const serializedCapabilities = JSON.stringify(mergedCapabilities);
+  const serializedDisplayMode = JSON.stringify(resolvedDisplayMode);
+
+  return `
 <script>
   (function() {
     'use strict';
 
     const openaiAPI = {
-      toolInput: ${JSON.stringify(toolInput ?? null)},
-      toolOutput: ${JSON.stringify(toolOutput ?? null)},
-      toolResponseMetadata: ${JSON.stringify(toolResponseMetadata ?? null)},
-      toolName: ${JSON.stringify(toolName ?? null)},
-      displayMode: 'inline',
-      maxHeight: 600,
-      theme: ${JSON.stringify(theme ?? 'dark')},
-      locale: 'en-US',
-      safeArea: { insets: { top: 0, bottom: 0, left: 0, right: 0 } },
-      userAgent: ${JSON.stringify(userAgent ?? {})},
-      model: ${JSON.stringify(model ?? null)},
+      toolInput: ${serializedToolInput},
+      toolOutput: ${serializedToolOutput},
+      toolResponseMetadata: ${serializedToolResponseMetadata},
+      toolName: ${serializedToolName},
+      displayMode: ${serializedDisplayMode},
+      maxHeight: ${resolvedMaxHeight},
+      theme: ${serializedTheme},
+      locale: ${serializedLocale},
+      safeArea: ${serializedSafeArea},
+      userAgent: ${serializedUserAgent},
+      capabilities: ${serializedCapabilities},
+      model: ${serializedModel},
       widgetState: null,
 
       async setWidgetState(state) {
@@ -101,7 +149,7 @@ const apiScript = ({
       },
 
       async requestDisplayMode(options = {}) {
-        const mode = options.mode || 'inline';
+        const mode = options.mode || this.displayMode || 'inline';
         this.displayMode = mode;
         window.parent.postMessage({
           type: 'openai:requestDisplayMode',
@@ -129,6 +177,14 @@ const apiScript = ({
       }
     };
 
+    if (openaiAPI.userAgent == null && typeof navigator !== 'undefined') {
+      try {
+        openaiAPI.userAgent = navigator.userAgent || '';
+      } catch (err) {
+        openaiAPI.userAgent = '';
+      }
+    }
+
     Object.defineProperty(window, 'openai', {
       value: openaiAPI,
       writable: false,
@@ -153,7 +209,8 @@ const apiScript = ({
               theme: openaiAPI.theme,
               locale: openaiAPI.locale,
               safeArea: openaiAPI.safeArea,
-              userAgent: openaiAPI.userAgent
+              userAgent: openaiAPI.userAgent,
+              capabilities: openaiAPI.capabilities
             }
           }
         });
@@ -172,6 +229,7 @@ const apiScript = ({
   })();
 </script>
 `;
+};
 
 function isValidHttpUrl(string: string): boolean {
   let url;
@@ -201,8 +259,13 @@ export function processHTMLResource(
   const toolOutput = mcpContextProps?.toolOutput ?? initialRenderData;
   const toolResponseMetadata = mcpContextProps?.toolResponseMetadata;
   const theme = clientContextProps?.theme;
+  const locale = clientContextProps?.locale;
   const userAgent = clientContextProps?.userAgent;
   const model = clientContextProps?.model;
+  const displayMode = clientContextProps?.displayMode;
+  const maxHeight = clientContextProps?.maxHeight;
+  const safeArea = clientContextProps?.safeArea;
+  const capabilities = clientContextProps?.capabilities;
 
   if (
     resource.mimeType !== 'text/html' &&
@@ -335,9 +398,14 @@ export function processHTMLResource(
           toolResponseMetadata,
           toolName,
           theme,
+          locale,
           userAgent,
           model,
-        })}\n`
+          displayMode,
+          maxHeight,
+          safeArea,
+          capabilities,
+        })}\n`,
       );
       if (!/<head[^>]*>/i.test(htmlContent)) {
         htmlContent = htmlContent.replace(
@@ -349,9 +417,14 @@ export function processHTMLResource(
             toolResponseMetadata,
             toolName,
             theme,
+            locale,
             userAgent,
             model,
-          })}</head>`
+            displayMode,
+            maxHeight,
+            safeArea,
+            capabilities,
+          })}</head>`,
         );
       }
     }

@@ -112,6 +112,22 @@ export type MCPContextProps = {
 
 export type ClientContextProps = {
   theme?: string;
-  userAgent?: string;
+  locale?: string;
+  userAgent?: unknown;
   model?: string;
+  displayMode?: string;
+  maxHeight?: number;
+  safeArea?: {
+    insets: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+  };
+  capabilities?: {
+    hover?: boolean;
+    touch?: boolean;
+    [capability: string]: boolean | undefined;
+  };
 };
