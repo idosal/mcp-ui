@@ -51,9 +51,9 @@ export const UIResourceRenderer = (props: UIResourceRendererProps) => {
         <HTMLResourceRenderer
           resource={resource}
           onUIAction={onUIAction}
+          mcpContextProps={mcpContextProps}
+          clientContextProps={clientContextProps}
           {...htmlProps}
-          {...mcpContextProps}
-          {...clientContextProps}
         />
       );
     }
