@@ -29,7 +29,7 @@ describe('<UIResourceRenderer />', () => {
     render(<UIResourceRenderer resource={resource} />);
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
     expect(RemoteDOMResourceRenderer).not.toHaveBeenCalled();
-    expect(HTMLResourceRenderer).toHaveBeenCalledWith({ resource }, {});
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(expect.objectContaining({ resource }), {});
   });
 
   it('should render HTMLResourceRenderer for "text/uri-list" mimeType', () => {
@@ -37,7 +37,7 @@ describe('<UIResourceRenderer />', () => {
     render(<UIResourceRenderer resource={resource} />);
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
     expect(RemoteDOMResourceRenderer).not.toHaveBeenCalled();
-    expect(HTMLResourceRenderer).toHaveBeenCalledWith({ resource }, {});
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(expect.objectContaining({ resource }), {});
   });
 
   it('should render RemoteDOMResourceRenderer for "remote-dom" mimeType', () => {
@@ -75,7 +75,7 @@ describe('<UIResourceRenderer />', () => {
     render(<UIResourceRenderer resource={resource} supportedContentTypes={['rawHtml']} />);
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
     expect(RemoteDOMResourceRenderer).not.toHaveBeenCalled();
-    expect(HTMLResourceRenderer).toHaveBeenCalledWith({ resource }, {});
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(expect.objectContaining({ resource }), {});
   });
 
   it('should pass proxy prop to HTMLResourceRenderer for external URLs', () => {
@@ -85,7 +85,7 @@ describe('<UIResourceRenderer />', () => {
     );
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
     expect(HTMLResourceRenderer).toHaveBeenCalledWith(
-      { resource, proxy: 'https://proxy.mcpui.dev/' },
+      expect.objectContaining({ resource, proxy: 'https://proxy.mcpui.dev/' }),
       {},
     );
   });
@@ -97,7 +97,41 @@ describe('<UIResourceRenderer />', () => {
     );
     expect(screen.getByTestId('html-resource')).toBeInTheDocument();
     expect(HTMLResourceRenderer).toHaveBeenCalledWith(
-      { resource, proxy: 'https://proxy.mcpui.dev/' },
+      expect.objectContaining({ resource, proxy: 'https://proxy.mcpui.dev/' }),
+      {},
+    );
+  });
+
+  it('should forward context props to HTMLResourceRenderer', () => {
+    const resource = { ...baseResource, mimeType: 'text/html' };
+    const mcpContextProps = { toolName: 'demo-tool', toolInput: { foo: 'bar' } };
+    const clientContextProps = { theme: 'light', model: 'gpt-5' };
+    render(
+      <UIResourceRenderer
+        resource={resource}
+        mcpContextProps={mcpContextProps}
+        clientContextProps={clientContextProps}
+      />,
+    );
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(
+      expect.objectContaining({ resource, mcpContextProps, clientContextProps }),
+      {},
+    );
+  });
+
+  it('should use htmlProps context when top-level context is undefined', () => {
+    const resource = { ...baseResource, mimeType: 'text/html' };
+    const htmlProps = {
+      mcpContextProps: { toolName: 'html-only', toolInput: { bar: 'baz' } },
+      clientContextProps: { theme: 'dark', userAgent: 'jest' },
+    };
+    render(<UIResourceRenderer resource={resource} htmlProps={htmlProps} />);
+    expect(HTMLResourceRenderer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resource,
+        mcpContextProps: htmlProps.mcpContextProps,
+        clientContextProps: htmlProps.clientContextProps,
+      }),
       {},
     );
   });

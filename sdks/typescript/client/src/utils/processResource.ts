@@ -1,4 +1,5 @@
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { ClientContextProps, MCPContextProps } from '../types';
 
 type ProcessResourceResult = {
   error?: string;
@@ -7,26 +8,43 @@ type ProcessResourceResult = {
   htmlString?: string;
 };
 
-const apiScript = (
-  widgetStateKey: string,
-  toolInput?: Record<string, unknown>,
-  initialRenderData?:  Record<string, unknown>,
-  toolResponseMetadata?: Record<string, unknown>,
-) => `
+type ApiScriptOptions = {
+  widgetStateKey: string;
+  toolInput?: Record<string, unknown>;
+  toolOutput?: Record<string, unknown>;
+  toolResponseMetadata?: Record<string, unknown>;
+  toolName?: string;
+  theme?: string;
+  userAgent?: unknown;
+  model?: string;
+};
+
+const apiScript = ({
+  widgetStateKey,
+  toolInput,
+  toolOutput,
+  toolResponseMetadata,
+  toolName,
+  theme,
+  userAgent,
+  model,
+}: ApiScriptOptions) => `
 <script>
   (function() {
     'use strict';
 
     const openaiAPI = {
-      toolInput: ${JSON.stringify(toolInput)},
-      toolOutput: ${JSON.stringify(initialRenderData)},
+      toolInput: ${JSON.stringify(toolInput ?? null)},
+      toolOutput: ${JSON.stringify(toolOutput ?? null)},
       toolResponseMetadata: ${JSON.stringify(toolResponseMetadata ?? null)},
+      toolName: ${JSON.stringify(toolName ?? null)},
       displayMode: 'inline',
       maxHeight: 600,
-      theme: 'dark',
+      theme: ${JSON.stringify(theme ?? 'dark')},
       locale: 'en-US',
       safeArea: { insets: { top: 0, bottom: 0, left: 0, right: 0 } },
-      userAgent: {},
+      userAgent: ${JSON.stringify(userAgent ?? {})},
+      model: ${JSON.stringify(model ?? null)},
       widgetState: null,
 
       async setWidgetState(state) {
@@ -166,14 +184,26 @@ function isValidHttpUrl(string: string): boolean {
   return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
+export type ProcessHTMLResourceOptions = {
+  proxy?: string;
+  initialRenderData?: Record<string, unknown>;
+  mcpContextProps?: MCPContextProps;
+  clientContextProps?: ClientContextProps;
+};
+
 export function processHTMLResource(
   resource: Partial<Resource>,
-  proxy?: string,
-  initialRenderData?: Record<string, unknown>,
-  toolInput?: Record<string, unknown>,
-  toolName?: string,
-  toolResponseMetadata?: Record<string, unknown>
+  options: ProcessHTMLResourceOptions = {},
 ): ProcessResourceResult {
+  const { proxy, initialRenderData, mcpContextProps, clientContextProps } = options;
+  const toolName = mcpContextProps?.toolName;
+  const toolInput = mcpContextProps?.toolInput;
+  const toolOutput = mcpContextProps?.toolOutput ?? initialRenderData;
+  const toolResponseMetadata = mcpContextProps?.toolResponseMetadata;
+  const theme = clientContextProps?.theme;
+  const userAgent = clientContextProps?.userAgent;
+  const model = clientContextProps?.model;
+
   if (
     resource.mimeType !== 'text/html' &&
     resource.mimeType !== 'text/html+skybridge' &&
@@ -295,25 +325,33 @@ export function processHTMLResource(
     }
 
     if (resource.mimeType === 'text/html+skybridge') {
-      const widgetStateKey = `openai-widget-state:${toolName}:`;
+      const widgetStateKey = `openai-widget-state:${toolName ?? ''}:`;
       htmlContent = htmlContent.replace(
         /<head([^>]*)>/i,
-        `<head$1>\n${apiScript(
+        `<head$1>\n${apiScript({
           widgetStateKey,
           toolInput,
-          initialRenderData,
-          toolResponseMetadata
-        )}\n`
+          toolOutput,
+          toolResponseMetadata,
+          toolName,
+          theme,
+          userAgent,
+          model,
+        })}\n`
       );
       if (!/<head[^>]*>/i.test(htmlContent)) {
         htmlContent = htmlContent.replace(
           /<html([^>]*)>/i,
-          `<html$1><head>${apiScript(
+          `<html$1><head>${apiScript({
             widgetStateKey,
             toolInput,
-            initialRenderData,
+            toolOutput,
             toolResponseMetadata,
-          )}</head>`
+            toolName,
+            theme,
+            userAgent,
+            model,
+          })}</head>`
         );
       }
     }

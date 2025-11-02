@@ -71,7 +71,7 @@ describe('HTMLResource component', () => {
     render(<HTMLResourceRenderer {...props} />);
     expect(
       screen.getByText(
-        'Resource must be of type text/html (for HTML content) or text/uri-list (for URL content).',
+        'Resource must be of type text/html (for HTML content), text/html+skybridge, or text/uri-list (for URL content).',
       ),
     ).toBeInTheDocument();
   });
@@ -359,7 +359,7 @@ describe('HTMLResource iframe communication', () => {
     // Error message should be displayed
     expect(
       await screen.findByText(
-        'Resource must be of type text/html (for HTML content) or text/uri-list (for URL content).',
+        'Resource must be of type text/html (for HTML content), text/html+skybridge, or text/uri-list (for URL content).',
       ),
     ).toBeInTheDocument();
 
@@ -526,6 +526,47 @@ describe('HTMLResource metadata', () => {
             priority: 'high',
             foo: 'bar',
             baz: 'qux',
+          },
+        },
+        messageId: undefined,
+      },
+      '*',
+    );
+  });
+
+  it('should merge toolOutput from mcpContextProps with other render data', () => {
+    const iframeRenderData = { priority: 'iframe', foo: 'bar' };
+    const metadataInitialRenderData = { priority: 'metadata', baz: 'qux' };
+    const toolOutput = { priority: 'context', extra: 'value' };
+    const resource = {
+      mimeType: 'text/uri-list',
+      text: 'https://example.com/app',
+      _meta: { [`${UI_METADATA_PREFIX}initial-render-data`]: metadataInitialRenderData },
+    };
+    const ref = React.createRef<HTMLIFrameElement>();
+    render(
+      <HTMLResourceRenderer
+        resource={resource}
+        iframeProps={{ ref }}
+        iframeRenderData={iframeRenderData}
+        mcpContextProps={{ toolOutput }}
+      />,
+    );
+    expect(ref.current).toBeInTheDocument();
+    const iframeWindow = ref.current?.contentWindow as Window;
+    const spy = vi.spyOn(iframeWindow, 'postMessage');
+    dispatchMessage(iframeWindow, {
+      type: InternalMessageType.UI_LIFECYCLE_IFRAME_READY,
+    });
+    expect(spy).toHaveBeenCalledWith(
+      {
+        type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
+        payload: {
+          renderData: {
+            priority: 'context',
+            foo: 'bar',
+            baz: 'qux',
+            extra: 'value',
           },
         },
         messageId: undefined,

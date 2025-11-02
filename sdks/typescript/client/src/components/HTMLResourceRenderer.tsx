@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UIActionResult, UIMetadataKey } from '../types';
+import { UIActionResult, UIMetadataKey, MCPContextProps, ClientContextProps } from '../types';
 import { processHTMLResource } from '../utils/processResource';
 import { getUIResourceMetadata } from '../utils/metadataUtils';
 
@@ -10,9 +10,8 @@ export type HTMLResourceRendererProps = {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
-  toolInput?: Record<string, unknown>;
-  toolName?: string;
-  toolResponseMetadata?: Record<string, unknown>;
+  mcpContextProps?: MCPContextProps;
+  clientContextProps?: ClientContextProps;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
@@ -46,9 +45,8 @@ export const HTMLResourceRenderer = ({
   style,
   proxy,
   iframeRenderData,
-  toolInput,
-  toolName,
-  toolResponseMetadata,
+  mcpContextProps,
+  clientContextProps,
   autoResizeIframe,
   sandboxPermissions,
   iframeProps,
@@ -60,7 +58,7 @@ export const HTMLResourceRenderer = ({
   const preferredFrameSize = uiMetadata[UIMetadataKey.PREFERRED_FRAME_SIZE] ?? ['100%', '100%'];
   const metadataInitialRenderData = uiMetadata[UIMetadataKey.INITIAL_RENDER_DATA] ?? undefined;
 
-  const initialRenderData = useMemo(() => {
+  const combinedRenderData = useMemo(() => {
     if (!iframeRenderData && !metadataInitialRenderData) {
       return undefined;
     }
@@ -70,17 +68,25 @@ export const HTMLResourceRenderer = ({
     };
   }, [iframeRenderData, metadataInitialRenderData]);
 
+  const initialRenderData = useMemo(() => {
+    if (!combinedRenderData && !mcpContextProps?.toolOutput) {
+      return undefined;
+    }
+    return {
+      ...combinedRenderData,
+      ...(mcpContextProps?.toolOutput ?? {}),
+    };
+  }, [combinedRenderData, mcpContextProps?.toolOutput]);
+
   const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
     () =>
-      processHTMLResource(
-        resource,
+      processHTMLResource(resource, {
         proxy,
         initialRenderData,
-        toolInput,
-        toolName,
-        toolResponseMetadata
-      ),
-    [resource, proxy]
+        mcpContextProps,
+        clientContextProps,
+      }),
+    [resource, proxy, initialRenderData, mcpContextProps, clientContextProps]
   );
 
 
