@@ -35,6 +35,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/mcp_ui_server"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.gitignore",
+    "*.publish.attestation",
+]
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
@@ -69,6 +75,7 @@ dev = [
     "ruff>=0.12.9",
     "pytest>=7.0.0",
     "pytest-snapshot>=0.9.0",
+    "twine>=5.0.0",
 ]
 
 [tool.pytest.ini_options]
