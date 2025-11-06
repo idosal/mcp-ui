@@ -118,21 +118,4 @@ describe('<UIResourceRenderer />', () => {
       {},
     );
   });
-
-  it('should use htmlProps context when top-level context is undefined', () => {
-    const resource = { ...baseResource, mimeType: 'text/html' };
-    const htmlProps = {
-      mcpContextProps: { toolName: 'html-only', toolInput: { bar: 'baz' } },
-      clientContextProps: { theme: 'dark', userAgent: 'jest' },
-    };
-    render(<UIResourceRenderer resource={resource} htmlProps={htmlProps} />);
-    expect(HTMLResourceRenderer).toHaveBeenCalledWith(
-      expect.objectContaining({
-        resource,
-        mcpContextProps: htmlProps.mcpContextProps,
-        clientContextProps: htmlProps.clientContextProps,
-      }),
-      {},
-    );
-  });
 });

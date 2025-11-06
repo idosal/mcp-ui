@@ -1,234 +1,12 @@
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 import type { ClientContextProps, MCPContextProps } from '../types';
-
-const DEFAULT_SAFE_AREA = {
-  insets: {
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-};
-
-const DEFAULT_CAPABILITIES = {
-  hover: true,
-  touch: false,
-};
+import { createOpenAiScript } from '../adapters/appssdk/open-ai-script';
 
 type ProcessResourceResult = {
   error?: string;
   iframeSrc?: string;
   iframeRenderMode?: 'src' | 'srcDoc';
   htmlString?: string;
-};
-
-type ApiScriptOptions = {
-  widgetStateKey: string;
-  toolInput?: Record<string, unknown>;
-  toolOutput?: Record<string, unknown>;
-  toolResponseMetadata?: Record<string, unknown>;
-  toolName?: string;
-  theme?: string;
-  locale?: string;
-  userAgent?: unknown;
-  model?: string;
-  displayMode?: string;
-  maxHeight?: number;
-  safeArea?: ClientContextProps['safeArea'];
-  capabilities?: ClientContextProps['capabilities'];
-};
-
-const apiScript = ({
-  widgetStateKey,
-  toolInput,
-  toolOutput,
-  toolResponseMetadata,
-  toolName,
-  theme,
-  locale,
-  userAgent,
-  model,
-  displayMode,
-  maxHeight,
-  safeArea,
-  capabilities,
-}: ApiScriptOptions) => {
-  const resolvedDisplayMode = displayMode ?? 'inline';
-  const resolvedMaxHeight = typeof maxHeight === 'number' ? maxHeight : 600;
-  const resolvedTheme = theme ?? 'light';
-  const resolvedLocale = locale ?? 'en-US';
-  const resolvedSafeArea = safeArea ?? DEFAULT_SAFE_AREA;
-  const mergedCapabilities = {
-    ...DEFAULT_CAPABILITIES,
-    ...(capabilities ?? {}),
-  };
-
-  const serializedToolInput = JSON.stringify(toolInput ?? null);
-  const serializedToolOutput = JSON.stringify(toolOutput ?? null);
-  const serializedToolResponseMetadata = JSON.stringify(toolResponseMetadata ?? null);
-  const serializedToolName = JSON.stringify(toolName ?? null);
-  const serializedTheme = JSON.stringify(resolvedTheme);
-  const serializedLocale = JSON.stringify(resolvedLocale);
-  const serializedSafeArea = JSON.stringify(resolvedSafeArea);
-  const serializedUserAgent = JSON.stringify(userAgent ?? null);
-  const serializedModel = JSON.stringify(model ?? null);
-  const serializedCapabilities = JSON.stringify(mergedCapabilities);
-  const serializedDisplayMode = JSON.stringify(resolvedDisplayMode);
-
-  return `
-<script>
-  (function() {
-    'use strict';
-
-    const openaiAPI = {
-      toolInput: ${serializedToolInput},
-      toolOutput: ${serializedToolOutput},
-      toolResponseMetadata: ${serializedToolResponseMetadata},
-      toolName: ${serializedToolName},
-      displayMode: ${serializedDisplayMode},
-      maxHeight: ${resolvedMaxHeight},
-      theme: ${serializedTheme},
-      locale: ${serializedLocale},
-      safeArea: ${serializedSafeArea},
-      userAgent: ${serializedUserAgent},
-      capabilities: ${serializedCapabilities},
-      model: ${serializedModel},
-      widgetState: null,
-
-      async setWidgetState(state) {
-        this.widgetState = state;
-        try {
-          localStorage.setItem(${JSON.stringify(
-            widgetStateKey
-          )}, JSON.stringify(state));
-        } catch (err) {
-          console.error('[OpenAI Widget] Failed to save widget state:', err);
-        }
-        window.parent.postMessage({
-          type: 'openai:setWidgetState',
-          state
-        }, '*');
-      },
-
-      async callTool(toolName, params = {}) {
-        return new Promise((resolve, reject) => {
-          const requestId = \`tool_\${Date.now()}_\${Math.random()}\`;
-          const handler = (event) => {
-            if (event.data.type === 'openai:callTool:response' &&
-                event.data.requestId === requestId) {
-              window.removeEventListener('message', handler);
-              if (event.data.error) {
-                reject(new Error(event.data.error));
-              } else {
-                resolve(event.data.result);
-              }
-            }
-          };
-          window.addEventListener('message', handler);
-          window.parent.postMessage({
-            type: 'openai:callTool',
-            requestId,
-            toolName,
-            params
-          }, '*');
-          setTimeout(() => {
-            window.removeEventListener('message', handler);
-            reject(new Error('Tool call timeout'));
-          }, 30000);
-        });
-      },
-
-      async sendFollowupTurn(message) {
-        const payload = typeof message === 'string'
-          ? { prompt: message }
-          : message;
-        window.parent.postMessage({
-          type: 'openai:sendFollowup',
-          message: payload.prompt || payload
-        }, '*');
-      },
-
-      async requestDisplayMode(options = {}) {
-        const mode = options.mode || this.displayMode || 'inline';
-        this.displayMode = mode;
-        window.parent.postMessage({
-          type: 'openai:requestDisplayMode',
-          mode
-        }, '*');
-        return { mode };
-      },
-
-      async sendFollowUpMessage(args) {
-        const prompt = typeof args === 'string' ? args : (args?.prompt || '');
-        return this.sendFollowupTurn(prompt);
-      },
-
-      async openExternal(options) {
-        const href = typeof options === 'string' ? options : options?.href;
-        if (!href) {
-          throw new Error('href is required for openExternal');
-        }
-        window.parent.postMessage({
-          type: 'openai:openExternal',
-          href
-        }, '*');
-        // Also open in new tab as fallback
-        window.open(href, '_blank', 'noopener,noreferrer');
-      }
-    };
-
-    if (openaiAPI.userAgent == null && typeof navigator !== 'undefined') {
-      try {
-        openaiAPI.userAgent = navigator.userAgent || '';
-      } catch (err) {
-        openaiAPI.userAgent = '';
-      }
-    }
-
-    Object.defineProperty(window, 'openai', {
-      value: openaiAPI,
-      writable: false,
-      configurable: false,
-      enumerable: true
-    });
-
-    Object.defineProperty(window, 'webplus', {
-      value: openaiAPI,
-      writable: false,
-      configurable: false,
-      enumerable: true
-    });
-
-    setTimeout(() => {
-      try {
-        const globalsEvent = new CustomEvent('webplus:set_globals', {
-          detail: {
-            globals: {
-              displayMode: openaiAPI.displayMode,
-              maxHeight: openaiAPI.maxHeight,
-              theme: openaiAPI.theme,
-              locale: openaiAPI.locale,
-              safeArea: openaiAPI.safeArea,
-              userAgent: openaiAPI.userAgent,
-              capabilities: openaiAPI.capabilities
-            }
-          }
-        });
-        window.dispatchEvent(globalsEvent);
-      } catch (err) {}
-    }, 0);
-
-    setTimeout(() => {
-      try {
-        const stored = localStorage.getItem(${JSON.stringify(widgetStateKey)});
-        if (stored && window.openai) {
-          window.openai.widgetState = JSON.parse(stored);
-        }
-      } catch (err) {}
-    }, 0);
-  })();
-</script>
-`;
 };
 
 function isValidHttpUrl(string: string): boolean {
@@ -391,7 +169,7 @@ export function processHTMLResource(
       const widgetStateKey = `openai-widget-state:${toolName ?? ''}:`;
       htmlContent = htmlContent.replace(
         /<head([^>]*)>/i,
-        `<head$1>\n${apiScript({
+        `<head$1>\n${createOpenAiScript({
           widgetStateKey,
           toolInput,
           toolOutput,
@@ -410,7 +188,7 @@ export function processHTMLResource(
       if (!/<head[^>]*>/i.test(htmlContent)) {
         htmlContent = htmlContent.replace(
           /<html([^>]*)>/i,
-          `<html$1><head>${apiScript({
+          `<html$1><head>${createOpenAiScript({
             widgetStateKey,
             toolInput,
             toolOutput,

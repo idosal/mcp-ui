@@ -261,7 +261,6 @@ export const HTMLResourceRenderer = ({
       }
       return null;
     }
-
     return (
       <iframe
         src={iframeSrcToRender}
