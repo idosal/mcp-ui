@@ -234,6 +234,66 @@ The function provides type narrowing, so TypeScript will understand that `conten
 />
 ```
 
+### Render Data format
+
+Giving conext to the iframe is crucial for building the best user experience. We distinguish three type of data to provide as a context for rendering.
+
+- **mcp** —  data exchanged with the MCP server
+- **host** — information provided by the host to the iframe
+- **iframe** — details specific to the rendering iframe
+
+The **mcp** payload MUST include:
+• toolInput — the object sent in the MCP call
+• toolOutput — the response object returned by the tool call (including text and structuredContent)
+• toolName — the name of the invoked tool
+
+The **host** payload SHOULD include:
+• theme — active UI theme (e.g. "dark", "light")
+• user-agent — identifier for the host application
+• model — the model used for the MCP call
+
+The **iframe** payload SHOULD include:
+• size — the effective size of the iframe (height, width)
+• engine — the rendering engine used for the UI (e.g., mcp-ui/uiresourcerenderer)
+• display_mode — the display mode of the iframe (e.g. fullscreen, inline...)
+
+Here is an example of hotel search with MCP-UI:
+
+```json
+{
+  "mcp": {
+    "toolInput": {
+      "location": "New York City, USA",
+      "maxPricePerNight": 240,
+      "currency": "USD"
+    },
+    "toolOutput": {
+      "nbOfResult": 2,
+      "hotelList": [
+        { "name": "Hotel A", "pricePerNight": 233, "currency": "USD" },
+        { "name": "Hotel B", "pricePerNight": 134, "currency": "USD" }
+      ]
+    },
+    "toolName": "searchHotel"
+  },
+  "host": {
+    "theme": "dark",
+    "user-agent": "Hostapp, ios, version:1.3",
+    "model": "gpt5-mini"
+  },
+  "iframe": {
+    "size": {
+      "height": 480,
+      "width": 640
+    },
+    "engine": "mcp-ui/uiresourcerenderer",
+    "display_mode": "inline"
+  }
+}
+```
+
+To maintain backward compatibility, we suggest to merge your previous renderData payload with the new format.
+
 ### Passing Render-Time Data to Iframes
 
 The `iframeRenderData` prop allows you to send a data payload to an iframe as it renders. This is useful for initializing the iframe with dynamic data from the parent application.
@@ -251,8 +311,8 @@ This ensures the data is delivered whether the iframe is ready immediately or ne
   resource={mcpResource.resource}
   htmlProps={{
     iframeRenderData: {
-      theme: 'dark',
-      user: { id: '123', name: 'John Doe' }
+      host: {theme: 'dark'},
+      mcp: {toolInput: {a: 4, b: 6}, toolOutput: {result: 10}, toolName: "add"}
     }
   }}
   onUIAction={handleUIAction}
