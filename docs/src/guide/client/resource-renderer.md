@@ -236,7 +236,7 @@ The function provides type narrowing, so TypeScript will understand that `conten
 
 ### Render Data format
 
-Giving conext to the iframe is crucial for building the best user experience. We distinguish three type of data to provide as a context for rendering.
+Giving context to the iframe is crucial for building the best user experience. We distinguish three types of data to provide as context for rendering.
 
 - **mcp** —  data exchanged with the MCP server
 - **host** — information provided by the host to the iframe
