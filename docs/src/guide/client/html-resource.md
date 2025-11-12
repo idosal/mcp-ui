@@ -14,8 +14,8 @@ export interface HTMLResourceRendererProps {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
-  mcpContextProps?: MCPContextProps;
-  clientContextProps?: ClientContextProps;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'ref' | 'style'>;
@@ -43,8 +43,9 @@ The component accepts the following props:
 - **`style`**: (Optional) Custom styles for the iframe.
 - **`proxy`**: (Optional) A URL to a proxy script. This is useful for hosts with a strict Content Security Policy (CSP). When provided, external URLs will be rendered in a nested iframe hosted at this URL. For example, if `proxy` is `https://my-proxy.com/`, the final URL will be `https://my-proxy.com/?url=<encoded_original_url>`. For your convenience, mcp-ui hosts a proxy script at `https://proxy.mcpui.dev`, which you can use as a the prop value without any setup (see `examples/external-url-demo`).
 - **`iframeProps`**: (Optional) Custom props for the iframe.
-- **`iframeRenderData`**: (Optional) Additional data merged into the render payload forwarded to the iframe. When `mcpContextProps.toolOutput` is provided, it merges with this data for the sandbox payload (with `toolOutput` fields taking precedence).
-- **`clientContextProps`**: (Optional) Host configuration forwarded to the sandboxed HTML (supports `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, and `capabilities`). When omitted, defaults are applied—`capabilities` defaults to `{ hover: true, touch: false }`.
+- **`iframeRenderData`**: (Optional) Additional data merged into the render payload forwarded to the iframe. This data combines with resource metadata but remains separate from `mcp.toolOutput`.
+- **`mcp`**: (Optional) MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). These values are exposed to supported runtimes such as Skybridge.
+- **`host`**: (Optional) Host configuration forwarded to the sandboxed HTML (supports `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, and `capabilities`). When omitted, defaults are applied—`capabilities` defaults to `{ hover: true, touch: false }`.
 - **`autoResizeIframe`**: (Optional) When enabled, the iframe will automatically resize based on messages from the iframe's content. This prop can be a boolean (to enable both width and height resizing) or an object (`{width?: boolean, height?: boolean}`) to control dimensions independently.
 - **`sandboxPermissions`**: (Optional) Additional iframe sandbox permissions to add to the defaults. These are merged with:
   - External URLs (`text/uri-list`): `'allow-scripts allow-same-origin'`

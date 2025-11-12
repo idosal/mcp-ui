@@ -534,7 +534,7 @@ describe('HTMLResource metadata', () => {
     );
   });
 
-  it('should merge toolOutput from mcpContextProps with other render data', () => {
+  it('should keep render data separate from tool output context', () => {
     const iframeRenderData = { priority: 'iframe', foo: 'bar' };
     const metadataInitialRenderData = { priority: 'metadata', baz: 'qux' };
     const toolOutput = { priority: 'context', extra: 'value' };
@@ -549,7 +549,7 @@ describe('HTMLResource metadata', () => {
         resource={resource}
         iframeProps={{ ref }}
         iframeRenderData={iframeRenderData}
-        mcpContextProps={{ toolOutput }}
+        mcp={{ toolOutput }}
       />,
     );
     expect(ref.current).toBeInTheDocument();
@@ -563,10 +563,9 @@ describe('HTMLResource metadata', () => {
         type: InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
         payload: {
           renderData: {
-            priority: 'context',
+            priority: 'iframe',
             foo: 'bar',
             baz: 'qux',
-            extra: 'value',
           },
         },
         messageId: undefined,

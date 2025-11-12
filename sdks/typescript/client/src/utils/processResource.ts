@@ -22,28 +22,27 @@ function isValidHttpUrl(string: string): boolean {
 
 export type ProcessHTMLResourceOptions = {
   proxy?: string;
-  initialRenderData?: Record<string, unknown>;
-  mcpContextProps?: MCPContextProps;
-  clientContextProps?: ClientContextProps;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
 };
 
 export function processHTMLResource(
   resource: Partial<Resource>,
   options: ProcessHTMLResourceOptions = {},
 ): ProcessResourceResult {
-  const { proxy, initialRenderData, mcpContextProps, clientContextProps } = options;
-  const toolName = mcpContextProps?.toolName;
-  const toolInput = mcpContextProps?.toolInput;
-  const toolOutput = mcpContextProps?.toolOutput ?? initialRenderData;
-  const toolResponseMetadata = mcpContextProps?.toolResponseMetadata;
-  const theme = clientContextProps?.theme;
-  const locale = clientContextProps?.locale;
-  const userAgent = clientContextProps?.userAgent;
-  const model = clientContextProps?.model;
-  const displayMode = clientContextProps?.displayMode;
-  const maxHeight = clientContextProps?.maxHeight;
-  const safeArea = clientContextProps?.safeArea;
-  const capabilities = clientContextProps?.capabilities;
+  const { proxy, mcp, host } = options;
+  const toolName = mcp?.toolName;
+  const toolInput = mcp?.toolInput;
+  const toolOutput = mcp?.toolOutput;
+  const toolResponseMetadata = mcp?.toolResponseMetadata;
+  const theme = host?.theme;
+  const locale = host?.locale;
+  const userAgent = host?.userAgent;
+  const model = host?.model;
+  const displayMode = host?.displayMode;
+  const maxHeight = host?.maxHeight;
+  const safeArea = host?.safeArea;
+  const capabilities = host?.capabilities;
 
   if (
     resource.mimeType !== 'text/html' &&

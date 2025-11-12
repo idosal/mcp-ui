@@ -316,14 +316,13 @@ describe('processHTMLResource', () => {
         text: '<html><head><title>Test</title></head><body></body></html>',
       };
       const result = processHTMLResource(resource, {
-        initialRenderData: { fallback: true },
-        mcpContextProps: {
+        mcp: {
           toolInput: { foo: 'bar' },
           toolOutput: { override: 'yes' },
           toolName: 'demo-tool',
           toolResponseMetadata: { traceId: 'abc' },
         },
-        clientContextProps: {
+        host: {
           theme: 'light',
           userAgent: 'jest-agent',
           model: 'gpt-test',
@@ -353,21 +352,19 @@ describe('processHTMLResource', () => {
       expect(result.htmlString).toContain('capabilities: {"hover":false,"touch":false}');
     });
 
-    it('should fall back to initialRenderData when toolOutput is undefined', () => {
+    it('should default toolOutput to null when not provided', () => {
       const resource = {
         mimeType: 'text/html+skybridge' as const,
         text: '<html><head></head><body></body></html>',
       };
-      const initialRenderData = { fallback: true };
       const result = processHTMLResource(resource, {
-        initialRenderData,
-        mcpContextProps: {
+        mcp: {
           toolInput: { foo: 'bar' },
         },
       });
 
       expect(result.error).toBeUndefined();
-      expect(result.htmlString).toContain('toolOutput: {"fallback":true}');
+      expect(result.htmlString).toContain('"toolOutput":null');
     });
   });
 

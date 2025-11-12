@@ -8,10 +8,10 @@ export type UIResourceRendererProps = {
   resource: Partial<EmbeddedResource>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
-  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcpContextProps' | 'clientContextProps'>;
+  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcp' | 'host'>;
   remoteDomProps?: RemoteDOMResourceProps;
-  mcpContextProps?: MCPContextProps;
-  clientContextProps?: ClientContextProps;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
 };
 
 function getContentType(
@@ -36,7 +36,7 @@ function getContentType(
 }
 
 export const UIResourceRenderer = (props: UIResourceRendererProps) => {
-  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps, mcpContextProps, clientContextProps } = props;
+  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps, mcp, host } = props;
   const contentType = getContentType(resource);
 
   if (supportedContentTypes && contentType && !supportedContentTypes.includes(contentType)) {
@@ -51,8 +51,8 @@ export const UIResourceRenderer = (props: UIResourceRendererProps) => {
         <HTMLResourceRenderer
           resource={resource}
           onUIAction={onUIAction}
-          mcpContextProps={mcpContextProps}
-          clientContextProps={clientContextProps}
+          mcp={mcp}
+          host={host}
           {...htmlProps}
         />
       );

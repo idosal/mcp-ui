@@ -104,17 +104,17 @@ describe('<UIResourceRenderer />', () => {
 
   it('should forward context props to HTMLResourceRenderer', () => {
     const resource = { ...baseResource, mimeType: 'text/html' };
-    const mcpContextProps = { toolName: 'demo-tool', toolInput: { foo: 'bar' } };
-    const clientContextProps = { theme: 'light', model: 'gpt-5' };
+    const mcp = { toolName: 'demo-tool', toolInput: { foo: 'bar' } };
+    const host = { theme: 'light', model: 'gpt-5' };
     render(
       <UIResourceRenderer
         resource={resource}
-        mcpContextProps={mcpContextProps}
-        clientContextProps={clientContextProps}
+        mcp={mcp}
+        host={host}
       />,
     );
     expect(HTMLResourceRenderer).toHaveBeenCalledWith(
-      expect.objectContaining({ resource, mcpContextProps, clientContextProps }),
+      expect.objectContaining({ resource, mcp, host }),
       {},
     );
   });
