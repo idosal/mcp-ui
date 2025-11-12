@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UIActionResult, UIMetadataKey } from '../types';
+import { UIActionResult, UIMetadataKey, MCPContextProps, ClientContextProps } from '../types';
 import { processHTMLResource } from '../utils/processResource';
 import { getUIResourceMetadata } from '../utils/metadataUtils';
 
@@ -10,6 +10,8 @@ export type HTMLResourceRendererProps = {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
@@ -43,6 +45,8 @@ export const HTMLResourceRenderer = ({
   style,
   proxy,
   iframeRenderData,
+  mcp,
+  host,
   autoResizeIframe,
   sandboxPermissions,
   iframeProps,
@@ -50,16 +54,11 @@ export const HTMLResourceRenderer = ({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   useImperativeHandle(iframeProps?.ref, () => iframeRef.current as HTMLIFrameElement);
 
-  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
-    () => processHTMLResource(resource, proxy),
-    [resource, proxy],
-  );
-
   const uiMetadata = useMemo(() => getUIResourceMetadata(resource), [resource]);
   const preferredFrameSize = uiMetadata[UIMetadataKey.PREFERRED_FRAME_SIZE] ?? ['100%', '100%'];
   const metadataInitialRenderData = uiMetadata[UIMetadataKey.INITIAL_RENDER_DATA] ?? undefined;
 
-  const initialRenderData = useMemo(() => {
+  const renderData = useMemo(() => {
     if (!iframeRenderData && !metadataInitialRenderData) {
       return undefined;
     }
@@ -69,18 +68,29 @@ export const HTMLResourceRenderer = ({
     };
   }, [iframeRenderData, metadataInitialRenderData]);
 
+  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
+    () =>
+      processHTMLResource(resource, {
+        proxy,
+        mcp,
+        host,
+      }),
+    [resource, proxy, mcp, host]
+  );
+
+
   const iframeSrcToRender = useMemo(() => {
-    if (iframeSrc && initialRenderData) {
+    if (iframeSrc && renderData) {
       const iframeUrl = new URL(iframeSrc);
       iframeUrl.searchParams.set(ReservedUrlParams.WAIT_FOR_RENDER_DATA, 'true');
       return iframeUrl.toString();
     }
     return iframeSrc;
-  }, [iframeSrc, initialRenderData]);
+  }, [iframeSrc, renderData]);
 
   const onIframeLoad = useCallback(
     (event: React.SyntheticEvent<HTMLIFrameElement>) => {
-      if (initialRenderData) {
+      if (renderData) {
         const iframeWindow = event.currentTarget.contentWindow;
         const iframeOrigin = iframeSrcToRender ? new URL(iframeSrcToRender).origin : '*';
         postToFrame(
@@ -89,14 +99,14 @@ export const HTMLResourceRenderer = ({
           iframeOrigin,
           undefined,
           {
-            renderData: initialRenderData,
+            renderData,
           },
         );
       }
 
       iframeProps?.onLoad?.(event);
     },
-    [initialRenderData, iframeSrcToRender, iframeProps?.onLoad],
+    [renderData, iframeSrcToRender, iframeProps?.onLoad],
   );
 
   const sandbox = useMemo(() => {
@@ -137,14 +147,14 @@ export const HTMLResourceRenderer = ({
         // if the widget iframe is ready, send the render data
         if (data?.type === InternalMessageType.UI_LIFECYCLE_IFRAME_READY) {
           // Send render data if present
-          if (initialRenderData) {
+          if (renderData) {
             postToFrame(
               InternalMessageType.UI_LIFECYCLE_IFRAME_RENDER_DATA,
               source,
               origin,
               undefined,
               {
-                renderData: initialRenderData,
+                renderData,
               },
             );
           }
@@ -159,7 +169,7 @@ export const HTMLResourceRenderer = ({
             origin,
             data.messageId,
             {
-              renderData: initialRenderData,
+              renderData,
             },
           );
           return;
@@ -209,7 +219,7 @@ export const HTMLResourceRenderer = ({
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender, sandbox]);
+  }, [onUIAction, renderData, iframeRenderMode, htmlString, iframeSrcToRender, sandbox]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -240,7 +250,6 @@ export const HTMLResourceRenderer = ({
       }
       return null;
     }
-
     return (
       <iframe
         src={iframeSrcToRender}

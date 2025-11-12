@@ -49,6 +49,7 @@ web_modules/
 
 # PNPM
 .pnpm-store/
+.pnpm-home/
 
 # TypeScript cache
 *.tsbuildinfo

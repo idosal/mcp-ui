@@ -1,4 +1,6 @@
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { ClientContextProps, MCPContextProps } from '../types';
+import { createOpenAiScript } from '../adapters/appssdk/open-ai-script';
 
 type ProcessResourceResult = {
   error?: string;
@@ -18,14 +20,38 @@ function isValidHttpUrl(string: string): boolean {
   return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
+export type ProcessHTMLResourceOptions = {
+  proxy?: string;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
+};
+
 export function processHTMLResource(
   resource: Partial<Resource>,
-  proxy?: string,
+  options: ProcessHTMLResourceOptions = {},
 ): ProcessResourceResult {
-  if (resource.mimeType !== 'text/html' && resource.mimeType !== 'text/uri-list') {
+  const { proxy, mcp, host } = options;
+  const toolName = mcp?.toolName;
+  const toolInput = mcp?.toolInput;
+  const toolOutput = mcp?.toolOutput;
+  const toolResponseMetadata = mcp?.toolResponseMetadata;
+  const theme = host?.theme;
+  const locale = host?.locale;
+  const userAgent = host?.userAgent;
+  const model = host?.model;
+  const displayMode = host?.displayMode;
+  const maxHeight = host?.maxHeight;
+  const safeArea = host?.safeArea;
+  const capabilities = host?.capabilities;
+
+  if (
+    resource.mimeType !== 'text/html' &&
+    resource.mimeType !== 'text/html+skybridge' &&
+    resource.mimeType !== 'text/uri-list'
+  ) {
     return {
       error:
-        'Resource must be of type text/html (for HTML content) or text/uri-list (for URL content).',
+        'Resource must be of type text/html (for HTML content), text/html+skybridge, or text/uri-list (for URL content).',
     };
   }
 
@@ -76,7 +102,7 @@ export function processHTMLResource(
     if (lines.length > 1) {
       console.warn(
         `Multiple URLs found in uri-list content. Using the first URL: "${lines[0]}". Other URLs ignored:`,
-        lines.slice(1),
+        lines.slice(1)
       );
     }
 
@@ -86,9 +112,12 @@ export function processHTMLResource(
       try {
         const proxyUrl = new URL(proxy);
         // The proxy host MUST NOT be the host URL, or the proxy can escape the sandbox
-        if (typeof window !== 'undefined' && proxyUrl.host === window.location.host) {
+        if (
+          typeof window !== 'undefined' &&
+          proxyUrl.host === window.location.host
+        ) {
           console.error(
-            'For security, the proxy origin must not be the same as the host origin. Using original URL instead.',
+            'For security, the proxy origin must not be the same as the host origin. Using original URL instead.'
           );
         } else {
           proxyUrl.searchParams.set('url', originalUrl);
@@ -100,7 +129,7 @@ export function processHTMLResource(
       } catch (e: unknown) {
         console.error(
           `Invalid proxy URL provided: "${proxy}". Falling back to direct URL.`,
-          e instanceof Error ? e.message : String(e),
+          e instanceof Error ? e.message : String(e)
         );
       }
     }
@@ -109,16 +138,19 @@ export function processHTMLResource(
       iframeSrc: originalUrl,
       iframeRenderMode: 'src',
     };
-  } else if (resource.mimeType === 'text/html') {
+  } else if (
+    resource.mimeType === 'text/html' ||
+    resource.mimeType === 'text/html+skybridge'
+  ) {
     // Handle HTML content
     let htmlContent = '';
-    
+
     if (typeof resource.text === 'string') {
       htmlContent = resource.text;
     } else if (typeof resource.blob === 'string') {
       try {
         htmlContent = new TextDecoder().decode(
-          Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
+          Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0))
         );
       } catch (e) {
         console.error('Error decoding base64 blob for HTML content:', e);
@@ -132,13 +164,58 @@ export function processHTMLResource(
       };
     }
 
+    if (resource.mimeType === 'text/html+skybridge') {
+      const widgetStateKey = `openai-widget-state:${toolName ?? ''}:`;
+      htmlContent = htmlContent.replace(
+        /<head([^>]*)>/i,
+        `<head$1>\n${createOpenAiScript({
+          widgetStateKey,
+          toolInput,
+          toolOutput,
+          toolResponseMetadata,
+          toolName,
+          theme,
+          locale,
+          userAgent,
+          model,
+          displayMode,
+          maxHeight,
+          safeArea,
+          capabilities,
+        })}\n`,
+      );
+      if (!/<head[^>]*>/i.test(htmlContent)) {
+        htmlContent = htmlContent.replace(
+          /<html([^>]*)>/i,
+          `<html$1><head>${createOpenAiScript({
+            widgetStateKey,
+            toolInput,
+            toolOutput,
+            toolResponseMetadata,
+            toolName,
+            theme,
+            locale,
+            userAgent,
+            model,
+            displayMode,
+            maxHeight,
+            safeArea,
+            capabilities,
+          })}</head>`,
+        );
+      }
+    }
+
     if (proxy && proxy.trim() !== '') {
       try {
         const proxyUrl = new URL(proxy);
         // The proxy host MUST NOT be the host URL, or the proxy can escape the sandbox
-        if (typeof window !== 'undefined' && proxyUrl.host === window.location.host) {
+        if (
+          typeof window !== 'undefined' &&
+          proxyUrl.host === window.location.host
+        ) {
           console.error(
-            'For security, the proxy origin must not be the same as the host origin. Using srcDoc rendering instead.',
+            'For security, the proxy origin must not be the same as the host origin. Using srcDoc rendering instead.'
           );
         } else {
           proxyUrl.searchParams.set('contentType', 'rawhtml');
@@ -151,7 +228,7 @@ export function processHTMLResource(
       } catch (e: unknown) {
         console.error(
           `Invalid proxy URL provided: "${proxy}". Falling back to srcDoc rendering.`,
-          e instanceof Error ? e.message : String(e),
+          e instanceof Error ? e.message : String(e)
         );
       }
     }
@@ -162,7 +239,8 @@ export function processHTMLResource(
     };
   } else {
     return {
-      error: 'Unsupported mimeType. Expected text/html or text/uri-list.',
+      error:
+        'Unsupported mimeType. Expected text/html, text/html+skybridge, or text/uri-list.',
     };
   }
 }
@@ -173,7 +251,7 @@ type ProcessRemoteDOMResourceResult = {
 };
 
 export function processRemoteDOMResource(
-  resource: Partial<Resource>,
+  resource: Partial<Resource>
 ): ProcessRemoteDOMResourceResult {
   if (typeof resource.text === 'string' && resource.text.trim() !== '') {
     return {
@@ -184,7 +262,7 @@ export function processRemoteDOMResource(
   if (typeof resource.blob === 'string') {
     try {
       const decodedCode = new TextDecoder().decode(
-        Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
+        Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0))
       );
       return {
         code: decodedCode,

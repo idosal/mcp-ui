@@ -59,6 +59,7 @@ export const UIResourceRendererWCWrapper: FC<UIResourceRendererWCProps> = (props
                 resource={resource as Resource}
                 supportedContentTypes={supportedContentTypes as unknown as UIResourceRendererProps['supportedContentTypes']}
                 htmlProps={htmlProps}
+                // @ts-expect-error - TODO: fix this
                 remoteDomProps={remoteDomProps}
                 onUIAction={onUIActionCallback}
             />

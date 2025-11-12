@@ -1,5 +1,5 @@
 import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
-import { ResourceContentType, UIActionResult } from '../types';
+import { ResourceContentType, UIActionResult, ClientContextProps, MCPContextProps } from '../types';
 import { HTMLResourceRenderer, HTMLResourceRendererProps } from './HTMLResourceRenderer';
 import { RemoteDOMResourceProps, RemoteDOMResourceRenderer } from './RemoteDOMResourceRenderer';
 import { basicComponentLibrary } from '../remote-dom/component-libraries/basic';
@@ -8,8 +8,10 @@ export type UIResourceRendererProps = {
   resource: Partial<EmbeddedResource>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
-  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction'>;
-  remoteDomProps?: Omit<RemoteDOMResourceProps, 'resource' | 'onUIAction'>;
+  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcp' | 'host'>;
+  remoteDomProps?: RemoteDOMResourceProps;
+  mcp?: MCPContextProps;
+  host?: ClientContextProps;
 };
 
 function getContentType(
@@ -22,6 +24,9 @@ function getContentType(
   if (resource.mimeType === 'text/html') {
     return 'rawHtml';
   }
+  if (resource.mimeType === 'text/html+skybridge') {
+    return 'skybridge';
+  }
   if (resource.mimeType === 'text/uri-list') {
     return 'externalUrl';
   }
@@ -31,7 +36,7 @@ function getContentType(
 }
 
 export const UIResourceRenderer = (props: UIResourceRendererProps) => {
-  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps } = props;
+  const { resource, onUIAction, supportedContentTypes, htmlProps, remoteDomProps, mcp, host } = props;
   const contentType = getContentType(resource);
 
   if (supportedContentTypes && contentType && !supportedContentTypes.includes(contentType)) {
@@ -40,8 +45,17 @@ export const UIResourceRenderer = (props: UIResourceRendererProps) => {
 
   switch (contentType) {
     case 'rawHtml':
+    case 'skybridge':
     case 'externalUrl': {
-      return <HTMLResourceRenderer resource={resource} onUIAction={onUIAction} {...htmlProps} />;
+      return (
+        <HTMLResourceRenderer
+          resource={resource}
+          onUIAction={onUIAction}
+          mcp={mcp}
+          host={host}
+          {...htmlProps}
+        />
+      );
     }
     case 'remoteDom':
       return (
