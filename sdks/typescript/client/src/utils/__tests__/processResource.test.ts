@@ -338,18 +338,36 @@ describe('processHTMLResource', () => {
 
       expect(result.error).toBeUndefined();
       expect(result.htmlString).toContain('openai-widget-state:demo-tool:');
-      expect(result.htmlString).toContain('toolInput: {"foo":"bar"}');
-      expect(result.htmlString).toContain('toolOutput: {"override":"yes"}');
-      expect(result.htmlString).toContain('toolResponseMetadata: {"traceId":"abc"}');
-      expect(result.htmlString).toContain('toolName: "demo-tool"');
-      expect(result.htmlString).toContain('theme: "light"');
-      expect(result.htmlString).toContain('userAgent: "jest-agent"');
-      expect(result.htmlString).toContain('model: "gpt-test"');
-      expect(result.htmlString).toContain('locale: "en-GB"');
-      expect(result.htmlString).toContain('displayMode: "overlay"');
-      expect(result.htmlString).toContain('maxHeight: 720');
+      expect(result.htmlString).toContain('"toolInput":{"foo":"bar"}');
+      expect(result.htmlString).toContain('"toolOutput":{"override":"yes"}');
+      expect(result.htmlString).toContain('"toolResponseMetadata":{"traceId":"abc"}');
+      expect(result.htmlString).toContain('"toolName":"demo-tool"');
+      expect(result.htmlString).toContain('"theme":"light"');
+      expect(result.htmlString).toContain('"userAgent":"jest-agent"');
+      expect(result.htmlString).toContain('"model":"gpt-test"');
+      expect(result.htmlString).toContain('"locale":"en-GB"');
+      expect(result.htmlString).toContain('"displayMode":"overlay"');
+      expect(result.htmlString).toContain('"maxHeight":720');
       expect(result.htmlString).toContain('"insets":{"top":10,"bottom":20,"left":0,"right":5}');
-      expect(result.htmlString).toContain('capabilities: {"hover":false,"touch":false}');
+      expect(result.htmlString).toContain('"capabilities":{"hover":false}');
+    });
+
+    it('should inject runtime script even when html/head tags are missing', () => {
+      const html = '<body><div>Skybridge snippet without root tags</div></body>';
+      const resource = {
+        mimeType: 'text/html+skybridge' as const,
+        text: html,
+      };
+      const result = processHTMLResource(resource, {
+        mcp: {
+          toolName: 'adhoc-widget',
+        },
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.htmlString?.trimStart().startsWith('<script>')).toBe(true);
+      expect(result.htmlString).toContain('window.__MCP_WIDGET_CONFIG__');
+      expect(result.htmlString).toContain(html);
     });
 
     it('should default toolOutput to null when not provided', () => {

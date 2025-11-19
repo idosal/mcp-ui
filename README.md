@@ -98,8 +98,8 @@ It accepts the following props:
   - **`iframeProps`**: Optional props passed to the iframe element
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
   - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
-- **`mcp`**: Optional MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). When `toolOutput` is provided, it is merged with `iframeRenderData` for the sandbox payload (with `toolOutput` fields taking precedence).
-- **`host`**: Optional host context (e.g., `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, `capabilities`) exposed to sandboxed HTML content. Both context props can also be supplied via `htmlProps` when you need HTML-specific overrides. `capabilities` defaults to `{ hover: true, touch: false }` when unspecified.
+- **`mcp`**: Optional MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). `toolOutput` values are injected into supported runtimes (like Skybridge) via the widget config and are not merged into `iframeRenderData`.
+- **`host`**: Optional host context (e.g., `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, `capabilities`) exposed to sandboxed HTML content. `capabilities` defaults to `{ hover: true, touch: false }` when unspecified.
 - **`remoteDomProps`**: Optional props for the internal `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: remote element definitions for Remote DOM resources.

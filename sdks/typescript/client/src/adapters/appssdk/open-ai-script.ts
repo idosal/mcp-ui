@@ -19,6 +19,15 @@ export type OpenAiScriptOptions = {
 
 const CONFIG_GLOBAL_KEY = '__MCP_WIDGET_CONFIG__';
 
+function escapeForInlineScript(json: string): string {
+  return json
+    .replace(/</g, '\\u003C')
+    .replace(/>/g, '\\u003E')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 export function createOpenAiScript(options: OpenAiScriptOptions): string {
   const config: Record<string, unknown> = {
     widgetStateKey: options.widgetStateKey,
@@ -37,10 +46,11 @@ export function createOpenAiScript(options: OpenAiScriptOptions): string {
   };
 
   const serializedConfig = JSON.stringify(config);
+  const escapedConfig = escapeForInlineScript(serializedConfig);
 
   return `
 <script>
-  window.${CONFIG_GLOBAL_KEY} = ${serializedConfig};
+  window.${CONFIG_GLOBAL_KEY} = ${escapedConfig};
 </script>
 <script>
 ${API_RUNTIME_SCRIPT}

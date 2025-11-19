@@ -2,8 +2,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <!-- Permissive CSP so nested content is not constrained by host CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src * 'unsafe-inline'; connect-src *; frame-src 'none'; base-uri 'self'; upgrade-insecure-requests;" />
     <title>MCP-UI Proxy</title>
     <style>
       html,
@@ -47,6 +45,8 @@
       if (contentType === 'rawhtml') {
         // Double-iframe raw HTML mode (HTML sent via postMessage)
         const inner = document.createElement('iframe');
+
+        inner.id = "root";
         let pendingHtml = null;
         const renderHtmlInIframe = (markup) => {
           const doc = inner.contentDocument || inner.contentWindow?.document;
@@ -66,8 +66,6 @@
           }
         });
         inner.style = 'width:100%; height:100%; border:none;';
-        // Default sandbox ensures same-origin access for DOM writing; parent may override
-        inner.setAttribute('sandbox', 'allow-scripts allow-same-origin');
         inner.src = 'about:blank';
         document.body.appendChild(inner);
 
@@ -76,10 +74,6 @@
           if (event.source === window.parent && event.data && event.data.type === 'ui-html-content') {
             const payload = event.data.payload || {};
             const html = payload.html;
-            const sandbox = payload.sandbox;
-            if (typeof sandbox === 'string') {
-              inner.setAttribute('sandbox', sandbox);
-            }
             if (typeof html === 'string') {
               if (!renderHtmlInIframe(html)) {
                 pendingHtml = html;

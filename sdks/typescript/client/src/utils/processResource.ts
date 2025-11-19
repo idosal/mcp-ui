@@ -166,43 +166,28 @@ export function processHTMLResource(
 
     if (resource.mimeType === 'text/html+skybridge') {
       const widgetStateKey = `openai-widget-state:${toolName ?? ''}:`;
-      htmlContent = htmlContent.replace(
-        /<head([^>]*)>/i,
-        `<head$1>\n${createOpenAiScript({
-          widgetStateKey,
-          toolInput,
-          toolOutput,
-          toolResponseMetadata,
-          toolName,
-          theme,
-          locale,
-          userAgent,
-          model,
-          displayMode,
-          maxHeight,
-          safeArea,
-          capabilities,
-        })}\n`,
-      );
-      if (!/<head[^>]*>/i.test(htmlContent)) {
-        htmlContent = htmlContent.replace(
-          /<html([^>]*)>/i,
-          `<html$1><head>${createOpenAiScript({
-            widgetStateKey,
-            toolInput,
-            toolOutput,
-            toolResponseMetadata,
-            toolName,
-            theme,
-            locale,
-            userAgent,
-            model,
-            displayMode,
-            maxHeight,
-            safeArea,
-            capabilities,
-          })}</head>`,
-        );
+      const openAiScript = createOpenAiScript({
+        widgetStateKey,
+        toolInput,
+        toolOutput,
+        toolResponseMetadata,
+        toolName,
+        theme,
+        locale,
+        userAgent,
+        model,
+        displayMode,
+        maxHeight,
+        safeArea,
+        capabilities,
+      });
+
+      if (/<head[^>]*>/i.test(htmlContent)) {
+        htmlContent = htmlContent.replace(/<head([^>]*)>/i, `<head$1>\n${openAiScript}\n`);
+      } else if (/<html[^>]*>/i.test(htmlContent)) {
+        htmlContent = htmlContent.replace(/<html([^>]*)>/i, `<html$1><head>${openAiScript}</head>`);
+      } else {
+        htmlContent = `${openAiScript}\n${htmlContent}`;
       }
     }
 
