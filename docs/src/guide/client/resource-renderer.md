@@ -42,7 +42,7 @@ The `UIResourceRenderer` automatically detects and uses metadata from resources 
 
 ```typescript
 import type { Resource } from '@modelcontextprotocol/sdk/types';
-import type { MCPContextProps, ClientContextProps } from '@mcp-ui/client';
+import type { MCPProps, HostProps } from '@mcp-ui/client';
 
 interface UIResourceRendererProps {
   resource: Partial<Resource>;
@@ -50,8 +50,8 @@ interface UIResourceRendererProps {
   supportedContentTypes?: ResourceContentType[];
   htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcp' | 'host'>;
   remoteDomProps?: Omit<RemoteDOMResourceProps, 'resource' | 'onUIAction'>;
-  mcp?: MCPContextProps;
-  host?: ClientContextProps;
+  mcp?: MCPProps;
+  host?: HostProps;
 }
 ```
 

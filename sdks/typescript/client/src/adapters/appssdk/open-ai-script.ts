@@ -1,5 +1,5 @@
 import { API_RUNTIME_SCRIPT } from './open-ai-runtime-script.bundled';
-import type { ClientContextProps } from '../../types';
+import type { HostProps } from '../../types';
 
 export type OpenAiScriptOptions = {
   widgetStateKey: string;
@@ -13,8 +13,8 @@ export type OpenAiScriptOptions = {
   model?: string;
   displayMode?: string;
   maxHeight?: number;
-  safeArea?: ClientContextProps['safeArea'];
-  capabilities?: ClientContextProps['capabilities'];
+  safeArea?: HostProps['safeArea'];
+  capabilities?: HostProps['capabilities'];
 };
 
 const CONFIG_GLOBAL_KEY = '__MCP_WIDGET_CONFIG__';

@@ -103,14 +103,14 @@ export type UIResourceMetadata = {
   [UIMetadataKey.INITIAL_RENDER_DATA]?: Record<string, unknown>;
 };
 
-export type MCPContextProps = {
+export type MCPProps = {
   toolInput?: Record<string, unknown>;
   toolOutput?: Record<string, unknown>;
   toolName?: string;
   toolResponseMetadata?: Record<string, unknown>;
 };
 
-export type ClientContextProps = {
+export type HostProps = {
   theme?: string;
   locale?: string;
   userAgent?: unknown;

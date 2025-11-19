@@ -1,5 +1,5 @@
 import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
-import { ResourceContentType, UIActionResult, ClientContextProps, MCPContextProps } from '../types';
+import { ResourceContentType, UIActionResult, HostProps, MCPProps } from '../types';
 import { HTMLResourceRenderer, HTMLResourceRendererProps } from './HTMLResourceRenderer';
 import { RemoteDOMResourceProps, RemoteDOMResourceRenderer } from './RemoteDOMResourceRenderer';
 import { basicComponentLibrary } from '../remote-dom/component-libraries/basic';
@@ -10,8 +10,8 @@ export type UIResourceRendererProps = {
   supportedContentTypes?: ResourceContentType[];
   htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcp' | 'host'>;
   remoteDomProps?: RemoteDOMResourceProps;
-  mcp?: MCPContextProps;
-  host?: ClientContextProps;
+  mcp?: MCPProps;
+  host?: HostProps;
 };
 
 function getContentType(

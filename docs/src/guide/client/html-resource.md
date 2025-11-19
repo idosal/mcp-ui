@@ -6,7 +6,7 @@ The `<HTMLResourceRenderer />` component is an internal component used by `<UIRe
 
 ```typescript
 import type { Resource } from '@modelcontextprotocol/sdk/types';
-import type { MCPContextProps, ClientContextProps } from '@mcp-ui/client';
+import type { MCPProps, HostProps } from '@mcp-ui/client';
 
 export interface HTMLResourceRendererProps {
   resource: Partial<Resource>;
@@ -14,8 +14,8 @@ export interface HTMLResourceRendererProps {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
-  mcp?: MCPContextProps;
-  host?: ClientContextProps;
+  mcp?: MCPProps;
+  host?: HostProps;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'ref' | 'style'>;

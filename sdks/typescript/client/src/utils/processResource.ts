@@ -1,5 +1,5 @@
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import type { ClientContextProps, MCPContextProps } from '../types';
+import type { HostProps, MCPProps } from '../types';
 import { createOpenAiScript } from '../adapters/appssdk/open-ai-script';
 
 type ProcessResourceResult = {
@@ -22,8 +22,8 @@ function isValidHttpUrl(string: string): boolean {
 
 export type ProcessHTMLResourceOptions = {
   proxy?: string;
-  mcp?: MCPContextProps;
-  host?: ClientContextProps;
+  mcp?: MCPProps;
+  host?: HostProps;
 };
 
 export function processHTMLResource(
