@@ -42,13 +42,16 @@ The `UIResourceRenderer` automatically detects and uses metadata from resources 
 
 ```typescript
 import type { Resource } from '@modelcontextprotocol/sdk/types';
+import type { MCPProps, HostProps } from '@mcp-ui/client';
 
 interface UIResourceRendererProps {
   resource: Partial<Resource>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
-  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction'>;
+  htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction' | 'mcp' | 'host'>;
   remoteDomProps?: Omit<RemoteDOMResourceProps, 'resource' | 'onUIAction'>;
+  mcp?: MCPProps;
+  host?: HostProps;
 }
 ```
 
@@ -76,6 +79,8 @@ interface UIResourceRendererProps {
     - **`ref`**: Optional React ref to access the underlying iframe element
   - **`iframeRenderData`**: Optional `Record<string, unknown>` to pass data to the iframe upon rendering. This enables advanced use cases where the parent application needs to provide initial state or configuration to the sandboxed iframe content.
   - **`autoResizeIframe`**: Optional `boolean | { width?: boolean; height?: boolean }` to automatically resize the iframe to the size of the content.
+- **`mcp`**: Optional MCP invocation context forwarded to HTML resources (e.g., `toolInput`, `toolOutput`, `toolName`, `toolResponseMetadata`). The data is exposed to supported runtimes (like Skybridge) but is **not** merged into the iframe render payload. These can also be provided via `htmlProps` for HTML-only overrides.
+- **`host`**: Optional host context for HTML resources (e.g., `theme`, `locale`, `userAgent`, `model`, `displayMode`, `maxHeight`, `safeArea`, `capabilities`). When unspecified, sensible defaults are used (`capabilities` defaults to `{ hover: true, touch: false }`). Like `mcp`, these can be supplied in `htmlProps` to scope them to HTML resources.
 - **`remoteDomProps`**: Optional props for the `<RemoteDOMResourceRenderer>`
   - **`library`**: Optional component library for Remote DOM resources (defaults to `basicComponentLibrary`)
   - **`remoteElements`**: Optional remote element definitions for Remote DOM resources. REQUIRED for Remote DOM snippets.

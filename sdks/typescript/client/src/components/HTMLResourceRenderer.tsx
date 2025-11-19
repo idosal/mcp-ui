@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
-import { UIActionResult, UIMetadataKey } from '../types';
+import { UIActionResult, UIMetadataKey, MCPProps, HostProps } from '../types';
 import { processHTMLResource } from '../utils/processResource';
 import { getUIResourceMetadata } from '../utils/metadataUtils';
 
@@ -10,6 +10,8 @@ export type HTMLResourceRendererProps = {
   style?: React.CSSProperties;
   proxy?: string;
   iframeRenderData?: Record<string, unknown>;
+  mcp?: MCPProps;
+  host?: HostProps;
   autoResizeIframe?: boolean | { width?: boolean; height?: boolean };
   sandboxPermissions?: string;
   iframeProps?: Omit<React.HTMLAttributes<HTMLIFrameElement>, 'src' | 'srcDoc' | 'style'> & {
@@ -43,17 +45,14 @@ export const HTMLResourceRenderer = ({
   style,
   proxy,
   iframeRenderData,
+  mcp,
+  host,
   autoResizeIframe,
   sandboxPermissions,
   iframeProps,
 }: HTMLResourceRendererProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   useImperativeHandle(iframeProps?.ref, () => iframeRef.current as HTMLIFrameElement);
-
-  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
-    () => processHTMLResource(resource, proxy),
-    [resource, proxy],
-  );
 
   const uiMetadata = useMemo(() => getUIResourceMetadata(resource), [resource]);
   const preferredFrameSize = uiMetadata[UIMetadataKey.PREFERRED_FRAME_SIZE] ?? ['100%', '100%'];
@@ -68,6 +67,17 @@ export const HTMLResourceRenderer = ({
       ...iframeRenderData,
     };
   }, [iframeRenderData, metadataInitialRenderData]);
+
+  const { error, iframeSrc, iframeRenderMode, htmlString } = useMemo(
+    () =>
+      processHTMLResource(resource, {
+        proxy,
+        mcp,
+        host,
+      }),
+    [resource, proxy, mcp, host]
+  );
+
 
   const iframeSrcToRender = useMemo(() => {
     if (iframeSrc && initialRenderData) {
@@ -240,7 +250,6 @@ export const HTMLResourceRenderer = ({
       }
       return null;
     }
-
     return (
       <iframe
         src={iframeSrcToRender}

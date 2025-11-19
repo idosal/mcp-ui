@@ -3,7 +3,12 @@ import React from 'react';
 
 export type UIActionType = 'tool' | 'prompt' | 'link' | 'intent' | 'notify';
 
-export const ALL_RESOURCE_CONTENT_TYPES = ['rawHtml', 'externalUrl', 'remoteDom'] as const;
+export const ALL_RESOURCE_CONTENT_TYPES = [
+  'rawHtml',
+  'externalUrl',
+  'remoteDom',
+  'skybridge',
+] as const;
 export type ResourceContentType = (typeof ALL_RESOURCE_CONTENT_TYPES)[number];
 
 type GenericActionMessage = {
@@ -96,4 +101,33 @@ export const UI_METADATA_PREFIX = 'mcpui.dev/ui-';
 export type UIResourceMetadata = {
   [UIMetadataKey.PREFERRED_FRAME_SIZE]?: [string, string];
   [UIMetadataKey.INITIAL_RENDER_DATA]?: Record<string, unknown>;
+};
+
+export type MCPProps = {
+  toolInput?: Record<string, unknown>;
+  toolOutput?: Record<string, unknown>;
+  toolName?: string;
+  toolResponseMetadata?: Record<string, unknown>;
+};
+
+export type HostProps = {
+  theme?: string;
+  locale?: string;
+  userAgent?: unknown;
+  model?: string;
+  displayMode?: string;
+  maxHeight?: number;
+  safeArea?: {
+    insets: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+  };
+  capabilities?: {
+    hover?: boolean;
+    touch?: boolean;
+    [capability: string]: boolean | undefined;
+  };
 };
