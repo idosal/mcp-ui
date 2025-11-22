@@ -5,7 +5,7 @@ import {
   RemoteRootRenderer,
   RemoteReceiver,
 } from '@remote-dom/react/host';
-import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { IFRAME_SRC_DOC } from '../remote-dom/iframe-bundle';
 import { ThreadIframe } from '@quilted/threads';
 import type {
@@ -20,7 +20,7 @@ import { RemoteDOMRenderer } from './RemoteDOMRenderer';
 import { processRemoteDOMResource } from '../utils/processResource';
 
 export type RemoteDOMResourceProps = {
-  resource: Partial<Resource>;
+  resource: Partial<EmbeddedResource['resource']>;
   library?: ComponentLibrary;
   remoteElements?: RemoteElementConfiguration[];
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
