@@ -2,11 +2,11 @@ import r2wc from '@r2wc/react-to-web-component';
 import { UIResourceRenderer, type UIResourceRendererProps } from './UIResourceRenderer';
 import { FC, useCallback, useRef } from 'react';
 import { UIActionResult } from '../types';
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 
 
 type UIResourceRendererWCProps = Omit<UIResourceRendererProps, 'resource' | 'onUIAction'> & {
-    resource?: Resource | string;
+    resource?: EmbeddedResource['resource'] | string;
 };
 
 function normalizeJsonProp(prop: unknown): Record<string, unknown> | undefined {
@@ -31,7 +31,7 @@ export const UIResourceRendererWCWrapper: FC<UIResourceRendererWCProps> = (props
         remoteDomProps: rawRemoteDomProps,
     } = props;
 
-    const resource = normalizeJsonProp(rawResource);
+    const resource = normalizeJsonProp(rawResource) as Partial<EmbeddedResource['resource']> | undefined;
     const supportedContentTypes = normalizeJsonProp(rawSupportedContentTypes);
     const htmlProps = normalizeJsonProp(rawHtmlProps);
     const remoteDomProps = normalizeJsonProp(rawRemoteDomProps);
@@ -56,7 +56,7 @@ export const UIResourceRendererWCWrapper: FC<UIResourceRendererWCProps> = (props
     return (
         <div ref={ref}>
             <UIResourceRenderer
-                resource={resource as Resource}
+                resource={resource}
                 supportedContentTypes={supportedContentTypes as unknown as UIResourceRendererProps['supportedContentTypes']}
                 htmlProps={htmlProps}
                 remoteDomProps={remoteDomProps}

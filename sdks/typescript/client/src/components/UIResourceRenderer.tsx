@@ -5,7 +5,7 @@ import { RemoteDOMResourceProps, RemoteDOMResourceRenderer } from './RemoteDOMRe
 import { basicComponentLibrary } from '../remote-dom/component-libraries/basic';
 
 export type UIResourceRendererProps = {
-  resource: Partial<EmbeddedResource>;
+  resource: Partial<EmbeddedResource['resource']>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   supportedContentTypes?: ResourceContentType[];
   htmlProps?: Omit<HTMLResourceRendererProps, 'resource' | 'onUIAction'>;
@@ -13,7 +13,7 @@ export type UIResourceRendererProps = {
 };
 
 function getContentType(
-  resource: Partial<EmbeddedResource['resource']>,
+  resource: Partial<EmbeddedResource['resource'] & { contentType?: string }>,
 ): ResourceContentType | undefined {
   if (resource.contentType) {
     return resource.contentType as ResourceContentType;
