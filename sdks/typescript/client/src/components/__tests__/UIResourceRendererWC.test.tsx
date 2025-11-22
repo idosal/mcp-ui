@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup, act } from '@testing-library/react';
 import React from 'react';
-import './UIResourceRendererWC';
-import { UIResourceRenderer } from './UIResourceRenderer';
+import '../UIResourceRendererWC';
+import { UIResourceRenderer } from '../UIResourceRenderer';
 
 let triggerUIAction: (event: unknown) => void;
 
 // Mock the underlying renderer to control the onUIAction callback
-vi.mock('./UIResourceRenderer', () => ({
+vi.mock('../UIResourceRenderer', () => ({
   UIResourceRenderer: vi.fn((props) => {
     // This mock simulates the renderer and allows us to trigger the action
     triggerUIAction = (event: unknown) => props.onUIAction?.(event);
