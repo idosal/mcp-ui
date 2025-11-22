@@ -16,7 +16,7 @@ import type { AppsSdkAdapterConfig } from './types.js';
  *
  * Runtime consumers will still resolve to the JavaScript build via package exports.
  */
-import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.ts';
+import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled';
 
 /**
  * Returns the complete adapter script as a string that can be injected into HTML.
