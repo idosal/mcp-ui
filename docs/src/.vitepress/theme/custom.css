@@ -288,10 +288,6 @@ div[class*='language-'] code {
 }
 
 /* Enhanced content area */
-.VPContent {
-  padding-top: 32px;
-}
-
 .vp-doc h1 {
   font-size: 2.5rem;
   font-weight: 800;
@@ -493,4 +489,63 @@ div[class*='language-'] code {
 }
 .VPFeature:nth-child(6) {
   animation-delay: 0.6s;
+}
+
+/* Announcement Banner */
+.announcement-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+  border-radius: 0 0 8px 8px; /* Rounded bottom corners just for style */
+  width: 100%;
+  max-width: 1152px; /* Match typical container width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.announcement-banner a:hover {
+  text-decoration: none !important;
+  opacity: 0.9;
+}
+
+/* Adjust VPHero top padding when banner is present (Home page) */
+.VPHome .VPHero {
+  padding-top: 80px !important;
+}
+
+@media (max-width: 960px) {
+  .VPHome .VPHero {
+    padding-top: 64px !important;
+  }
+  
+  /* Fix overlap by resetting layout shifts on image */
+  .VPHome .VPHero .image,
+  .VPHome .VPHero .image-container {
+    margin-top: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .VPHome .VPHero {
+    padding-top: 32px !important;
+  }
+  
+  .announcement-banner {
+    margin-bottom: 0;
+  }
+}
+
+/* Fix hero image overlap on tablet/mobile by removing negative margin */
+@media (max-width: 960px) {
+  .VPHome .VPHero .image-container {
+    margin-top: 0 !important;
+  }
 }
