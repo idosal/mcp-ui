@@ -248,8 +248,8 @@ importers:
   examples/server:
     dependencies:
       '@mcp-ui/server':
-        specifier: file:../../sdks/typescript/server
-        version: file:sdks/typescript/server
+        specifier: workspace:*
+        version: link:../../sdks/typescript/server
       '@modelcontextprotocol/sdk':
         specifier: ^1.11.1
         version: 1.13.1
@@ -336,8 +336,8 @@ importers:
   examples/typescript-server-demo:
     dependencies:
       '@mcp-ui/server':
-        specifier: file:../../sdks/typescript/server
-        version: file:sdks/typescript/server
+        specifier: workspace:*
+        version: link:../../sdks/typescript/server
       '@modelcontextprotocol/sdk':
         specifier: ^1.16.0
         version: 1.16.0
@@ -1884,9 +1884,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-
-  '@mcp-ui/server@file:sdks/typescript/server':
-    resolution: {directory: sdks/typescript/server, type: directory}
 
   '@mermaid-js/mermaid-mindmap@9.3.0':
     resolution: {integrity: sha512-IhtYSVBBRYviH1Ehu8gk69pMDF8DSRqXBRDMWrEfHoaMruHeaP2DXA3PBnuwsMaCdPQhlUUcy/7DBLAEIXvCAw==}
@@ -9605,12 +9602,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
-
-  '@mcp-ui/server@file:sdks/typescript/server':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.16.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@mermaid-js/mermaid-mindmap@9.3.0':
     dependencies:

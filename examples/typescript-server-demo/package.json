@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mcp-ui/server": "file:../../sdks/typescript/server",
+    "@mcp-ui/server": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.16.0",
     "cors": "^2.8.5",
     "express": "^4.17.1"
