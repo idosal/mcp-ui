@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
-import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { UIActionResult, UIMetadataKey } from '../types';
 import { processHTMLResource } from '../utils/processResource';
 import { getUIResourceMetadata } from '../utils/metadataUtils';
 
 export type HTMLResourceRendererProps = {
-  resource: Partial<Resource>;
+  resource: Partial<EmbeddedResource['resource']>;
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
   style?: React.CSSProperties;
   proxy?: string;

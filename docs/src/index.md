@@ -2,8 +2,8 @@
 layout: home
 
 hero:
-  name: MCP-UI
-  text: Interactive UI Components for MCP
+  name: MCP-UI -> MCP Apps
+  text: Interactive UI Components over MCP
   tagline: Open protocol to build rich, dynamic interfaces for your agentic apps with SDKs that bring UI to AI interactions.
   image:
     light: /logo-lg-black.png
@@ -24,14 +24,14 @@ hero:
       link: /about
 
 features:
-  - title: 🌐 Open Protocol
-    details: MCP-UI is an open spec to standardize UI over MCP. Write once, run everywhere!
+  - title: 🌐 Standardized Protocol
+    details: MCP-UI is standardized into MCP Apps. The MCP-UI SDKs are fully compliant and ready to use.
   - title: 🛠️ Client & Server SDKs
     details: Provides powerful utilities to create interactive UI resources in MCP servers (Typescript, Ruby, and Python), as well as robust components for simple host integration (React and Web Components).
   - title: 🔒 Secure
     details: All remote code executes in sandboxed iframes, ensuring host and user security while maintaining rich interactivity.
   - title: 🎨 Flexible
-    details: Support for multiple content types, including iframes and Remote DOM components that match your host's look-and-feel.
+    details: MCP-UI is a playground to experiment with agentic UI. Community feedback will help shape the MCP Apps spec.
 ---
 
 <!-- ## See MCP-UI in Action -->
@@ -46,7 +46,7 @@ features:
 </div>
 </div>
 
-## Quick Example
+## Quick Example (will be updated shortly!)
 
 **Server Side** - Create interactive resources to return in your MCP tool results:
 
