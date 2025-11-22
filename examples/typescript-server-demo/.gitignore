@@ -1,0 +1,6 @@
+# Build outputs that should never be committed
+# (compiled files should go to dist/ directory)
+src/**/*.js
+src/**/*.d.ts
+dist/
+*.tsbuildinfo
