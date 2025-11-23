@@ -1,0 +1,5 @@
+# Build outputs that should never be committed
+# (vite.config.ts is loaded directly by Vite)
+vite.config.js
+vite.config.d.ts
+*.tsbuildinfo

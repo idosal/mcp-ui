@@ -21,6 +21,7 @@ jobs:
       ruby_sdk_files: ${{ steps.filter.outputs.ruby_sdk_files }}
       python_sdk_files: ${{ steps.filter.outputs.python_sdk_files }}
       example_files: ${{ steps.filter.outputs.example_files }}
+      js_example_files: ${{ steps.filter.outputs.js_example_files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,10 +41,16 @@ jobs:
               - 'sdks/python/**'
             example_files:
               - 'examples/**'
+            js_example_files:
+              - 'examples/external-url-demo/**'
+              - 'examples/remote-dom-demo/**'
+              - 'examples/wc-demo/**'
+              - 'examples/typescript-server-demo/**'
+              - 'examples/server/**'
 
   js_build_and_test:
     needs: filter_changed_paths
-    if: needs.filter_changed_paths.outputs.ts_client_files == 'true' || needs.filter_changed_paths.outputs.ts_server_files == 'true'
+    if: needs.filter_changed_paths.outputs.ts_client_files == 'true' || needs.filter_changed_paths.outputs.ts_server_files == 'true' || needs.filter_changed_paths.outputs.js_example_files == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +77,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Build examples
+        run: pnpm --filter="./examples/*" build
 
   ruby_sdk_test:
     needs: filter_changed_paths
