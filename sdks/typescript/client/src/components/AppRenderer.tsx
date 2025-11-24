@@ -1,26 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  McpUiMessageRequestSchema,
-  McpUiOpenLinkRequestSchema,
-  McpUiSizeChangeNotificationSchema,
-  McpUiSandboxProxyReadyNotificationSchema, 
-  PostMessageTransport,
-} from "@modelcontextprotocol/ext-apps";
-import {
-  AppBridge,
-} from "@modelcontextprotocol/ext-apps/app-bridge";
+
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
-  CallToolResult,
-  LoggingMessageNotificationSchema,
-  Tool,
+  type CallToolResult,
+  type LoggingMessageNotification,
+  McpError,
+  ErrorCode,
 } from "@modelcontextprotocol/sdk/types.js";
+
+import {
+  AppBridge,
+  PostMessageTransport,
+} from "@modelcontextprotocol/ext-apps/app-bridge";
+
+import {
+  getToolUiResourceUri,
+  readToolUiResourceHtml,
+  setupSandboxProxyIframe,
+} from "../utils/app-host-utils";
 import { UIActionResult } from "..";
 
 /**
- * Props for the UITemplatedToolCallRenderer component.
+ * Props for the AppRenderer component.
  */
-export interface UITemplatedToolCallRendererProps {
+export interface AppRendererProps {
   /** URL to the sandbox proxy HTML that will host the tool UI iframe */
   sandboxProxyUrl: URL;
 
@@ -39,11 +42,15 @@ export interface UITemplatedToolCallRendererProps {
   /** Optional result from tool execution to pass to the tool UI once it's ready */
   toolResult?: CallToolResult;
 
-  /** Callback invoked when the tool UI requests an action (intent, link, prompt, notify) */
+  onopenlink?: AppBridge["onopenlink"];
+  onmessage?: AppBridge["onmessage"];
+  onloggingmessage?: AppBridge["onloggingmessage"];
+
+  /** Callback invoked when the tool UI requests an action (link, prompt, notify) */
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
 
   /** Callback invoked when an error occurs during setup or message handling */
-  onError?: (error: Error) => void;
+  onerror?: (error: Error) => void;
 }
 
 /**
@@ -59,7 +66,7 @@ export interface UITemplatedToolCallRendererProps {
  *
  * @example
  * ```tsx
- * <UITemplatedToolCallRenderer
+ * <AppRenderer
  *   sandboxProxyUrl={new URL('http://localhost:8765/sandbox_proxy.html')}
  *   client={mcpClient}
  *   toolName="create-chart"
@@ -70,7 +77,7 @@ export interface UITemplatedToolCallRendererProps {
  *       console.log('Intent:', action.payload.intent);
  *     }
  *   }}
- *   onError={(error) => console.error('UI Error:', error)}
+ *   onerror={(error) => console.error('UI Error:', error)}
  * />
  * ```
  *
@@ -92,19 +99,19 @@ export interface UITemplatedToolCallRendererProps {
  * @param props - Component props
  * @returns React element containing the sandboxed tool UI iframe
  */
-export const UITemplatedToolCallRenderer = (
-  props: UITemplatedToolCallRendererProps,
-) => {
+export const AppRenderer = (props: AppRendererProps) => {
   const {
     client,
     sandboxProxyUrl,
     toolName,
     toolResourceUri,
-    // usesOpenAiAppsSdk,
     toolInput,
     toolResult,
+    onmessage,
+    onopenlink,
+    onloggingmessage,
     onUIAction,
-    onError,
+    onerror,
   } = props;
 
   // State
@@ -115,38 +122,38 @@ export const UITemplatedToolCallRenderer = (
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   // Use refs for callbacks to avoid effect re-runs when they change
+  const onmessageRef = useRef(onmessage);
+  const onopenlinkRef = useRef(onopenlink);
+  const onloggingmessageRef = useRef(onloggingmessage);
   const onUIActionRef = useRef(onUIAction);
-  const onErrorRef = useRef(onError);
+  const onerrorRef = useRef(onerror);
 
   useEffect(() => {
-    onUIActionRef.current = onUIAction;
-    onErrorRef.current = onError;
+    onmessageRef.current = onmessage;
+    onopenlinkRef.current = onopenlink;
+    onloggingmessageRef.current = onloggingmessage;
+    onerrorRef.current = onerror;
   });
 
-  // Effect 1: Setup sandbox proxy iframe
   useEffect(() => {
     let mounted = true;
 
     const setup = async () => {
       try {
-        // Step 1: Create iframe and wait for sandbox proxy ready
         const { iframe, onReady } =
           await setupSandboxProxyIframe(sandboxProxyUrl);
 
         if (!mounted) return;
 
-        // Append iframe to DOM
         iframeRef.current = iframe;
         if (containerRef.current) {
           containerRef.current.appendChild(iframe);
         }
 
-        // Wait for sandbox proxy HTML to signal it's ready
         await onReady;
 
         if (!mounted) return;
 
-        // Step 2: Create proxy server instance
         const serverCapabilities = client.getServerCapabilities();
         const appBridge = new AppBridge(
           client,
@@ -170,68 +177,80 @@ export const UITemplatedToolCallRenderer = (
           setIframeReady(true);
         };
 
-        // Register MCP-UI specific request handlers
+        // Register handlers passed in via props
 
-        appBridge.setRequestHandler(McpUiOpenLinkRequestSchema, async (req) => {
-          try {
-            await onUIActionRef.current?.({
-              type: "link",
-              payload: { url: req.params.url },
-            });
-            return { isError: false };
-          } catch (e) {
-            console.error("[Host] Open link handler error:", e);
-            const error = e instanceof Error ? e : new Error(String(e));
-            onErrorRef.current?.(error);
-            return { isError: true };
-          }
-        });
-
-        appBridge.setRequestHandler(McpUiMessageRequestSchema, async (req) => {
-          try {
-            await onUIActionRef.current?.({
-              type: "prompt",
-              payload: {
-                prompt: req.params.content
-                  .map((c: any) => (c.type === "text" ? c.text : ""))
-                  .join("\n"),
-              },
-            });
-            return { isError: false };
-          } catch (e) {
-            console.error("[Host] Message handler error:", e);
-            const error = e instanceof Error ? e : new Error(String(e));
-            onErrorRef.current?.(error);
-            return { isError: true };
-          }
-        });
-
-        appBridge.setNotificationHandler(
-          McpUiSizeChangeNotificationSchema,
-          async (notif: any) => {
-            const { width, height } = notif.params;
-            if (iframeRef.current) {
-              if (width !== undefined) {
-                iframeRef.current.style.width = `${width}px`;
-              }
-              if (height !== undefined) {
-                iframeRef.current.style.height = `${height}px`;
-              }
+        appBridge.onmessage = async (params, extra) => {
+          if (onUIActionRef.current) {
+            try {
+              await onUIActionRef.current?.({
+                type: "prompt",
+                payload: {
+                  prompt: params.content
+                    .map((c: any) => (c.type === "text" ? c.text : ""))
+                    .join("\n"),
+                },
+              });
+              return { isError: false };
+            } catch (e) {
+              console.error("[Host] Message handler error:", e);
+              const error = e instanceof Error ? e : new Error(String(e));
+              onerrorRef.current?.(error);
+              return { isError: true };
             }
-          },
-        );
-
-        appBridge.setNotificationHandler(
-          LoggingMessageNotificationSchema,
-          async (notif: any) => {
+          } else {
+            if (!onmessageRef.current) {
+              throw new McpError(ErrorCode.MethodNotFound, "Method not found");
+            }
+            return onmessageRef.current(params, extra);
+          }
+        };
+        appBridge.onopenlink = async (params, extra) => {
+          if (onUIActionRef.current) {
+            try {
+              await onUIActionRef.current?.({
+                type: "link",
+                payload: { url: params.url },
+              });
+              return { isError: false };
+            } catch (e) {
+              console.error("[Host] Open link handler error:", e);
+              const error = e instanceof Error ? e : new Error(String(e));
+              onerrorRef.current?.(error);
+              return { isError: true };
+            }
+          } else {
+            if (!onopenlinkRef.current) {
+              throw new McpError(ErrorCode.MethodNotFound, "Method not found");
+            }
+            return onopenlinkRef.current(params, extra);
+          }
+        };
+        appBridge.onloggingmessage = (params) => {
+          if (onUIActionRef.current) {
             onUIAction?.({
               type: "notify",
               payload: {
-                message: notif.params.message,
+                message: params.message,
               },
             });
-          },
-        );
+          } else {
+            if (!onloggingmessageRef.current) {
+              throw new McpError(ErrorCode.MethodNotFound, "Method not found");
+            }
+            return onloggingmessageRef.current(params);
+          }
+        };
+
+        appBridge.onsizechange = async ({ width, height }) => {
+          if (iframeRef.current) {
+            if (width !== undefined) {
+              iframeRef.current.style.width = `${width}px`;
+            }
+            if (height !== undefined) {
+              iframeRef.current.style.height = `${height}px`;
+            }
+          }
+        };
 
         // Step 4: NOW connect (triggers MCP initialization handshake)
         // IMPORTANT: Pass iframe.contentWindow as BOTH target and source to ensure
@@ -248,11 +267,11 @@ export const UITemplatedToolCallRenderer = (
         // Step 5: Store proxy in state
         setAppBridge(appBridge);
       } catch (err) {
-        console.error("[UITemplatedToolCallRenderer] Error:", err);
+        console.error("[AppRenderer] Error:", err);
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onErrorRef.current?.(error);
+        onerrorRef.current?.(error);
       }
     };
 
@@ -285,7 +304,6 @@ export const UITemplatedToolCallRenderer = (
           // When URI is provided directly, assume it's NOT OpenAI Apps SDK format
           resourceInfo = {
             uri: toolResourceUri,
-            // usesOpenAiAppsSdk: usesOpenAiAppsSdk ?? false,
           };
           console.log(
             `[Host] Using provided resource URI: ${resourceInfo.uri}`,
@@ -323,7 +341,7 @@ export const UITemplatedToolCallRenderer = (
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onErrorRef.current?.(error);
+        onerrorRef.current?.(error);
       }
     };
 
@@ -369,116 +387,3 @@ export const UITemplatedToolCallRenderer = (
     </div>
   );
 };
-
-
-const MCP_UI_RESOURCE_META_KEY = "ui/resourceUri";
-
-async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
-  iframe: HTMLIFrameElement;
-  onReady: Promise<void>;
-}> {
-  const iframe = document.createElement("iframe");
-  iframe.style.width = "100%";
-  iframe.style.height = "100px";
-  iframe.style.border = "none";
-  iframe.style.backgroundColor = "transparent";
-  iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
-
-  const onReady = new Promise<void>((resolve, _reject) => {
-    const initialListener = async (event: MessageEvent) => {
-      if (event.source === iframe.contentWindow) {
-        if (
-          event.data &&
-          event.data.method ===
-            McpUiSandboxProxyReadyNotificationSchema.shape.method._def.value
-        ) {
-          window.removeEventListener("message", initialListener);
-          resolve();
-        }
-      }
-    };
-    window.addEventListener("message", initialListener);
-  });
-
-  iframe.src = sandboxProxyUrl.href;
-
-  return { iframe, onReady };
-}
-
-type ToolUiResourceInfo = {
-  uri: string;
-};
-
-async function getToolUiResourceUri(
-  client: Client,
-  toolName: string,
-): Promise<ToolUiResourceInfo | null> {
-  let tool: Tool | undefined;
-  let cursor: string | undefined = undefined;
-  do {
-    const toolsResult = await client.listTools({ cursor });
-    tool = toolsResult.tools.find((t) => t.name === toolName);
-    cursor = toolsResult.nextCursor;
-  } while (!tool && cursor);
-  if (!tool) {
-    throw new Error(`tool ${toolName} not found`);
-  }
-  if (!tool._meta) {
-    return null;
-  }
-
-  let uri: string;
-  if (MCP_UI_RESOURCE_META_KEY in tool._meta) {
-    uri = String(tool._meta[MCP_UI_RESOURCE_META_KEY]);
-  } else {
-    return null;
-  }
-  if (!uri.startsWith("ui://")) {
-    throw new Error(
-      `tool ${toolName} has unsupported output template URI: ${uri}`,
-    );
-  }
-  return { uri };
-}
-
-async function readToolUiResourceHtml(
-  client: Client,
-  opts: {
-    uri: string;
-  },
-): Promise<string> {
-  const resource = await client.readResource({ uri: opts.uri });
-
-  if (!resource) {
-    throw new Error("UI resource not found: " + opts.uri);
-  }
-  if (resource.contents.length !== 1) {
-    throw new Error(
-      "Unsupported UI resource content length: " + resource.contents.length,
-    );
-  }
-  const content = resource.contents[0];
-  let html: string;
-  const isHtml = (t?: string) =>
-    t === "text/html" || t === "text/html+skybridge";
-
-  if (
-    "text" in content &&
-    typeof content.text === "string" &&
-    isHtml(content.mimeType)
-  ) {
-    html = content.text;
-  } else if (
-    "blob" in content &&
-    typeof content.blob === "string" &&
-    isHtml(content.mimeType)
-  ) {
-    html = atob(content.blob);
-  } else {
-    throw new Error(
-      "Unsupported UI resource content format: " + JSON.stringify(content),
-    );
-  }
-
-  return html;
-}
