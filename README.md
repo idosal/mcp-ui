@@ -408,6 +408,7 @@ These guides will show you how to add a `mcp-ui` endpoint to an existing server,
 **Server Examples**
 * **TypeScript**: A [full-featured server](examples/server) that is deployed to a hosted environment for easy testing.
   * **[`typescript-server-demo`](./examples/typescript-server-demo)**: A simple Typescript server that demonstrates how to generate UI resources.
+  * **[`mongodb-real-estate-crm`](./examples/mongodb-real-estate-crm)**: A comprehensive real estate CRM application powered by MongoDB MCP Server with natural language queries, interactive charts, reports, and analytics. Features include sales pipeline management, inventory tracking, marketing analytics, and team performance monitoring.
   * **server**: A [full-featured Typescript server](examples/server) that is deployed to a hosted Cloudflare environment for easy testing.
     * **HTTP Streaming**: `https://remote-mcp-server-authless.idosalomon.workers.dev/mcp`
     * **SSE**: `https://remote-mcp-server-authless.idosalomon.workers.dev/sse`
