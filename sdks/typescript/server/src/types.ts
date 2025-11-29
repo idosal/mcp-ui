@@ -1,11 +1,18 @@
 import type { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
+import { RESOURCE_URI_META_KEY } from '@modelcontextprotocol/ext-apps';
+import type { McpAppsAdapterConfig } from './adapters/mcp-apps/types.js';
 
 // Primary identifier for the resource. Starts with ui://`
 export type URI = `ui://${string}`;
 
+// Re-export the key used in tool metadata to link to a UI resource
+// This comes from the official @modelcontextprotocol/ext-apps package
+export { RESOURCE_URI_META_KEY };
+
 // text/html for rawHtml content, text/uri-list for externalUrl content
 export type MimeType =
   | 'text/html'
+  | 'text/html+mcp'
   | 'text/html+skybridge'
   | 'text/uri-list'
   | 'application/vnd.mcp-ui.remote-dom+javascript; framework=react'
@@ -53,19 +60,17 @@ export interface CreateUIResourceOptions {
 }
 
 /**
- * Configuration for all available adapters
- * Adapters enable MCP-UI widgets to work in different environments
+ * Configuration for adapters - only ONE adapter can be enabled at a time.
+ * Each adapter produces a different MIME type, and resources can only have one MIME type.
+ * 
+ * Use one of these configurations:
+ * - `{ appsSdk: { enabled: true, ... } }` for ChatGPT/Apps SDK hosts
+ * - `{ mcpApps: { enabled: true, ... } }` for MCP Apps SEP hosts
  */
-export interface AdaptersConfig {
-  /**
-   * Apps SDK adapter (e.g., ChatGPT)
-   * Translates MCP-UI protocol to Apps SDK API calls (window.openai)
-   */
-  appsSdk?: AppsSdkAdapterOptions;
-  
-  // Future adapters can be added here
-  // e.g., anotherPlatform?: AnotherPlatformAdapterOptions;
-}
+export type AdaptersConfig =
+  | { appsSdk: AppsSdkAdapterOptions; mcpApps?: never }
+  | { mcpApps: McpAppsAdapterOptions; appsSdk?: never }
+  | { appsSdk?: undefined; mcpApps?: undefined };
 
 /**
  * Configuration options for Apps SDK adapter
@@ -106,6 +111,24 @@ export interface AppsSdkAdapterOptions {
    * @default 'text/html+skybridge'
    */
   mimeType?: string;
+}
+
+/**
+ * Configuration options for MCP Apps adapter
+ */
+export interface McpAppsAdapterOptions {
+  /**
+   * Whether to enable the MCP Apps adapter.
+   * When enabled, the adapter script will be automatically injected into HTML content,
+   * allowing existing MCP-UI widgets to work in new MCP Apps hosts.
+   * @default false
+   */
+  enabled: boolean;
+
+  /**
+   * Custom configuration for the adapter
+   */
+  config?: McpAppsAdapterConfig;
 }
 
 export type UIResourceProps = Omit<Partial<Resource>, 'uri' | 'mimeType'>;

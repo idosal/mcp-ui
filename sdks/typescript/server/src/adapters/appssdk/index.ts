@@ -8,7 +8,6 @@ export { getAppsSdkAdapterScript } from './adapter.js';
 export type {
   AppsSdkAdapterConfig,
   AppsSdkBridge,
-  RenderData,
-  MCPUIMessage,
+  RenderData as AppsSdkRenderData,
+  MCPUIMessage as AppsSdkMCPUIMessage,
 } from './types.js';
-

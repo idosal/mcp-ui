@@ -1,6 +1,7 @@
 import type { CreateUIResourceOptions, UIResourceProps, AdaptersConfig } from './types.js';
 import { UI_METADATA_PREFIX } from './types.js';
 import { getAppsSdkAdapterScript } from './adapters/appssdk/adapter.js';
+import { getMcpAppsAdapterScript } from './adapters/mcp-apps/adapter.js';
 
 export function getAdditionalResourceProps(
   resourceOptions: Partial<CreateUIResourceOptions>,
@@ -78,6 +79,11 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
     return adaptersConfig.appsSdk.mimeType ?? 'text/html+skybridge';
   }
 
+  // MCP Apps adapter uses text/html+mcp as per the ext-apps specification
+  if (adaptersConfig.mcpApps?.enabled) {
+      return 'text/html+mcp';
+  }
+
   // Future adapters can be added here by checking for their config and returning their mime type.
 
   return undefined;
@@ -104,6 +110,12 @@ export function wrapHtmlWithAdapters(
   // Apps SDK adapter
   if (adaptersConfig.appsSdk?.enabled) {
     const script = getAppsSdkAdapterScript(adaptersConfig.appsSdk.config);
+    adapterScripts.push(script);
+  }
+
+  // MCP Apps adapter
+  if (adaptersConfig.mcpApps?.enabled) {
+    const script = getMcpAppsAdapterScript(adaptersConfig.mcpApps.config);
     adapterScripts.push(script);
   }
 

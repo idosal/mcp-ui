@@ -137,6 +137,14 @@ export default withMermaid(
             ],
           },
           {
+            text: 'Protocol Integrations',
+            collapsed: false,
+            items: [
+              { text: 'MCP Apps', link: '/guide/mcp-apps' },
+              { text: 'Apps SDK (ChatGPT)', link: '/guide/apps-sdk' },
+            ],
+          },
+          {
             text: 'Server SDKs',
             collapsed: false,
             items: [

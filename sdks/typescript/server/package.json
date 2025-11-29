@@ -73,6 +73,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "*"
+    "@modelcontextprotocol/ext-apps": "git+https://github.com/modelcontextprotocol/ext-apps.git",
+    "@modelcontextprotocol/sdk": "^1.22.0"
   }
 }
