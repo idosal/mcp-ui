@@ -1,5 +1,5 @@
 import type { McpAppsAdapterConfig } from './types.js';
-// @ts-ignore - The bundled file is generated at build time
+// @ts-expect-error - The bundled file is generated at build time
 import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.ts';
 
 export function getMcpAppsAdapterScript(config?: McpAppsAdapterConfig): string {

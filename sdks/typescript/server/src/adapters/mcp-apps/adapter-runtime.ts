@@ -167,7 +167,7 @@ class McpAppsAdapter {
           // Update current render data with host context (using McpUiHostContext type)
           if (this.hostContext) {
             if (this.hostContext.theme) this.currentRenderData.theme = this.hostContext.theme;
-            if (this.hostContext.displayMode) this.currentRenderData.displayMode = this.hostContext.displayMode as any;
+            if (this.hostContext.displayMode) this.currentRenderData.displayMode = this.hostContext.displayMode as 'inline' | 'pip' | 'fullscreen';
             if (this.hostContext.locale) this.currentRenderData.locale = this.hostContext.locale;
             if (this.hostContext.viewport?.maxHeight) this.currentRenderData.maxHeight = this.hostContext.viewport.maxHeight;
           }
@@ -247,7 +247,7 @@ class McpAppsAdapter {
 
     // Create interceptor
     const postMessageInterceptor: ParentPostMessage = (
-      message: any,
+      message: unknown,
       targetOriginOrOptions?: string | WindowPostMessageOptions,
       transfer?: Transferable[]
     ): void => {
@@ -396,7 +396,7 @@ class McpAppsAdapter {
         switch (message.type) {
             // MCP-UI tool call -> MCP Apps tools/call
             case 'tool': {
-                const { toolName, params } = (message as UIActionResult).payload as any;
+                const { toolName, params } = (message as UIActionResult).payload as { toolName: string; params: unknown };
                 const jsonRpcId = this.generateJsonRpcId();
                 
                 this.pendingRequests.set(String(jsonRpcId), {
@@ -430,7 +430,7 @@ class McpAppsAdapter {
             
             // MCP-UI notification -> MCP Apps notifications/message (logging)
             case 'notify': {
-                 const { message: msg } = (message as UIActionResult).payload as any;
+                 const { message: msg } = (message as UIActionResult).payload as { message: string };
                  this.sendJsonRpcNotification('notifications/message', {
                      level: 'info',
                      data: msg
@@ -440,7 +440,7 @@ class McpAppsAdapter {
             
             // MCP-UI link -> MCP Apps ui/open-link request
             case 'link': {
-                const { url } = (message as UIActionResult).payload as any;
+                const { url } = (message as UIActionResult).payload as { url: string };
                 const jsonRpcId = this.generateJsonRpcId();
                 
                 this.pendingRequests.set(String(jsonRpcId), {
@@ -506,7 +506,7 @@ class McpAppsAdapter {
             // MCP-UI intent -> Currently no direct equivalent in MCP Apps
             // We translate it to a ui/message with the intent description
             case 'intent': {
-                const { intent, params } = (message as UIActionResult).payload as any;
+                const { intent, params } = (message as UIActionResult).payload as { intent: string; params: unknown };
                 const jsonRpcId = this.generateJsonRpcId();
                 
                 this.pendingRequests.set(String(jsonRpcId), {
@@ -564,7 +564,7 @@ class McpAppsAdapter {
     });
   }
 
-  private sendJsonRpcRequest(id: number | string, method: string, params?: any) {
+  private sendJsonRpcRequest(id: number | string, method: string, params?: Record<string, unknown>) {
       this.originalPostMessage?.({
           jsonrpc: '2.0',
           id,
@@ -573,7 +573,7 @@ class McpAppsAdapter {
       }, '*');
   }
 
-  private sendJsonRpcNotification(method: string, params?: any) {
+  private sendJsonRpcNotification(method: string, params?: Record<string, unknown>) {
       this.originalPostMessage?.({
           jsonrpc: '2.0',
           method,
