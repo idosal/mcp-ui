@@ -3,8 +3,6 @@ import type { McpAppsAdapterConfig } from './types.js';
 import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.ts';
 
 export function getMcpAppsAdapterScript(config?: McpAppsAdapterConfig): string {
-  // Note: We can't serialize `logger` (console) to JSON, so we only pass serializable options
-  // The adapter will use the browser's console by default
   const serializableConfig = config ? {
     timeout: config.timeout,
   } : {};

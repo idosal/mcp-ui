@@ -90,11 +90,6 @@ export type MCPUIMessage =
  */
 export interface McpAppsAdapterConfig {
   /**
-   * Custom logger (defaults to console)
-   */
-  logger?: Pick<Console, 'log' | 'warn' | 'error' | 'debug'>;
-
-  /**
    * Timeout in milliseconds for async operations (defaults to 30000)
    */
   timeout?: number;
