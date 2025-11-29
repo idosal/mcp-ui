@@ -3,7 +3,6 @@ import cors from 'cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { RESOURCE_URI_META_KEY } from '@modelcontextprotocol/ext-apps';
 import { createUIResource, registerUITool } from '@mcp-ui/server';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
