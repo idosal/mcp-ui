@@ -125,7 +125,6 @@ export { RESOURCE_URI_META_KEY } from '@modelcontextprotocol/ext-apps';
 export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 export * from './adapters/index.js';
 
-
 export function postUIActionResult(result: UIActionResult): void {
   if (window.parent) {
     window.parent.postMessage(result, '*');
