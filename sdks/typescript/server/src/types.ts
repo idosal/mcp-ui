@@ -72,6 +72,28 @@ export interface CreateUIResourceOptions {
  * Use one of these configurations:
  * - `{ appsSdk: { enabled: true, ... } }` for ChatGPT/Apps SDK hosts
  * - `{ mcpApps: { enabled: true, ... } }` for MCP Apps SEP hosts
+ * 
+ * @example Valid configurations
+ * ```ts
+ * // ✓ Apps SDK adapter only
+ * const config1: AdaptersConfig = { appsSdk: { enabled: true } };
+ * 
+ * // ✓ MCP Apps adapter only
+ * const config2: AdaptersConfig = { mcpApps: { enabled: true } };
+ * 
+ * // ✓ No adapters
+ * const config3: AdaptersConfig = {};
+ * ```
+ * 
+ * @example Invalid configuration (TypeScript error)
+ * ```ts
+ * // ✗ Both adapters specified - compile-time error:
+ * // "Type '{ appsSdk: ...; mcpApps: ...; }' is not assignable to type 'AdaptersConfig'"
+ * const invalid: AdaptersConfig = {
+ *   appsSdk: { enabled: true },
+ *   mcpApps: { enabled: true }  // Error: mcpApps is 'never' when appsSdk is set
+ * };
+ * ```
  */
 export type AdaptersConfig =
   | { appsSdk: AppsSdkAdapterOptions; mcpApps?: never }
