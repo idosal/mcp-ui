@@ -1,3 +1,10 @@
+# [5.15.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.14.0...server/v5.15.0) (2025-11-29)
+
+
+### Features
+
+* add MCP Apps adapter ([#154](https://github.com/MCP-UI-Org/mcp-ui/issues/154)) ([986fd63](https://github.com/MCP-UI-Org/mcp-ui/commit/986fd634448637aa6488a18ad80ee9cd6b8de318))
+
 # [5.14.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.13.1...server/v5.14.0) (2025-11-29)
 
 
