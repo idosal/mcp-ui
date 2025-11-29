@@ -15,7 +15,7 @@ export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe.style.backgroundColor = "transparent";
   iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 
-  const onReady = new Promise<void>((resolve, _reject) => {
+  const onReady = new Promise<void>((resolve) => {
     const initialListener = async (event: MessageEvent) => {
       if (event.source === iframe.contentWindow) {
         if (
