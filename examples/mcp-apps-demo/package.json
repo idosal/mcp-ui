@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@mcp-ui/server": "workspace:*",
-    "@modelcontextprotocol/ext-apps": "git+https://github.com/modelcontextprotocol/ext-apps.git",
-    "@modelcontextprotocol/sdk": "1.22.0",
+    "@modelcontextprotocol/ext-apps": "https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz",
+    "@modelcontextprotocol/sdk": "^1.22.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "zod": "^3.22.4"

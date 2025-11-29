@@ -178,11 +178,11 @@ importers:
         specifier: workspace:*
         version: link:../../sdks/typescript/server
       '@modelcontextprotocol/ext-apps':
-        specifier: git+https://github.com/modelcontextprotocol/ext-apps.git
-        version: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f
+        specifier: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
+        version: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
       '@modelcontextprotocol/sdk':
-        specifier: 1.22.0
-        version: 1.22.0
+        specifier: ^1.22.0
+        version: 1.23.0(zod@3.25.67)
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -286,7 +286,7 @@ importers:
     dependencies:
       '@mcp-ui/server':
         specifier: ^5.2.0
-        version: 5.2.0
+        version: 5.2.0(zod@3.25.67)
       '@modelcontextprotocol/sdk':
         specifier: ^1.22.0
         version: 1.22.0
@@ -374,7 +374,7 @@ importers:
     dependencies:
       '@mcp-ui/server':
         specifier: ^5.2.0
-        version: 5.2.0
+        version: 5.2.0(zod@3.25.67)
       '@modelcontextprotocol/sdk':
         specifier: ^1.22.0
         version: 1.22.0
@@ -483,9 +483,6 @@ importers:
 
   sdks/typescript/server:
     dependencies:
-      '@modelcontextprotocol/ext-apps':
-        specifier: git+https://github.com/modelcontextprotocol/ext-apps.git
-        version: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f
       '@modelcontextprotocol/sdk':
         specifier: ^1.22.0
         version: 1.22.0
@@ -2010,8 +2007,8 @@ packages:
   '@mjackson/node-fetch-server@0.6.1':
     resolution: {integrity: sha512-9ZJnk/DJjt805uv5PPv11haJIW+HHf3YEEyVXv+8iLQxLD/iXA68FH220XoiTPBC4gCg5q+IMadDw8qPqlA5wg==}
 
-  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f':
-    resolution: {tarball: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f}
+  '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
+    resolution: {tarball: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz}
     version: 0.0.1
 
   '@modelcontextprotocol/sdk@1.22.0':
@@ -4033,6 +4030,7 @@ packages:
 
   bun@1.3.3:
     resolution: {integrity: sha512-2hJ4ocTZ634/Ptph4lysvO+LbbRZq8fzRvMwX0/CqaLBxrF2UB5D1LdMB8qGcdtCer4/VR9Bx5ORub0yn+yzmw==}
+    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -9966,12 +9964,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mcp-ui/server@5.2.0':
+  '@mcp-ui/server@5.2.0(zod@3.25.67)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.22.0
+      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - supports-color
+      - zod
 
   '@mermaid-js/mermaid-mindmap@9.3.0':
     dependencies:
@@ -10079,7 +10078,7 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.6.1': {}
 
-  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f':
+  '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
       bun: 1.3.3
@@ -11925,11 +11924,6 @@ snapshots:
       vite: 5.4.19(@types/node@22.15.33)(lightningcss@1.30.1)
       vue: 3.5.17(typescript@5.8.3)
 
-  '@vitejs/plugin-vue@5.2.4(vite@5.4.19(@types/node@22.19.1)(lightningcss@1.30.1))(vue@3.5.17(typescript@5.8.3))':
-    dependencies:
-      vite: 5.4.19(@types/node@22.19.1)(lightningcss@1.30.1)
-      vue: 3.5.17(typescript@5.8.3)
-
   '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@18.19.112)(jsdom@23.2.0)(lightningcss@1.30.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
@@ -12145,7 +12139,7 @@ snapshots:
 
   agents@0.0.80(@cloudflare/workers-types@4.20250620.0)(react@19.1.0):
     dependencies:
-      '@modelcontextprotocol/sdk': 1.22.0
+      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
       ai: 4.3.16(react@19.1.0)(zod@3.25.67)
       cron-schedule: 5.0.4
       nanoid: 5.1.5
@@ -17488,7 +17482,7 @@ snapshots:
       '@shikijs/transformers': 2.5.0
       '@shikijs/types': 2.5.0
       '@types/markdown-it': 14.1.2
-      '@vitejs/plugin-vue': 5.2.4(vite@5.4.19(@types/node@22.19.1)(lightningcss@1.30.1))(vue@3.5.17(typescript@5.8.3))
+      '@vitejs/plugin-vue': 5.2.4(vite@5.4.19(@types/node@22.15.33)(lightningcss@1.30.1))(vue@3.5.17(typescript@5.8.3))
       '@vue/devtools-api': 7.7.7
       '@vue/shared': 3.5.17
       '@vueuse/core': 12.8.2(typescript@5.8.3)
