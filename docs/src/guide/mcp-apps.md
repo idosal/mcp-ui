@@ -128,6 +128,51 @@ server.registerTool(
 
 The key requirement for MCP Apps hosts is that the tool's `_meta` contains the `ui/resourceUri` key pointing to the UI resource URI. This tells the host where to fetch the widget HTML.
 
+### 3. Add the MCP-UI Embedded Resource to Tool Responses
+
+To support **MCP-UI hosts** (which expect embedded resources in tool responses), also return a `createUIResource` result **without** the MCP Apps adapter:
+
+```typescript
+server.registerTool(
+  'my_widget',
+  {
+    description: 'An interactive widget',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'User query' }
+      },
+      required: ['query']
+    },
+    // For MCP Apps hosts - points to the registered resource
+    _meta: {
+      [RESOURCE_URI_META_KEY]: widgetUI.resource.uri
+    }
+  },
+  async ({ query }) => {
+    // Create an embedded UI resource for MCP-UI hosts (no adapter)
+    const embeddedResource = createUIResource({
+      uri: `ui://my-server/widget/${query}`,
+      encoding: 'text',
+      content: {
+        type: 'rawHtml',
+        htmlString: renderWidget(query),  // Your widget HTML
+      },
+      // No adapters - this is for MCP-UI hosts
+    });
+
+    return {
+      content: [
+        { type: 'text', text: `Processing: ${query}` },
+        embeddedResource  // Include for MCP-UI hosts
+      ],
+    };
+  }
+);
+```
+
+> **Important:** The embedded MCP-UI resource should **not** enable the MCP Apps adapter. It is for hosts that expect embedded resources in tool responses. MCP Apps hosts will ignore the embedded resource and instead fetch the UI from the registered resource URI in `_meta`.
+
 ## Protocol Translation Reference
 
 ### Widget → Host (Outgoing)
@@ -353,17 +398,34 @@ server.registerTool(
     inputSchema: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'graph title' }
+        title: { type: 'string', description: 'Graph title' }
       },
       required: ['title']
     },
+    // For MCP Apps hosts - points to the registered resource
     _meta: {
       [RESOURCE_URI_META_KEY]: graphUI.resource.uri
     }
   },
-  async ({ title }) => ({
-    content: [{ type: 'text', text: `graph: ${title}` }],
-  })
+  async ({ title }) => {
+    // Create embedded resource for MCP-UI hosts (no adapter)
+    const embeddedResource = createUIResource({
+      uri: `ui://demo/graph/${encodeURIComponent(title)}`,
+      encoding: 'text',
+      content: {
+        type: 'rawHtml',
+        htmlString: `<html><body><h1>Graph: ${title}</h1></body></html>`,
+      },
+      // No adapters - for MCP-UI hosts only
+    });
+
+    return {
+      content: [
+        { type: 'text', text: `Graph: ${title}` },
+        embeddedResource  // Included for MCP-UI hosts
+      ],
+    };
+  }
 );
 
 // ... (server setup)
