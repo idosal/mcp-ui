@@ -1,3 +1,15 @@
+# [5.15.0](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.14.1...client/v5.15.0) (2025-11-29)
+
+
+### Bug Fixes
+
+* ensure Apps SDK adapter is bundled properly and initialized wth config ([#137](https://github.com/MCP-UI-Org/mcp-ui/issues/137)) ([4f7c25c](https://github.com/MCP-UI-Org/mcp-ui/commit/4f7c25ce7e6f25e36cfc188016b012d31d722204))
+
+
+### Features
+
+* support metadata in Python SDK ([#134](https://github.com/MCP-UI-Org/mcp-ui/issues/134)) ([9bc3c64](https://github.com/MCP-UI-Org/mcp-ui/commit/9bc3c646c2638e16ac62edf9faca2dbee2b8cb7e))
+
 ## [5.14.1](https://github.com/idosal/mcp-ui/compare/client/v5.14.0...client/v5.14.1) (2025-10-24)
 
 
