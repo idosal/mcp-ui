@@ -1,12 +1,12 @@
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { UIResourceRenderer } from '../UIResourceRenderer';
 import { UI_METADATA_PREFIX } from '../../types';
 
 describe('UIResourceRenderer', () => {
-  const testResource: Partial<Resource> = {
+  const testResource: Partial<EmbeddedResource['resource']> = {
     mimeType: 'text/html',
     text: `<html><body><h1>Test Content</h1><script>
       console.log("iframe script loaded for onUIAction tests");
@@ -77,7 +77,7 @@ describe('UIResourceRenderer', () => {
     it('should render proxy iframe and send data when proxy iframe is ready', async () => {
       const ref = React.createRef<HTMLIFrameElement>();
       const proxy = 'https://proxy.example/';
-      const resource: Partial<Resource> = {
+      const resource: Partial<EmbeddedResource['resource']> = {
         mimeType: 'text/html',
         text: '<!doctype html><html><body><form><input></form></body></html>',
       };

@@ -7,7 +7,7 @@ import {
   ReservedUrlParams,
 } from '../HTMLResourceRenderer';
 import { vi } from 'vitest';
-import type { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { UI_METADATA_PREFIX, UIActionResult } from '../../types.js';
 import React from 'react';
 
@@ -214,7 +214,7 @@ describe('HTMLResource iframe communication', () => {
     vi.clearAllMocks();
   });
 
-  const mockResourceBaseForUIActionTests: Partial<Resource> = {
+  const mockResourceBaseForUIActionTests: Partial<EmbeddedResource['resource']> = {
     mimeType: 'text/html',
     text: '<html><body><h1>Test Content</h1><script>console.log("iframe script loaded for onUIAction tests")</script></body></html>',
   };

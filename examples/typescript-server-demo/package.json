@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@mcp-ui/server": "^5.2.0",
-    "@modelcontextprotocol/sdk": "^1.16.0",
+    "@modelcontextprotocol/sdk": "^1.22.0",
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },
