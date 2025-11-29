@@ -1,13 +1,19 @@
 import type { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
-import { RESOURCE_URI_META_KEY } from '@modelcontextprotocol/ext-apps';
 import type { McpAppsAdapterConfig } from './adapters/mcp-apps/types.js';
 
 // Primary identifier for the resource. Starts with ui://`
 export type URI = `ui://${string}`;
 
-// Re-export the key used in tool metadata to link to a UI resource
-// This comes from the official @modelcontextprotocol/ext-apps package
-export { RESOURCE_URI_META_KEY };
+/**
+ * The key used in tool._meta to link a tool to its UI resource.
+ * MCP Apps hosts look for this key to find the associated UI resource URI.
+ * 
+ * This value matches the constant defined in the official @modelcontextprotocol/ext-apps
+ * package, but is defined locally to avoid adding a runtime dependency for a simple string constant.
+ * 
+ * @see https://github.com/modelcontextprotocol/ext-apps
+ */
+export const RESOURCE_URI_META_KEY = 'ui/resourceUri' as const;
 
 // text/html for rawHtml content, text/uri-list for externalUrl content
 export type MimeType =

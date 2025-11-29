@@ -118,9 +118,6 @@ export type {
   AppsSdkAdapterOptions,
 } from './types.js';
 
-// Re-export from @modelcontextprotocol/ext-apps for convenience
-export { RESOURCE_URI_META_KEY } from '@modelcontextprotocol/ext-apps';
-
 // Export adapters
 export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 export * from './adapters/index.js';
