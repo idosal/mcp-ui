@@ -20,8 +20,6 @@ export function getMcpAppsAdapterScript(config?: McpAppsAdapterConfig): string {
   if (typeof window !== 'undefined') {
     if (typeof initAdapter !== 'function' || typeof uninstallAdapter !== 'function') {
       console.warn('[MCP Apps Adapter] Adapter runtime not found. Adapter will not activate.');
-      // Add period for consistency
-      console.warn('[MCP Apps Adapter] Adapter runtime not found. Adapter will not activate.')    
       return;
     }
     
