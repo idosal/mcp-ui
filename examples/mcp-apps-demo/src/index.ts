@@ -3,7 +3,7 @@ import cors from 'cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { createUIResource, registerUITool } from '@mcp-ui/server';
+import { createUIResource, RESOURCE_URI_META_KEY } from '@mcp-ui/server';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 
@@ -358,29 +358,39 @@ app.post('/mcp', async (req, res) => {
         // Enable the MCP Apps adapter
         mcpApps: {
           enabled: true,
-          config: {
-            logger: console,
-          },
         },
       },
     });
 
-    registerUITool(
-      server,
+    // Register the UI resource so the host can fetch it
+    server.registerResource(
+      'weather_dashboard_ui',
+      weatherDashboardUI.resource.uri,
+      {},
+      async () => ({
+        contents: [weatherDashboardUI.resource]
+      })
+    );
+
+    // Register the tool with _meta linking to the UI resource
+    server.registerTool(
+      'weather_dashboard',
       {
-        name: 'weather_dashboard',
         description: 'Interactive weather dashboard widget',
-        inputSchema: z.object({
+        inputSchema: {
           location: z.string().describe('City name'),
-        }),
-        handler: async ({ location }) => {
-          // In a real app, we might fetch data here
-          return {
-            content: [{ type: 'text', text: `Weather dashboard for ${location}` }],
-          };
         },
+        // This tells MCP Apps hosts where to find the UI
+        _meta: {
+          [RESOURCE_URI_META_KEY]: weatherDashboardUI.resource.uri
+        }
       },
-      weatherDashboardUI
+      async ({ location }) => {
+        // In a real app, we might fetch data here
+        return {
+          content: [{ type: 'text', text: `Weather dashboard for ${location}` }],
+        };
+      }
     );
   
     // Connect the server instance to the transport for this session.

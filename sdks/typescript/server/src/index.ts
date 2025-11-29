@@ -118,6 +118,9 @@ export type {
   AppsSdkAdapterOptions,
 } from './types.js';
 
+// Re-export the key used in tool metadata to link to a UI resource
+export { RESOURCE_URI_META_KEY } from './types.js';
+
 // Export adapters
 export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
 export * from './adapters/index.js';

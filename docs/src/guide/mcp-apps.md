@@ -85,6 +85,7 @@ const widgetUI = createUIResource({
 ```typescript
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createUIResource, RESOURCE_URI_META_KEY } from '@mcp-ui/server';
+import { z } from 'zod';
 
 const server = new McpServer({ name: 'my-server', version: '1.0.0' });
 
@@ -96,9 +97,12 @@ const widgetUI = createUIResource({
 
 // Register the resource so the host can fetch it
 server.registerResource(
-  widgetUI.resource.uri,
-  {},  // Resource metadata
-  async () => widgetUI.resource
+  'widget_ui',           // Resource name
+  widgetUI.resource.uri, // Resource URI
+  {},                    // Resource metadata
+  async () => ({
+    contents: [widgetUI.resource]
+  })
 );
 
 // Register the tool with _meta linking to the UI resource
@@ -107,11 +111,7 @@ server.registerTool(
   {
     description: 'An interactive widget',
     inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'User query' }
-      },
-      required: ['query']
+      query: z.string().describe('User query'),
     },
     // This tells MCP Apps hosts where to find the UI
     _meta: {
@@ -138,11 +138,7 @@ server.registerTool(
   {
     description: 'An interactive widget',
     inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'User query' }
-      },
-      required: ['query']
+      query: z.string().describe('User query'),
     },
     // For MCP Apps hosts - points to the registered resource
     _meta: {
@@ -385,9 +381,12 @@ const graphUI = createUIResource({
 
 // Register the UI resource
 server.registerResource(
+  'graph_ui',
   graphUI.resource.uri,
   {},
-  async () => graphUI.resource
+  async () => ({
+    contents: [graphUI.resource]
+  })
 );
 
 // Register the tool with _meta linking to the UI resource
@@ -396,11 +395,7 @@ server.registerTool(
   {
     description: 'Display an interactive graph',
     inputSchema: {
-      type: 'object',
-      properties: {
-        title: { type: 'string', description: 'Graph title' }
-      },
-      required: ['title']
+      title: z.string().describe('Graph title'),
     },
     // For MCP Apps hosts - points to the registered resource
     _meta: {
