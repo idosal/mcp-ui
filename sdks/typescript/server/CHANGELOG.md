@@ -1,3 +1,10 @@
+# [5.14.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.13.1...server/v5.14.0) (2025-11-29)
+
+
+### Features
+
+* support metadata in Python SDK ([#134](https://github.com/MCP-UI-Org/mcp-ui/issues/134)) ([9bc3c64](https://github.com/MCP-UI-Org/mcp-ui/commit/9bc3c646c2638e16ac62edf9faca2dbee2b8cb7e))
+
 ## [5.13.1](https://github.com/idosal/mcp-ui/compare/server/v5.13.0...server/v5.13.1) (2025-10-25)
 
 

@@ -43,7 +43,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
       - name: Build with VitePress
         run: pnpm docs:build # This script is \'vitepress build docs\'
       - name: Upload artifact

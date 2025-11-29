@@ -1,6 +1,6 @@
 {
   "name": "@mcp-ui/client",
-  "version": "5.14.1",
+  "version": "5.15.0",
   "description": "mcp-ui Client SDK",
   "private": false,
   "type": "module",
@@ -39,6 +39,7 @@
     "typescript": "^5.0.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.6.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^1.0.0"
   },
   "peerDependencies": {

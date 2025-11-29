@@ -17,7 +17,7 @@ vi.mock('../RemoteDOMResourceRenderer', () => ({
 describe('<UIResourceRenderer />', () => {
   const baseResource = {
     uri: 'ui://test-resource',
-    content: 'test content',
+    text: 'test content',
   };
 
   afterEach(() => {

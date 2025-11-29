@@ -1,4 +1,4 @@
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
 
 type ProcessResourceResult = {
   error?: string;
@@ -35,9 +35,9 @@ export function processHTMLResource(
     // If multiple URLs are provided, only the first will be used and others will be logged as warnings.
     let urlContent = '';
 
-    if (typeof resource.text === 'string' && resource.text.trim() !== '') {
+    if ('text' in resource && typeof resource.text === 'string' && resource.text.trim() !== '') {
       urlContent = resource.text;
-    } else if (typeof resource.blob === 'string') {
+    } else if ('blob' in resource && typeof resource.blob === 'string') {
       try {
         urlContent = new TextDecoder().decode(
           Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
@@ -113,9 +113,9 @@ export function processHTMLResource(
     // Handle HTML content
     let htmlContent = '';
     
-    if (typeof resource.text === 'string') {
+    if ('text' in resource && typeof resource.text === 'string') {
       htmlContent = resource.text;
-    } else if (typeof resource.blob === 'string') {
+    } else if ('blob' in resource && typeof resource.blob === 'string') {
       try {
         htmlContent = new TextDecoder().decode(
           Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
@@ -173,15 +173,15 @@ type ProcessRemoteDOMResourceResult = {
 };
 
 export function processRemoteDOMResource(
-  resource: Partial<Resource>,
+  resource: Partial<EmbeddedResource['resource']>,
 ): ProcessRemoteDOMResourceResult {
-  if (typeof resource.text === 'string' && resource.text.trim() !== '') {
+  if ('text' in resource && typeof resource.text === 'string' && resource.text.trim() !== '') {
     return {
       code: resource.text,
     };
   }
 
-  if (typeof resource.blob === 'string') {
+  if ('blob' in resource && typeof resource.blob === 'string') {
     try {
       const decodedCode = new TextDecoder().decode(
         Uint8Array.from(atob(resource.blob), (c) => c.charCodeAt(0)),
