@@ -81,7 +81,7 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
 
   // MCP Apps adapter uses text/html+mcp as per the ext-apps specification
   if (adaptersConfig.mcpApps?.enabled) {
-      return 'text/html+mcp';
+    return 'text/html+mcp';
   }
 
   // Future adapters can be added here by checking for their config and returning their mime type.
@@ -149,12 +149,11 @@ export function wrapHtmlWithAdapters(
 
 /**
  * Fetches HTML content from an external URL and converts it to rawHtml with adapter scripts.
- * Relative URLs are rewritten to absolute URLs to ensure they resolve correctly in iframe contexts.
- * This approach is CSP-friendly and works even when base-uri restrictions are in place.
+ * A base tag is injected to ensure relative URLs resolve correctly against the original domain.
  *
  * @param url - The external URL to fetch HTML from
  * @param adaptersConfig - Optional adapter configuration
- * @returns A Promise that resolves to the processed HTML string with rewritten URLs and adapter scripts
+ * @returns A Promise that resolves to the processed HTML string with base tag and adapter scripts
  * @throws Error if the URL is invalid, fetch fails, or response is not HTML
  */
 export async function fetchExternalUrlAsRawHtml(
