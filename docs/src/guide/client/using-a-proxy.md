@@ -76,7 +76,7 @@ A valid proxy script must:
       }
       ```
     - Write the HTML content to the iframe using `document.write()` or similar method.
-3.  **Sandbox the Iframe**: The nested iframe must be sandboxed to restrict capabilities. For external URLs a minimal policy is `allow-scripts allow-same-origin`; for raw HTML a minimal policy is `allow-scripts` unless you explicitly need additional capabilities.
+3.  **Sandbox the Iframe**: For external URLs, the nested iframe should be sandboxed with `allow-scripts allow-same-origin`. For raw HTML mode, the inner iframe does **not** use a sandbox attribute—this is intentional because `document.write()` requires same-origin access to the iframe's document. Security for raw HTML is enforced by the outer iframe's sandbox (controlled by the host) and the double-iframe isolation architecture.
 4.  **Forward `postMessage` Events**: To allow communication between the host application and the embedded external URL, the proxy needs to forward `message` events between `window.parent` and the iframe's `contentWindow`. For security, it's critical to use a specific `targetOrigin` instead of `*` in `postMessage` calls whenever possible. The `targetOrigin` for messages to the iframe should be the external URL's origin; Messages to the parent will default to `*`.
 5.  **Permissive Proxy CSP**: Serve the proxy page with a permissive CSP that does not block nested iframe content (e.g., allowing scripts, styles, images) since the host CSP is intentionally not applied on the proxy origin.
 
