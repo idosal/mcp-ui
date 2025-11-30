@@ -149,6 +149,88 @@ const script = getMcpAppsAdapterScript({
 const html = `<html><head>${script}</head><body>...</body></html>`;
 ```
 
+### Using External URLs with Adapters
+
+When using `externalUrl` content type with adapters enabled, `createUIResource` automatically fetches the HTML from the external URL at runtime and converts it to `rawHtml` with adapter scripts injected. This follows the pattern used by Vercel for embedding external apps.
+
+**Important**: When adapters are enabled with `externalUrl`, `createUIResource` becomes **async** and returns a `Promise<UIResource>`.
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { createUIResource, RESOURCE_URI_META_KEY } from '@mcp-ui/server';
+
+const server = new McpServer({ name: 'my-server', version: '1.0.0' });
+
+// In a tool handler
+server.registerTool('show-external-app', {
+  description: 'Shows an external app',
+  inputSchema: {},
+  _meta: {
+    [RESOURCE_URI_META_KEY]: 'ui://my-server/external-app',
+  },
+}, async () => {
+  // Note: createUIResource is async when externalUrl + adapters are used
+  const resource = await createUIResource({
+    uri: 'ui://my-server/external-app',
+    content: {
+      type: 'externalUrl',
+      iframeUrl: 'https://example.com/my-app',
+    },
+    encoding: 'text',
+    adapters: {
+      mcpApps: {
+        enabled: true,
+      },
+    },
+  });
+
+  return {
+    content: [{ type: 'text', text: 'External app loaded' }],
+  };
+});
+
+// In a resource handler
+server.registerResource('external-app', 'ui://my-server/external-app', {}, async () => {
+  const resource = await createUIResource({
+    uri: 'ui://my-server/external-app',
+    content: {
+      type: 'externalUrl',
+      iframeUrl: 'https://example.com/my-app',
+    },
+    encoding: 'text',
+    adapters: {
+      mcpApps: {
+        enabled: true,
+      },
+    },
+  });
+
+  return {
+    contents: [resource.resource],
+  };
+});
+```
+
+**What happens automatically:**
+1. The HTML is fetched from the external URL
+2. A `<base href="${origin}">` tag is added to ensure relative paths (assets, API calls) resolve correctly
+3. Adapter scripts are injected into the HTML
+4. The resource is converted from `externalUrl` to `rawHtml` with the appropriate MIME type
+
+**Without adapters**, `externalUrl` resources work synchronously as before:
+```typescript
+// Synchronous - no adapters
+const resource = createUIResource({
+  uri: 'ui://test',
+  content: {
+    type: 'externalUrl',
+    iframeUrl: 'https://example.com',
+  },
+  encoding: 'text',
+  // No adapters - returns immediately
+});
+```
+
 ### Registering a Tool with UI Resource
 
 ```typescript

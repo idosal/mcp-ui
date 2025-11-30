@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createUIResource } from '../../index';
 import { wrapHtmlWithAdapters, getAdapterMimeType } from '../../utils';
 
@@ -127,8 +127,18 @@ describe('Adapter Integration', () => {
       expect(html).toContain('<div>Simple content</div>');
     });
 
-    it('should not affect external URL resources', () => {
-      const resource = createUIResource({
+    it('should fetch and convert external URL resources when adapter is enabled', async () => {
+      // Mock fetch to return HTML content
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers({ 'content-type': 'text/html' }),
+        text: async () => '<html><head><title>Test</title></head><body>Content</body></html>',
+      });
+      global.fetch = mockFetch;
+
+      const resourcePromise = createUIResource({
         uri: 'ui://test',
         content: {
           type: 'externalUrl',
@@ -142,7 +152,36 @@ describe('Adapter Integration', () => {
         },
       });
 
-      // External URLs should not be wrapped
+      // Should return a Promise when adapters are enabled
+      expect(resourcePromise).toBeInstanceOf(Promise);
+
+      const resource = await resourcePromise;
+
+      // Should have fetched the URL
+      expect(mockFetch).toHaveBeenCalledWith('https://example.com', expect.any(Object));
+
+      // Should be converted to rawHtml (not externalUrl)
+      expect(resource.resource.mimeType).toBe('text/html+skybridge');
+        expect(resource.resource.text).toContain('<script>');
+        expect(resource.resource.text).toContain('MCPUIAppsSdkAdapter');
+        // Base tag should be added for relative URL resolution
+        expect(resource.resource.text).toContain('<base href="https://example.com/">');
+        expect(resource.resource.text).toContain('Content');
+    });
+
+    it('should not affect external URL resources when adapter is disabled', () => {
+      const resource = createUIResource({
+        uri: 'ui://test',
+        content: {
+          type: 'externalUrl',
+          iframeUrl: 'https://example.com',
+        },
+        encoding: 'text',
+        // No adapters
+      });
+
+      // External URLs without adapters should remain as-is (synchronous)
+      expect(resource.resource.mimeType).toBe('text/uri-list');
       expect(resource.resource.text).toBe('https://example.com');
       expect(resource.resource.text).not.toContain('<script>');
     });
@@ -411,8 +450,18 @@ describe('Adapter Integration', () => {
         expect(resource.resource.text).toBe('<div>Test</div>');
       });
 
-      it('should not affect external URL resources', () => {
-        const resource = createUIResource({
+      it('should fetch and convert external URL resources when adapter is enabled', async () => {
+        // Mock fetch to return HTML content
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '<html><head><title>Test</title></head><body>Content</body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resourcePromise = createUIResource({
           uri: 'ui://test',
           content: {
             type: 'externalUrl',
@@ -426,9 +475,21 @@ describe('Adapter Integration', () => {
           },
         });
 
-        // External URLs should not be wrapped
-        expect(resource.resource.text).toBe('https://example.com');
-        expect(resource.resource.text).not.toContain('<script>');
+        // Should return a Promise when adapters are enabled
+        expect(resourcePromise).toBeInstanceOf(Promise);
+
+        const resource = await resourcePromise;
+
+        // Should have fetched the URL
+        expect(mockFetch).toHaveBeenCalledWith('https://example.com', expect.any(Object));
+
+        // Should be converted to rawHtml (not externalUrl)
+        expect(resource.resource.mimeType).toBe('text/html+mcp');
+        expect(resource.resource.text).toContain('<script>');
+        expect(resource.resource.text).toContain('McpAppsAdapter');
+        // Base tag should be added for relative URL resolution
+        expect(resource.resource.text).toContain('<base href="https://example.com/">');
+        expect(resource.resource.text).toContain('Content');
       });
     });
 
@@ -540,6 +601,389 @@ describe('Adapter Integration', () => {
 
       // No adapter
       expect(getAdapterMimeType({})).toBeUndefined();
+    });
+  });
+
+  describe('External URL Fetching', () => {
+    beforeEach(() => {
+      // Reset fetch mock before each test
+      vi.restoreAllMocks();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    describe('Base tag injection', () => {
+      it('should add base tag for relative URL resolution', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '<html><head><script src="main.js"></script></head><body>Content</body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com/page',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        // Base tag should be added to resolve relative URLs at runtime
+        expect(html).toContain('<base href="https://example.com/">');
+        // Original relative URLs should remain unchanged (base tag handles resolution)
+        expect(html).toContain('src="main.js"');
+      });
+
+      it('should preserve absolute URLs unchanged', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '<html><head><script src="https://cdn.example.com/lib.js"></script></head><body>Content</body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        expect(html).toContain('src="https://cdn.example.com/lib.js"');
+        expect(html).toContain('<base href="https://example.com/">');
+      });
+
+      it('should preserve special protocol URLs unchanged', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '<html><body><a href="mailto:test@example.com">Email</a><a href="#section">Anchor</a></body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        expect(html).toContain('href="mailto:test@example.com"');
+        expect(html).toContain('href="#section"');
+      });
+
+      it('should add base tag for runtime URL resolution', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => `<html><head><script>
+            EJS_biosUrl = '/bios/arcade.7z';
+            var apiEndpoint = '/api/data';
+          </script></head><body>Content</body></html>`,
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://www.retrogames.cc/embed/game.html',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        // Base tag should be added to handle runtime URL resolution
+        expect(html).toContain('<base href="https://www.retrogames.cc/">');
+        // JavaScript content should remain unchanged (base tag handles resolution at runtime)
+        expect(html).toContain("EJS_biosUrl = '/bios/arcade.7z'");
+        expect(html).toContain("apiEndpoint = '/api/data'");
+      });
+
+      it('should remove existing base tags and CSP meta tags', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => `<html><head>
+            <base href="https://original-site.com/">
+            <meta http-equiv="Content-Security-Policy" content="base-uri 'self'">
+          </head><body>Content</body></html>`,
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://www.example.com/page.html',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        // Original base tag should be removed
+        expect(html).not.toContain('href="https://original-site.com/"');
+        // Our base tag should be added
+        expect(html).toContain('<base href="https://www.example.com/">');
+        // CSP meta tag should be removed (replaced with comment)
+        expect(html).toContain('<!-- CSP meta tag removed by MCP-UI -->');
+        expect(html).not.toContain("base-uri 'self'");
+      });
+    });
+
+    describe('Error handling', () => {
+      it('should throw error for invalid URL', async () => {
+        await expect(
+          createUIResource({
+            uri: 'ui://test',
+            content: {
+              type: 'externalUrl',
+              iframeUrl: 'not-a-valid-url',
+            },
+            encoding: 'text',
+            adapters: {
+              appsSdk: {
+                enabled: true,
+              },
+            },
+          }),
+        ).rejects.toThrow('Invalid URL');
+      });
+
+      it('should throw error for non-HTTP(S) URL', async () => {
+        await expect(
+          createUIResource({
+            uri: 'ui://test',
+            content: {
+              type: 'externalUrl',
+              iframeUrl: 'file:///path/to/file.html',
+            },
+            encoding: 'text',
+            adapters: {
+              appsSdk: {
+                enabled: true,
+              },
+            },
+          }),
+        ).rejects.toThrow('http or https protocol');
+      });
+
+      it('should throw error when fetch fails', async () => {
+        const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+        global.fetch = mockFetch;
+
+        await expect(
+          createUIResource({
+            uri: 'ui://test',
+            content: {
+              type: 'externalUrl',
+              iframeUrl: 'https://example.com',
+            },
+            encoding: 'text',
+            adapters: {
+              appsSdk: {
+                enabled: true,
+              },
+            },
+          }),
+        ).rejects.toThrow('Failed to fetch external URL');
+      });
+
+      it('should handle non-OK response gracefully instead of throwing', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => 'Not Found',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        // Should return a resource with the error response body instead of throwing
+        expect(resource.type).toBe('resource');
+        expect(resource.resource.text).toContain('Not Found');
+      });
+
+      it('should create fallback HTML when response is not OK and body is empty', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        // Should return a resource with fallback error HTML instead of throwing
+        expect(resource.type).toBe('resource');
+        expect(resource.resource.text).toContain('Error 500');
+        expect(resource.resource.text).toContain('Internal Server Error');
+        expect(resource.resource.text).toContain('https://example.com');
+      });
+
+      it('should throw error when response body is empty', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '',
+        });
+        global.fetch = mockFetch;
+
+        await expect(
+          createUIResource({
+            uri: 'ui://test',
+            content: {
+              type: 'externalUrl',
+              iframeUrl: 'https://example.com',
+            },
+            encoding: 'text',
+            adapters: {
+              appsSdk: {
+                enabled: true,
+              },
+            },
+          }),
+        ).rejects.toThrow('empty content');
+      });
+
+      it('should warn but continue when content-type is not HTML', async () => {
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'application/json' }),
+          text: async () => '<html><body>Content</body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+          expect.stringContaining('content-type is not HTML'),
+        );
+        expect(resource).toBeDefined();
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('Blob encoding', () => {
+      it('should work with blob encoding when fetching external URL', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers({ 'content-type': 'text/html' }),
+          text: async () => '<html><body>Content</body></html>',
+        });
+        global.fetch = mockFetch;
+
+        const resource = await createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'blob',
+          adapters: {
+            appsSdk: {
+              enabled: true,
+            },
+          },
+        });
+
+        expect(resource.resource.blob).toBeDefined();
+        expect(resource.resource.text).toBeUndefined();
+        expect(resource.resource.mimeType).toBe('text/html+skybridge');
+      });
     });
   });
 });

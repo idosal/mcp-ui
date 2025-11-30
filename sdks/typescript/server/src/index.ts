@@ -10,7 +10,13 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
+import {
+  getAdditionalResourceProps,
+  utf8ToBase64,
+  wrapHtmlWithAdapters,
+  getAdapterMimeType,
+  fetchExternalUrlAsRawHtml,
+} from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -22,10 +28,16 @@ export type UIResource = {
 /**
  * Creates a UIResource.
  * This is the object that should be included in the 'content' array of a toolResult.
+ * 
+ * When `externalUrl` is used with adapters enabled, this function becomes async and
+ * fetches the HTML from the external URL, converts it to rawHtml, and applies adapter scripts.
+ * 
  * @param options Configuration for the interactive resource.
- * @returns a UIResource.
+ * @returns a UIResource, or a Promise<UIResource> when externalUrl + adapters are enabled.
  */
-export function createUIResource(options: CreateUIResourceOptions): UIResource {
+export function createUIResource(
+  options: CreateUIResourceOptions,
+): UIResource | Promise<UIResource> {
   let actualContentString: string;
   let mimeType: MimeType;
 
@@ -54,12 +66,61 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         "MCP-UI SDK: URI must start with 'ui://' when content.type is 'externalUrl'.",
       );
     }
-    actualContentString = options.content.iframeUrl;
-    if (typeof actualContentString !== 'string') {
+    const iframeUrl = options.content.iframeUrl;
+    if (typeof iframeUrl !== 'string') {
       throw new Error(
         "MCP-UI SDK: content.iframeUrl must be provided as a string when content.type is 'externalUrl'.",
       );
     }
+
+    // If adapters are enabled, fetch the URL and convert to rawHtml
+    if (options.adapters && (options.adapters.appsSdk?.enabled || options.adapters.mcpApps?.enabled)) {
+      // Return a Promise that fetches and converts
+      return (async (): Promise<UIResource> => {
+        const fetchedHtml = await fetchExternalUrlAsRawHtml(iframeUrl, options.adapters);
+        
+        // Now treat it as rawHtml
+        let mimeType: MimeType;
+        if (options.adapters) {
+          mimeType = (getAdapterMimeType(options.adapters) as MimeType) ?? 'text/html';
+        } else {
+          mimeType = 'text/html';
+        }
+
+        let resource: UIResource['resource'];
+        switch (options.encoding) {
+          case 'text':
+            resource = {
+              uri: options.uri,
+              mimeType: mimeType,
+              text: fetchedHtml,
+              ...getAdditionalResourceProps(options),
+            };
+            break;
+          case 'blob':
+            resource = {
+              uri: options.uri,
+              mimeType: mimeType,
+              blob: utf8ToBase64(fetchedHtml),
+              ...getAdditionalResourceProps(options),
+            };
+            break;
+          default: {
+            const exhaustiveCheck: never = options.encoding;
+            throw new Error(`MCP-UI SDK: Invalid encoding type: ${exhaustiveCheck}`);
+          }
+        }
+
+        return {
+          type: 'resource',
+          resource: resource,
+          ...(options.embeddedResourceProps ?? {}),
+        };
+      })();
+    }
+
+    // No adapters enabled - return externalUrl synchronously (existing behavior)
+    actualContentString = iframeUrl;
     mimeType = 'text/uri-list';
   } else if (options.content.type === 'remoteDom') {
     if (!options.uri.startsWith('ui://')) {
