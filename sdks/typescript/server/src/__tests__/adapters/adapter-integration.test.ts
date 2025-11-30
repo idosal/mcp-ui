@@ -732,8 +732,8 @@ describe('Adapter Integration', () => {
         });
 
         const html = resource.resource.text as string;
-        // Base tag should be added to handle runtime URL resolution
-        expect(html).toContain('<base href="https://www.retrogames.cc/">');
+        // Base tag should be added to handle runtime URL resolution (includes full path)
+        expect(html).toContain('<base href="https://www.retrogames.cc/embed/">');
         // JavaScript content should remain unchanged (base tag handles resolution at runtime)
         expect(html).toContain("EJS_biosUrl = '/bios/arcade.7z'");
         expect(html).toContain("apiEndpoint = '/api/data'");
@@ -769,7 +769,7 @@ describe('Adapter Integration', () => {
         const html = resource.resource.text as string;
         // Original base tag should be removed
         expect(html).not.toContain('href="https://original-site.com/"');
-        // Our base tag should be added
+        // Our base tag should be added (with full path to the page's directory)
         expect(html).toContain('<base href="https://www.example.com/">');
         // CSP meta tag should be removed (replaced with comment)
         expect(html).toContain('<!-- CSP meta tag removed by MCP-UI -->');

@@ -250,7 +250,12 @@ export async function fetchExternalUrlAsRawHtml(
 
   // Add a base tag to handle ALL relative URL resolution (fetch, XHR, dynamic scripts, etc.)
   // This is the browser-native, non-intrusive way to resolve relative URLs
-  const baseTag = `<base href="${parsedUrl.origin}/">`;
+  // We use the full URL path (minus the filename) to correctly resolve relative paths like "../"
+  // For URLs like https://example.com/path/file.html, we want https://example.com/path/
+  // For URLs like https://example.com or https://example.com/, we want https://example.com/
+  const pathDir = parsedUrl.pathname.substring(0, parsedUrl.pathname.lastIndexOf('/') + 1) || '/';
+  const baseHref = `${parsedUrl.origin}${pathDir}`;
+  const baseTag = `<base href="${baseHref}">`;
 
   // Insert the base tag right after <head>
   if (htmlContent.includes('<head>')) {
