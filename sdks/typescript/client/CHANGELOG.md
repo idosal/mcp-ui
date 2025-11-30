@@ -1,3 +1,10 @@
+# [5.17.0](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.16.0...client/v5.17.0) (2025-11-30)
+
+
+### Features
+
+* externalUrl adapter ([5a1e4de](https://github.com/MCP-UI-Org/mcp-ui/commit/5a1e4deeeda9ae0120d17b5abdf9096edf52054f))
+
 # [5.16.0](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.15.0...client/v5.16.0) (2025-11-29)
 
 
