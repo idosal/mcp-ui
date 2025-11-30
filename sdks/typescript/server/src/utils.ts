@@ -249,8 +249,7 @@ export async function fetchExternalUrlAsRawHtml(
   );
 
   // Add a base tag to handle ALL relative URL resolution (fetch, XHR, dynamic scripts, etc.)
-  // This is the browser-native way to resolve relative URLs and is more reliable than
-  // attempting to statically rewrite URLs in HTML/JavaScript content
+  // This is the browser-native, non-intrusive way to resolve relative URLs
   const baseTag = `<base href="${parsedUrl.origin}/">`;
 
   // Insert the base tag right after <head>
