@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
   type CallToolResult,
-  type LoggingMessageNotification,
   McpError,
   ErrorCode,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -179,14 +178,14 @@ export const AppRenderer = (props: AppRendererProps) => {
 
         // Register handlers passed in via props
 
-        appBridge.onmessage = async (params, extra) => {
+        appBridge.onmessage = async (params: Record<string, unknown>, extra) => {
           if (onUIActionRef.current) {
             try {
               await onUIActionRef.current?.({
                 type: "prompt",
                 payload: {
                   prompt: params.content
-                    .map((c: any) => (c.type === "text" ? c.text : ""))
+                    .map((c: Record<string, unknown>) => (c.type === "text" ? c.text : ""))
                     .join("\n"),
                 },
               });
