@@ -111,7 +111,7 @@ const resource = createUIResource({
 When `externalUrl` + adapters are enabled:
 
 1. **Fetch**: The HTML is fetched from the external URL using `fetch()`
-2. **Base Tag**: A `<base href="${url_directory}">` tag is inserted to ensure relative paths resolve correctly
+2. **Base Tag**: A `<base>` tag is inserted to ensure relative paths resolve correctly against the original URL's directory (e.g., for `https://example.com/path/file.html`, the base tag would be `<base href="https://example.com/path/">`)
 3. **Adapter Injection**: Adapter scripts are injected into the HTML
 4. **Type Conversion**: The resource is converted from `externalUrl` (mimeType: `text/uri-list`) to `rawHtml` (mimeType: `text/html+mcp`)
 
