@@ -1,3 +1,10 @@
+## [5.16.1](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.0...server/v5.16.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* use document.write in proxy sandbox ([#156](https://github.com/MCP-UI-Org/mcp-ui/issues/156)) ([447f582](https://github.com/MCP-UI-Org/mcp-ui/commit/447f582105a0889ee47d912925d7f02034fc39a9))
+
 # [5.16.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.15.0...server/v5.16.0) (2025-11-30)
 
 
