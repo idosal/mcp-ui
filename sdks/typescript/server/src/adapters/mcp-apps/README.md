@@ -213,7 +213,7 @@ server.registerResource('external-app', 'ui://my-server/external-app', {}, async
 
 **What happens automatically:**
 1. The HTML is fetched from the external URL
-2. A `<base href="${origin}">` tag is added to ensure relative paths (assets, API calls) resolve correctly
+2. A `<base>` tag is added to ensure relative paths (assets, API calls) resolve correctly against the original URL's directory (e.g., for `https://example.com/path/file.html`, the base would be `https://example.com/path/`)
 3. Adapter scripts are injected into the HTML
 4. The resource is converted from `externalUrl` to `rawHtml` with the appropriate MIME type
 

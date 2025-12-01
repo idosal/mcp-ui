@@ -136,7 +136,7 @@ describe('Adapter Integration', () => {
         headers: new Headers({ 'content-type': 'text/html' }),
         text: async () => '<html><head><title>Test</title></head><body>Content</body></html>',
       });
-      global.fetch = mockFetch;
+      vi.stubGlobal('fetch', mockFetch);
 
       const resourcePromise = createUIResource({
         uri: 'ui://test',
@@ -459,7 +459,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '<html><head><title>Test</title></head><body>Content</body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resourcePromise = createUIResource({
           uri: 'ui://test',
@@ -623,7 +623,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '<html><head><script src="main.js"></script></head><body>Content</body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -654,7 +654,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '<html><head><script src="https://cdn.example.com/lib.js"></script></head><body>Content</body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -683,7 +683,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '<html><body><a href="mailto:test@example.com">Email</a><a href="#section">Anchor</a></body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -715,7 +715,7 @@ describe('Adapter Integration', () => {
             var apiEndpoint = '/api/data';
           </script></head><body>Content</body></html>`,
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -732,8 +732,8 @@ describe('Adapter Integration', () => {
         });
 
         const html = resource.resource.text as string;
-        // Base tag should be added to handle runtime URL resolution
-        expect(html).toContain('<base href="https://www.retrogames.cc/">');
+        // Base tag should be added to handle runtime URL resolution (includes full path)
+        expect(html).toContain('<base href="https://www.retrogames.cc/embed/">');
         // JavaScript content should remain unchanged (base tag handles resolution at runtime)
         expect(html).toContain("EJS_biosUrl = '/bios/arcade.7z'");
         expect(html).toContain("apiEndpoint = '/api/data'");
@@ -750,7 +750,7 @@ describe('Adapter Integration', () => {
             <meta http-equiv="Content-Security-Policy" content="base-uri 'self'">
           </head><body>Content</body></html>`,
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -769,7 +769,7 @@ describe('Adapter Integration', () => {
         const html = resource.resource.text as string;
         // Original base tag should be removed
         expect(html).not.toContain('href="https://original-site.com/"');
-        // Our base tag should be added
+        // Our base tag should be added (with full path to the page's directory)
         expect(html).toContain('<base href="https://www.example.com/">');
         // CSP meta tag should be removed (replaced with comment)
         expect(html).toContain('<!-- CSP meta tag removed by MCP-UI -->');
@@ -816,7 +816,7 @@ describe('Adapter Integration', () => {
 
       it('should throw error when fetch fails', async () => {
         const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         await expect(
           createUIResource({
@@ -843,7 +843,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => 'Not Found',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -872,7 +872,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -903,7 +903,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         await expect(
           createUIResource({
@@ -931,7 +931,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'application/json' }),
           text: async () => '<html><body>Content</body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',
@@ -964,7 +964,7 @@ describe('Adapter Integration', () => {
           headers: new Headers({ 'content-type': 'text/html' }),
           text: async () => '<html><body>Content</body></html>',
         });
-        global.fetch = mockFetch;
+        vi.stubGlobal('fetch', mockFetch);
 
         const resource = await createUIResource({
           uri: 'ui://test',

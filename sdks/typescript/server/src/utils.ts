@@ -81,7 +81,7 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
 
   // MCP Apps adapter uses text/html+mcp as per the ext-apps specification
   if (adaptersConfig.mcpApps?.enabled) {
-      return 'text/html+mcp';
+    return 'text/html+mcp';
   }
 
   // Future adapters can be added here by checking for their config and returning their mime type.
@@ -149,12 +149,11 @@ export function wrapHtmlWithAdapters(
 
 /**
  * Fetches HTML content from an external URL and converts it to rawHtml with adapter scripts.
- * Relative URLs are rewritten to absolute URLs to ensure they resolve correctly in iframe contexts.
- * This approach is CSP-friendly and works even when base-uri restrictions are in place.
+ * A base tag is injected to ensure relative URLs resolve correctly against the original domain.
  *
  * @param url - The external URL to fetch HTML from
  * @param adaptersConfig - Optional adapter configuration
- * @returns A Promise that resolves to the processed HTML string with rewritten URLs and adapter scripts
+ * @returns A Promise that resolves to the processed HTML string with base tag and adapter scripts
  * @throws Error if the URL is invalid, fetch fails, or response is not HTML
  */
 export async function fetchExternalUrlAsRawHtml(
@@ -250,9 +249,13 @@ export async function fetchExternalUrlAsRawHtml(
   );
 
   // Add a base tag to handle ALL relative URL resolution (fetch, XHR, dynamic scripts, etc.)
-  // This is the browser-native way to resolve relative URLs and is more reliable than
-  // attempting to statically rewrite URLs in HTML/JavaScript content
-  const baseTag = `<base href="${parsedUrl.origin}/">`;
+  // This is the browser-native, non-intrusive way to resolve relative URLs
+  // We use the full URL path (minus the filename) to correctly resolve relative paths like "../"
+  // For URLs like https://example.com/path/file.html, we want https://example.com/path/
+  // For URLs like https://example.com or https://example.com/, we want https://example.com/
+  const pathDir = parsedUrl.pathname.substring(0, parsedUrl.pathname.lastIndexOf('/') + 1) || '/';
+  const baseHref = `${parsedUrl.origin}${pathDir}`;
+  const baseTag = `<base href="${baseHref}">`;
 
   // Insert the base tag right after <head>
   if (htmlContent.includes('<head>')) {

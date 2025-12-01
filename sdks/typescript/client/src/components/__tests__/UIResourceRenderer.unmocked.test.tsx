@@ -117,9 +117,6 @@ describe('UIResourceRenderer', () => {
       expect(targetOrigin).toBe('https://proxy.example');
       expect(sentMessage?.type).toBe('ui-html-content');
       expect(sentMessage?.payload?.html).toContain('<form>');
-      const payloadSandbox: string = sentMessage?.payload?.sandbox || '';
-      expect(payloadSandbox.includes('allow-scripts')).toBe(true);
-      expect(payloadSandbox.includes('allow-forms')).toBe(true);
     });
   });
 });

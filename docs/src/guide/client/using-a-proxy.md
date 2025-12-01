@@ -5,7 +5,7 @@ When rendering external URLs (`text/uri-list`) or raw HTML (`text/html`), you ma
 There are two proxy flows:
 
 - External URLs: the external URL is encoded and appended as `?url=<encoded_original_url>` to the proxy URL. For example: `https://my-proxy.com/?url=<encoded_original_url>`.
-- Raw HTML: the proxy is loaded with `?contentType=rawhtml`, and the HTML and inner iframe sandbox are delivered via `postMessage` after the proxy iframe signals it's ready.
+- Raw HTML: the proxy is loaded with `?contentType=rawhtml`, and the HTML content is delivered via `postMessage` after the proxy iframe signals it's ready.
 
 ::: tip Important
 The term "proxy" in this context does not refer to a real proxy server. It is a static, client-side script that nests the UI resource's iframe within a "proxy" iframe. This process occurs locally in the user's browser. User data never reaches a remote server.
@@ -43,9 +43,9 @@ sequenceDiagram
     Proxy->>Inner: Create with src = decoded url
   else rawHtml
     Proxy-->>Host: ui-proxy-iframe-ready message
-    Host->>Proxy: ui-html-content message ({ html, sandbox })
-    Proxy->>Inner: Create with sandbox
-    Proxy->>Inner: Set srcDoc to HTML
+    Host->>Proxy: postMessage({ type: 'ui-html-content', payload: { html } })
+    Proxy->>Inner: Create iframe
+    Proxy->>Inner: Write HTML content to iframe
   end
   Inner-->>Proxy: Messages (e.g., UI actions)
   Proxy-->>Host: Relay (Inner -> Host)
@@ -65,10 +65,18 @@ A valid proxy script must:
 
 1.  **External URLs (`url` query parameter)**: Retrieve `url` from the query string, validate it as `http:`/`https:`, and render it in a nested iframe.
 2.  **Raw HTML (`contentType=rawhtml`)**: When `contentType=rawhtml` is present, the proxy must:
-    - Create a nested iframe and emit a ready signal (`ui-proxy-iframe-ready`) to `window.parent`.
-    - Receive a single `postMessage` with `{ html: string, sandbox?: string }` (message type e.g. `ui-html-content`).
-    - Apply `sandbox` to the inner iframe, then set the inner iframe `srcdoc` to the provided HTML.
-3.  **Sandbox the Iframe**: The nested iframe must be sandboxed to restrict capabilities. For external URLs a minimal policy is `allow-scripts allow-same-origin`; for raw HTML a minimal policy is `allow-scripts` unless you explicitly need additional capabilities.
+    - Create a nested iframe and emit a ready signal to `window.parent` with message `{ type: 'ui-proxy-iframe-ready' }`.
+    - Receive a `postMessage` from `window.parent` with structure:
+      ```typescript
+      {
+        type: 'ui-html-content',
+        payload: {
+          html: string
+        }
+      }
+      ```
+    - Write the HTML content to the iframe using `document.write()` or similar method.
+3.  **Sandbox the Iframe**: For external URLs, the nested iframe should be sandboxed with `allow-scripts allow-same-origin`. For raw HTML mode, the inner iframe does **not** use a sandbox attribute—this is intentional because `document.write()` requires same-origin access to the iframe's document. Security for raw HTML is enforced by the outer iframe's sandbox (controlled by the host) and the double-iframe isolation architecture.
 4.  **Forward `postMessage` Events**: To allow communication between the host application and the embedded external URL, the proxy needs to forward `message` events between `window.parent` and the iframe's `contentWindow`. For security, it's critical to use a specific `targetOrigin` instead of `*` in `postMessage` calls whenever possible. The `targetOrigin` for messages to the iframe should be the external URL's origin; Messages to the parent will default to `*`.
 5.  **Permissive Proxy CSP**: Serve the proxy page with a permissive CSP that does not block nested iframe content (e.g., allowing scripts, styles, images) since the host CSP is intentionally not applied on the proxy origin.
 
