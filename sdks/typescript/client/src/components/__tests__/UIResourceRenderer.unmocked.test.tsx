@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
-import { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource } from '@modelcontextprotocol/sdk/types.js';
 import { UIResourceRenderer } from '../UIResourceRenderer';
 import { UI_METADATA_PREFIX } from '../../types';
 
