@@ -1,3 +1,10 @@
+## [5.16.2](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.1...server/v5.16.2) (2025-12-08)
+
+
+### Bug Fixes
+
+* revert externalUrl adapter for compatibility ([#159](https://github.com/MCP-UI-Org/mcp-ui/issues/159)) ([3c5289a](https://github.com/MCP-UI-Org/mcp-ui/commit/3c5289a5e59812f556bc2bb9e67c3ce2e3ce764e))
+
 ## [5.16.1](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.0...server/v5.16.1) (2025-12-01)
 
 
