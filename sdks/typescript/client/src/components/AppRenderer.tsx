@@ -230,7 +230,7 @@ export const AppRenderer = (props: AppRendererProps) => {
             onUIAction?.({
               type: "notify",
               payload: {
-                message: params.message,
+                message: String(params.message ?? params.data),
               },
             });
           } else {

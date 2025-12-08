@@ -1,8 +1,6 @@
-import { McpUiSandboxProxyReadyNotificationSchema } from "@modelcontextprotocol/ext-apps";
+import { McpUiSandboxProxyReadyNotificationSchema, RESOURCE_URI_META_KEY } from "@modelcontextprotocol/ext-apps";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
-
-const MCP_UI_RESOURCE_META_KEY = "ui/resourceUri";
 
 export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe: HTMLIFrameElement;
@@ -21,7 +19,7 @@ export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
         if (
           event.data &&
           event.data.method ===
-            McpUiSandboxProxyReadyNotificationSchema.shape.method._def.value
+            McpUiSandboxProxyReadyNotificationSchema.shape.method._def.values[0]
         ) {
           window.removeEventListener("message", initialListener);
           resolve();
@@ -59,8 +57,8 @@ export async function getToolUiResourceUri(
   }
 
   let uri: string;
-  if (MCP_UI_RESOURCE_META_KEY in tool._meta) {
-    uri = String(tool._meta[MCP_UI_RESOURCE_META_KEY]);
+  if (RESOURCE_URI_META_KEY in tool._meta) {
+    uri = String(tool._meta[RESOURCE_URI_META_KEY]);
   } else {
     return null;
   }

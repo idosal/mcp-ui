@@ -2,8 +2,8 @@ export { UIResourceRenderer } from './components/UIResourceRenderer';
 export { getUIResourceMetadata, getResourceMetadata } from './utils/metadataUtils';
 export { isUIResource } from './utils/isUIResource';
 
-// MCP-UI Templated Tool Call Renderer
-export { UITemplatedToolCallRenderer, type UITemplatedToolCallRendererProps } from './components/UITemplatedToolCallRenderer';
+// MCP Apps renderer
+export { AppRenderer, type AppRendererProps } from './components/AppRenderer';
 
 // The types needed to create a custom component library
 export type {
