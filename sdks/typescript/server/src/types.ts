@@ -18,7 +18,7 @@ export const RESOURCE_URI_META_KEY = 'ui/resourceUri' as const;
 // text/html for rawHtml content, text/uri-list for externalUrl content
 export type MimeType =
   | 'text/html'
-  | 'text/html;profile=mcp'
+  | 'text/html;profile=mcp-app'
   | 'text/html+skybridge'
   | 'text/uri-list'
   | 'application/vnd.mcp-ui.remote-dom+javascript; framework=react'

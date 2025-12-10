@@ -482,14 +482,14 @@ describe('Adapter Integration', () => {
     });
 
     describe('getAdapterMimeType with MCP Apps', () => {
-      it('should return text/html;profile=mcp for MCP Apps adapter', () => {
+      it('should return text/html;profile=mcp-app for MCP Apps adapter', () => {
         const result = getAdapterMimeType({
           mcpApps: {
             enabled: true,
           },
         });
 
-        expect(result).toBe('text/html;profile=mcp');
+        expect(result).toBe('text/html;profile=mcp-app');
       });
     });
 
@@ -555,7 +555,7 @@ describe('Adapter Integration', () => {
       expect(getAdapterMimeType({ appsSdk: { enabled: true } })).toBe('text/html+skybridge');
 
       // MCP Apps adapter
-      expect(getAdapterMimeType({ mcpApps: { enabled: true } })).toBe('text/html;profile=mcp');
+      expect(getAdapterMimeType({ mcpApps: { enabled: true } })).toBe('text/html;profile=mcp-app');
 
       // No adapter
       expect(getAdapterMimeType({})).toBeUndefined();

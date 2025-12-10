@@ -295,7 +295,9 @@ class McpAppsAdapter {
    * - ui/notifications/tool-input-partial: Streaming partial tool arguments
    * - ui/notifications/tool-result: Tool execution results
    * - ui/notifications/host-context-changed: Theme, viewport, locale changes
-   * - ui/notifications/size-change: Size change notifications (bidirectional)
+   * - ui/notifications/size-changed: Size change notifications (bidirectional)
+   * - ui/notifications/tool-cancelled: Tool execution was cancelled
+   * - ui/resource-teardown: Host notifies UI before teardown (request)
    */
   private handleHostMessage(event: MessageEvent) {
     const data = event.data;
@@ -340,10 +342,36 @@ class McpAppsAdapter {
           break;
         
         // MCP Apps SEP: Size change notification from host
-        case 'ui/notifications/size-change':
+        case 'ui/notifications/size-changed':
           // Host is informing us of size constraints
           if (data.params?.height) this.currentRenderData.maxHeight = data.params.height;
           this.sendRenderData();
+          break;
+        
+        // MCP Apps SEP: Tool execution was cancelled
+        case 'ui/notifications/tool-cancelled':
+          // Notify the widget that the tool was cancelled
+          this.dispatchMessageToIframe({
+            type: 'ui-lifecycle-tool-cancelled',
+            payload: {
+              reason: data.params?.reason
+            }
+          });
+          break;
+        
+        // MCP Apps SEP: Host notifies UI before teardown (this is a request, not notification)
+        case 'ui/resource-teardown':
+          // Notify the widget that it's about to be torn down
+          this.dispatchMessageToIframe({
+            type: 'ui-lifecycle-teardown',
+            payload: {
+              reason: data.params?.reason
+            }
+          });
+          // Send success response to host
+          if (data.id) {
+            this.sendJsonRpcResponse(data.id, {});
+          }
           break;
       }
     } else if (data.id) {
@@ -377,7 +405,7 @@ class McpAppsAdapter {
    * 
    * MCP-UI message types translated to MCP Apps SEP:
    * - 'tool' -> tools/call request
-   * - 'ui-size-change' -> ui/notifications/size-change notification
+   * - 'ui-size-change' -> ui/notifications/size-changed notification
    * - 'notify' -> notifications/message notification (logging)
    * - 'link' -> ui/open-link request
    * - 'prompt' -> ui/message request
@@ -421,10 +449,10 @@ class McpAppsAdapter {
                 break;
             }
             
-            // MCP-UI size change -> MCP Apps ui/notifications/size-change
+            // MCP-UI size change -> MCP Apps ui/notifications/size-changed
             case 'ui-size-change': {
                  const { width, height } = (message as MCPUIMessage & { payload: { width?: number; height?: number } }).payload;
-                 this.sendJsonRpcNotification('ui/notifications/size-change', { width, height });
+                 this.sendJsonRpcNotification('ui/notifications/size-changed', { width, height });
                  break;
             }
             
@@ -484,7 +512,7 @@ class McpAppsAdapter {
 
                 this.sendJsonRpcRequest(jsonRpcId, 'ui/message', {
                     role: 'user',
-                    content: [{ type: 'text', text: prompt }]
+                    content: { type: 'text', text: prompt }
                 });
                 break;
             }
@@ -527,7 +555,7 @@ class McpAppsAdapter {
                 // Translate intent to a message
                 this.sendJsonRpcRequest(jsonRpcId, 'ui/message', {
                     role: 'user',
-                    content: [{ type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }]
+                    content: { type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }
                 });
                 break;
             }
@@ -570,6 +598,14 @@ class McpAppsAdapter {
           id,
           method,
           params
+      }, '*');
+  }
+
+  private sendJsonRpcResponse(id: number | string, result: Record<string, unknown>) {
+      this.originalPostMessage?.({
+          jsonrpc: '2.0',
+          id,
+          result
       }, '*');
   }
 
