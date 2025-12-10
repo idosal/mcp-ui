@@ -5,52 +5,72 @@
  * by intercepting MCP-UI protocol messages and translating them to JSON-RPC over postMessage.
  * 
  * Note: This file is bundled as a standalone script injected into HTML.
- * We define types locally to avoid bundling the entire ext-apps package.
- * The types mirror those from @modelcontextprotocol/ext-apps.
+ * Types are imported from @modelcontextprotocol/ext-apps for compile-time safety only.
+ * All runtime values (like LATEST_PROTOCOL_VERSION) must be defined locally to avoid
+ * bundling the entire ext-apps package into the output.
+ * 
+ * @see https://github.com/modelcontextprotocol/ext-apps
  */
 
+// Import types from ext-apps for compile-time type checking only
+// These are erased during compilation and don't affect the bundled output
+import type {
+  McpUiHostContext,
+  McpUiInitializeResult,
+} from '@modelcontextprotocol/ext-apps';
+
 // ============================================================================
-// Protocol Constants (from @modelcontextprotocol/ext-apps)
+// Protocol Constants (must match @modelcontextprotocol/ext-apps)
+// These are defined locally to avoid bundling the ext-apps package.
+// Keep in sync with: https://github.com/modelcontextprotocol/ext-apps/blob/main/src/spec.types.ts
 // ============================================================================
 
 /**
- * Current protocol version supported by this adapter.
- * Must match LATEST_PROTOCOL_VERSION from @modelcontextprotocol/ext-apps
+ * Current protocol version - must match LATEST_PROTOCOL_VERSION from ext-apps
+ * @see https://github.com/modelcontextprotocol/ext-apps
  */
-const PROTOCOL_VERSION = '2025-11-21';
+const LATEST_PROTOCOL_VERSION = '2025-11-21';
+
+/**
+ * MCP Apps SEP protocol method constants
+ * These match the `method` field values from @modelcontextprotocol/ext-apps type definitions:
+ * - McpUiInitializeRequest: "ui/initialize"
+ * - McpUiInitializedNotification: "ui/notifications/initialized"
+ * - McpUiToolInputNotification: "ui/notifications/tool-input"
+ * - McpUiToolInputPartialNotification: "ui/notifications/tool-input-partial"
+ * - McpUiToolResultNotification: "ui/notifications/tool-result"
+ * - McpUiHostContextChangedNotification: "ui/notifications/host-context-changed"
+ * - McpUiSizeChangedNotification: "ui/notifications/size-changed"
+ * - McpUiResourceTeardownRequest: "ui/resource-teardown"
+ * 
+ * @see https://github.com/modelcontextprotocol/ext-apps/blob/main/src/spec.types.ts
+ */
+const METHODS = {
+  // Lifecycle
+  INITIALIZE: 'ui/initialize',
+  INITIALIZED: 'ui/notifications/initialized',
+  
+  // Tool data (Host -> Guest)
+  TOOL_INPUT: 'ui/notifications/tool-input',
+  TOOL_INPUT_PARTIAL: 'ui/notifications/tool-input-partial',
+  TOOL_RESULT: 'ui/notifications/tool-result',
+  TOOL_CANCELLED: 'ui/notifications/tool-cancelled',
+  
+  // Context & UI
+  HOST_CONTEXT_CHANGED: 'ui/notifications/host-context-changed',
+  SIZE_CHANGED: 'ui/notifications/size-changed',
+  RESOURCE_TEARDOWN: 'ui/resource-teardown',
+  
+  // Standard MCP methods
+  TOOLS_CALL: 'tools/call',
+  NOTIFICATIONS_MESSAGE: 'notifications/message',
+  OPEN_LINK: 'ui/open-link',
+  MESSAGE: 'ui/message',
+} as const;
 
 // ============================================================================
-// Types (mirroring @modelcontextprotocol/ext-apps for compile-time safety)
+// Local Types (for runtime - mirrors ext-apps types)
 // ============================================================================
-
-/** Host context from MCP Apps SEP (mirrors McpUiHostContext from ext-apps) */
-interface McpUiHostContext {
-  toolInfo?: {
-    id: string | number;
-    tool: unknown;
-  };
-  theme?: 'light' | 'dark' | 'system';
-  displayMode?: 'inline' | 'fullscreen' | 'pip' | 'carousel';
-  availableDisplayModes?: string[];
-  viewport?: {
-    width: number;
-    height: number;
-    maxHeight?: number;
-    maxWidth?: number;
-  };
-  locale?: string;
-  timeZone?: string;
-  userAgent?: string;
-  platform?: 'web' | 'desktop' | 'mobile';
-}
-
-/** Initialize result from MCP Apps SEP (mirrors McpUiInitializeResult from ext-apps) */
-interface McpUiInitializeResult {
-  protocolVersion: string;
-  hostInfo: { name: string; version: string };
-  hostCapabilities: Record<string, unknown>;
-  hostContext: McpUiHostContext;
-}
 
 /** Configuration for the MCP Apps adapter */
 interface McpAppsAdapterConfig {
@@ -207,7 +227,7 @@ class McpAppsAdapter {
         version: '1.0.0'
       },
       appCapabilities: {},
-      protocolVersion: PROTOCOL_VERSION
+      protocolVersion: LATEST_PROTOCOL_VERSION
     });
     this.config.logger.log('[MCP Apps Adapter] ui/initialize request sent');
 

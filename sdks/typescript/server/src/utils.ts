@@ -1,5 +1,5 @@
 import type { CreateUIResourceOptions, UIResourceProps, AdaptersConfig } from './types.js';
-import { UI_METADATA_PREFIX } from './types.js';
+import { UI_METADATA_PREFIX, RESOURCE_MIME_TYPE } from './types.js';
 import { getAppsSdkAdapterScript } from './adapters/appssdk/adapter.js';
 import { getMcpAppsAdapterScript } from './adapters/mcp-apps/adapter.js';
 
@@ -79,9 +79,9 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
     return adaptersConfig.appsSdk.mimeType ?? 'text/html+skybridge';
   }
 
-  // MCP Apps adapter uses text/html;profile=mcp-app as per the ext-apps specification
+  // MCP Apps adapter uses the official MIME type from @modelcontextprotocol/ext-apps
   if (adaptersConfig.mcpApps?.enabled) {
-    return 'text/html;profile=mcp-app';
+    return RESOURCE_MIME_TYPE;
   }
 
   // Future adapters can be added here by checking for their config and returning their mime type.
