@@ -1,4 +1,4 @@
-import { Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 import { UI_METADATA_PREFIX, UIResourceMetadata } from '../types';
 
 export function getResourceMetadata(resource: Partial<Resource>): Record<string, unknown> {

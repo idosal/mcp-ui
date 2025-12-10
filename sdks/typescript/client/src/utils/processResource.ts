@@ -1,4 +1,4 @@
-import { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
+import type { EmbeddedResource, Resource } from '@modelcontextprotocol/sdk/types.js';
 
 type ProcessResourceResult = {
   error?: string;
