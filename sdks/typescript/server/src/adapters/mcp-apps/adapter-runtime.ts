@@ -45,6 +45,7 @@ const LATEST_PROTOCOL_VERSION = '2025-11-21';
  * 
  * @see https://github.com/modelcontextprotocol/ext-apps/blob/main/src/spec.types.ts
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Used in switch cases below
 const METHODS = {
   // Lifecycle
   INITIALIZE: 'ui/initialize',
@@ -182,7 +183,7 @@ class McpAppsAdapter {
           this.initialized = true;
           
           // Send initialized notification
-          this.sendJsonRpcNotification('ui/notifications/initialized', {});
+          this.sendJsonRpcNotification(METHODS.INITIALIZED, {});
           
           // Update current render data with host context (using McpUiHostContext type)
           if (this.hostContext) {
@@ -221,7 +222,7 @@ class McpAppsAdapter {
 
     // Send ui/initialize request
     this.config.logger.log('[MCP Apps Adapter] Sending ui/initialize request with id:', jsonRpcId);
-    this.sendJsonRpcRequest(jsonRpcId, 'ui/initialize', {
+    this.sendJsonRpcRequest(jsonRpcId, METHODS.INITIALIZE, {
       appInfo: {
         name: 'mcp-ui-adapter',
         version: '1.0.0'
@@ -331,28 +332,28 @@ class McpAppsAdapter {
     if (data.method) {
       switch (data.method) {
         // MCP Apps SEP: Complete tool input notification
-        case 'ui/notifications/tool-input':
+        case METHODS.TOOL_INPUT:
           // Update stored render data (like Apps SDK's window.openai.toolInput)
           this.currentRenderData.toolInput = data.params?.arguments;
           this.sendRenderData();
           break;
         
         // MCP Apps SEP: Partial/streaming tool input notification
-        case 'ui/notifications/tool-input-partial':
+        case METHODS.TOOL_INPUT_PARTIAL:
           // Update stored render data with partial input
           this.currentRenderData.toolInput = data.params?.arguments;
           this.sendRenderData();
           break;
         
         // MCP Apps SEP: Tool execution result notification
-        case 'ui/notifications/tool-result':
+        case METHODS.TOOL_RESULT:
           // Update stored render data (like Apps SDK's window.openai.toolOutput)
           this.currentRenderData.toolOutput = data.params;
           this.sendRenderData();
           break;
         
         // MCP Apps SEP: Host context changed (theme, viewport, etc.)
-        case 'ui/notifications/host-context-changed':
+        case METHODS.HOST_CONTEXT_CHANGED:
           // Update stored render data with context
           if (data.params?.theme) this.currentRenderData.theme = data.params.theme;
           if (data.params?.displayMode) this.currentRenderData.displayMode = data.params.displayMode;
@@ -362,14 +363,14 @@ class McpAppsAdapter {
           break;
         
         // MCP Apps SEP: Size change notification from host
-        case 'ui/notifications/size-changed':
+        case METHODS.SIZE_CHANGED:
           // Host is informing us of size constraints
           if (data.params?.height) this.currentRenderData.maxHeight = data.params.height;
           this.sendRenderData();
           break;
         
         // MCP Apps SEP: Tool execution was cancelled
-        case 'ui/notifications/tool-cancelled':
+        case METHODS.TOOL_CANCELLED:
           // Notify the widget that the tool was cancelled
           this.dispatchMessageToIframe({
             type: 'ui-lifecycle-tool-cancelled',
@@ -380,7 +381,7 @@ class McpAppsAdapter {
           break;
         
         // MCP Apps SEP: Host notifies UI before teardown (this is a request, not notification)
-        case 'ui/resource-teardown':
+        case METHODS.RESOURCE_TEARDOWN:
           // Notify the widget that it's about to be torn down
           this.dispatchMessageToIframe({
             type: 'ui-lifecycle-teardown',
@@ -462,7 +463,7 @@ class McpAppsAdapter {
                     }, this.config.timeout)
                 });
 
-                this.sendJsonRpcRequest(jsonRpcId, 'tools/call', {
+                this.sendJsonRpcRequest(jsonRpcId, METHODS.TOOLS_CALL, {
                     name: toolName,
                     arguments: params
                 });
@@ -472,14 +473,14 @@ class McpAppsAdapter {
             // MCP-UI size change -> MCP Apps ui/notifications/size-changed
             case 'ui-size-change': {
                  const { width, height } = (message as MCPUIMessage & { payload: { width?: number; height?: number } }).payload;
-                 this.sendJsonRpcNotification('ui/notifications/size-changed', { width, height });
+                 this.sendJsonRpcNotification(METHODS.SIZE_CHANGED, { width, height });
                  break;
             }
             
             // MCP-UI notification -> MCP Apps notifications/message (logging)
             case 'notify': {
                  const { message: msg } = (message as UIActionResult).payload as { message: string };
-                 this.sendJsonRpcNotification('notifications/message', {
+                 this.sendJsonRpcNotification(METHODS.NOTIFICATIONS_MESSAGE, {
                      level: 'info',
                      data: msg
                  });
@@ -506,7 +507,7 @@ class McpAppsAdapter {
                     }, this.config.timeout)
                 });
 
-                this.sendJsonRpcRequest(jsonRpcId, 'ui/open-link', { url });
+                this.sendJsonRpcRequest(jsonRpcId, METHODS.OPEN_LINK, { url });
                 break;
             }
             
@@ -530,7 +531,7 @@ class McpAppsAdapter {
                     }, this.config.timeout)
                 });
 
-                this.sendJsonRpcRequest(jsonRpcId, 'ui/message', {
+                this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
                     content: { type: 'text', text: prompt }
                 });
@@ -539,7 +540,7 @@ class McpAppsAdapter {
             
             // MCP-UI iframe ready -> MCP Apps ui/notifications/initialized
             case 'ui-lifecycle-iframe-ready': {
-                this.sendJsonRpcNotification('ui/notifications/initialized', {});
+                this.sendJsonRpcNotification(METHODS.INITIALIZED, {});
                 // Also send current render data (like Apps SDK)
                 this.sendRenderData();
                 break;
@@ -573,7 +574,7 @@ class McpAppsAdapter {
                 });
 
                 // Translate intent to a message
-                this.sendJsonRpcRequest(jsonRpcId, 'ui/message', {
+                this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
                     content: { type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }
                 });
