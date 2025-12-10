@@ -129,46 +129,6 @@ importers:
         specifier: ^3.3.0
         version: 3.5.17(typescript@5.8.3)
 
-  examples/external-url-adapter:
-    dependencies:
-      '@mcp-ui/server':
-        specifier: workspace:*
-        version: link:../../sdks/typescript/server
-      '@modelcontextprotocol/ext-apps':
-        specifier: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
-        version: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
-        version: 1.23.0(zod@3.25.67)
-      cors:
-        specifier: ^2.8.5
-        version: 2.8.5
-      express:
-        specifier: ^4.18.2
-        version: 4.21.2
-      zod:
-        specifier: ^3.22.4
-        version: 3.25.67
-    devDependencies:
-      '@types/cors':
-        specifier: ^2.8.17
-        version: 2.8.19
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.23
-      '@types/node':
-        specifier: ^20.11.24
-        version: 20.19.1
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.12.6)(@types/node@20.19.1)(typescript@5.8.3)
-      tsx:
-        specifier: ^4.7.0
-        version: 4.20.6
-      typescript:
-        specifier: ^5.3.3
-        version: 5.8.3
-
   examples/external-url-demo:
     dependencies:
       '@mcp-ui/client':
@@ -523,6 +483,9 @@ importers:
 
   sdks/typescript/server:
     dependencies:
+      '@modelcontextprotocol/ext-apps':
+        specifier: ^0.0.7
+        version: 0.0.7
       '@modelcontextprotocol/sdk':
         specifier: ^1.22.0
         version: 1.22.0
@@ -2047,6 +2010,9 @@ packages:
   '@mjackson/node-fetch-server@0.6.1':
     resolution: {integrity: sha512-9ZJnk/DJjt805uv5PPv11haJIW+HHf3YEEyVXv+8iLQxLD/iXA68FH220XoiTPBC4gCg5q+IMadDw8qPqlA5wg==}
 
+  '@modelcontextprotocol/ext-apps@0.0.7':
+    resolution: {integrity: sha512-paNc/5NTUoofQ54Heg45xSSVzyDWQc81IgYODnHTUayg7SU3hXI2ZYU9B1oYyyrX//+dHzC52/Kuheq2qoyZdA==}
+
   '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
     resolution: {tarball: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz}
     version: 0.0.1
@@ -2633,8 +2599,18 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@rollup/rollup-darwin-arm64@4.53.3':
+    resolution: {integrity: sha512-Nr7SlQeqIBpOV6BHHGZgYBuSdanCXuw09hon14MGOLGmXAFYjx1wNvquVPmpZnl0tLjg25dEdr4IQ6GgyToCUA==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@rollup/rollup-darwin-x64@4.44.0':
     resolution: {integrity: sha512-fBkyrDhwquRvrTxSGH/qqt3/T0w5Rg0L7ZIDypvBPc1/gzjJle6acCpZ36blwuwcKD/u6oCE/sRWlUAcxLWQbQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@rollup/rollup-darwin-x64@4.53.3':
+    resolution: {integrity: sha512-DZ8N4CSNfl965CmPktJ8oBnfYr3F8dTTNBQkRlffnUarJ2ohudQD17sZBa097J8xhQ26AwhHJ5mvUyQW8ddTsQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -2660,6 +2636,11 @@ packages:
 
   '@rollup/rollup-linux-arm64-gnu@4.44.0':
     resolution: {integrity: sha512-ZTR2mxBHb4tK4wGf9b8SYg0Y6KQPjGpR4UWwTFdnmjB4qRtoATZ5dWn3KsDwGa5Z2ZBOE7K52L36J9LueKBdOQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@rollup/rollup-linux-arm64-gnu@4.53.3':
+    resolution: {integrity: sha512-RGrFLWgMhSxRs/EWJMIFM1O5Mzuz3Xy3/mnxJp/5cVhZ2XoCAxJnmNsEyeMJtpK+wu0FJFWz+QF4mjCA7AUQ3w==}
     cpu: [arm64]
     os: [linux]
 
@@ -2698,6 +2679,11 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@rollup/rollup-linux-x64-gnu@4.53.3':
+    resolution: {integrity: sha512-3EhFi1FU6YL8HTUJZ51imGJWEX//ajQPfqWLI3BQq4TlvHy4X0MOr5q3D2Zof/ka0d5FNdPwZXm3Yyib/UEd+w==}
+    cpu: [x64]
+    os: [linux]
+
   '@rollup/rollup-linux-x64-musl@4.44.0':
     resolution: {integrity: sha512-PQUobbhLTQT5yz/SPg116VJBgz+XOtXt8D1ck+sfJJhuEsMj2jSej5yTdp8CvWBSceu+WW+ibVL6dm0ptG5fcA==}
     cpu: [x64]
@@ -2715,6 +2701,11 @@ packages:
 
   '@rollup/rollup-win32-x64-msvc@4.44.0':
     resolution: {integrity: sha512-Q2Mgwt+D8hd5FIPUuPDsvPR7Bguza6yTkJxspDGkZj7tBRn2y4KSWYuIXpftFSjBra76TbKerCV7rgFPQrn+wQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@rollup/rollup-win32-x64-msvc@4.53.3':
+    resolution: {integrity: sha512-UhTd8u31dXadv0MopwGgNOBpUVROFKWVQgAg5N1ESyCz8AuBcMqm4AuTjrwgQKGDfoFuz02EuMRHQIw/frmYKQ==}
     cpu: [x64]
     os: [win32]
 
@@ -4070,7 +4061,6 @@ packages:
 
   bun@1.3.3:
     resolution: {integrity: sha512-2hJ4ocTZ634/Ptph4lysvO+LbbRZq8fzRvMwX0/CqaLBxrF2UB5D1LdMB8qGcdtCer4/VR9Bx5ORub0yn+yzmw==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -10129,6 +10119,22 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.6.1': {}
 
+  '@modelcontextprotocol/ext-apps@0.0.7':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+      zod: 3.25.67
+    optionalDependencies:
+      '@rollup/rollup-darwin-arm64': 4.53.3
+      '@rollup/rollup-darwin-x64': 4.53.3
+      '@rollup/rollup-linux-arm64-gnu': 4.53.3
+      '@rollup/rollup-linux-x64-gnu': 4.53.3
+      '@rollup/rollup-win32-x64-msvc': 4.53.3
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - supports-color
+
   '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
@@ -10724,7 +10730,13 @@ snapshots:
   '@rollup/rollup-darwin-arm64@4.44.0':
     optional: true
 
+  '@rollup/rollup-darwin-arm64@4.53.3':
+    optional: true
+
   '@rollup/rollup-darwin-x64@4.44.0':
+    optional: true
+
+  '@rollup/rollup-darwin-x64@4.53.3':
     optional: true
 
   '@rollup/rollup-freebsd-arm64@4.44.0':
@@ -10740,6 +10752,9 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-arm64-gnu@4.44.0':
+    optional: true
+
+  '@rollup/rollup-linux-arm64-gnu@4.53.3':
     optional: true
 
   '@rollup/rollup-linux-arm64-musl@4.44.0':
@@ -10763,6 +10778,9 @@ snapshots:
   '@rollup/rollup-linux-x64-gnu@4.44.0':
     optional: true
 
+  '@rollup/rollup-linux-x64-gnu@4.53.3':
+    optional: true
+
   '@rollup/rollup-linux-x64-musl@4.44.0':
     optional: true
 
@@ -10773,6 +10791,9 @@ snapshots:
     optional: true
 
   '@rollup/rollup-win32-x64-msvc@4.44.0':
+    optional: true
+
+  '@rollup/rollup-win32-x64-msvc@4.53.3':
     optional: true
 
   '@rushstack/node-core-library@4.0.2(@types/node@18.19.112)':
@@ -14126,6 +14147,7 @@ snapshots:
   get-tsconfig@4.13.0:
     dependencies:
       resolve-pkg-maps: 1.0.0
+    optional: true
 
   git-log-parser@1.2.1:
     dependencies:
@@ -16214,7 +16236,8 @@ snapshots:
 
   resolve-from@5.0.0: {}
 
-  resolve-pkg-maps@1.0.0: {}
+  resolve-pkg-maps@1.0.0:
+    optional: true
 
   resolve@1.19.0:
     dependencies:
@@ -16981,6 +17004,7 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   type-check@0.4.0:
     dependencies:

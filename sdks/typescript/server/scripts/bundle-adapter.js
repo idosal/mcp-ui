@@ -10,7 +10,7 @@ async function bundleAdapter(adapterName) {
   try {
     const result = await build({
       entryPoints: [join(__dirname, `../src/adapters/${adapterName}/adapter-runtime.ts`)],
-      bundle: false,
+      bundle: false, // Don't bundle - types are compile-time only
       write: false,
       format: 'esm',
       platform: 'browser',

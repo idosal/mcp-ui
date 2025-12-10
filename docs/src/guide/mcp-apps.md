@@ -180,7 +180,7 @@ server.registerTool(
 | `link` | `ui/open-link` | Open a URL in a new tab |
 | `notify` | `notifications/message` | Log a message to the host |
 | `intent` | `ui/message` | Send an intent (translated to message) |
-| `ui-size-change` | `ui/notifications/size-change` | Request widget resize |
+| `ui-size-change` | `ui/notifications/size-changed` | Request widget resize |
 
 ### Host → Widget (Incoming)
 
@@ -190,6 +190,9 @@ server.registerTool(
 | `ui/notifications/tool-input-partial` | `ui-lifecycle-iframe-render-data` | Streaming partial arguments |
 | `ui/notifications/tool-result` | `ui-lifecycle-iframe-render-data` | Tool execution result |
 | `ui/notifications/host-context-changed` | `ui-lifecycle-iframe-render-data` | Theme, locale, viewport changes |
+| `ui/notifications/size-changed` | `ui-lifecycle-iframe-render-data` | Host informs of size constraints |
+| `ui/notifications/tool-cancelled` | `ui-lifecycle-tool-cancelled` | Tool execution was cancelled |
+| `ui/resource-teardown` | `ui-lifecycle-teardown` | Host notifies UI before teardown |
 
 ## Configuration Options
 
@@ -210,7 +213,7 @@ createUIResource({
 
 ## MIME Type
 
-When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html;profile=mcp`. This is the expected MIME type for MCP Apps-compliant hosts.
+When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html;profile=mcp-app`, the MCP Apps equivalent to `text/html`.
 
 ## Receiving Data in Your Widget
 

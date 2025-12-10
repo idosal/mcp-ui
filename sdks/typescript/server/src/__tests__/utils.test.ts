@@ -176,6 +176,20 @@ describe('getAdapterMimeType', () => {
     });
     expect(result).toBeUndefined();
   });
+
+  it('should return mcp-app mime type when mcpApps adapter is enabled', () => {
+    const result = getAdapterMimeType({
+      mcpApps: { enabled: true },
+    });
+    expect(result).toBe('text/html;profile=mcp-app');
+  });
+
+  it('should return undefined when mcpApps is disabled', () => {
+    const result = getAdapterMimeType({
+      mcpApps: { enabled: false },
+    });
+    expect(result).toBeUndefined();
+  });
 });
 
 describe('wrapHtmlWithAdapters', () => {
