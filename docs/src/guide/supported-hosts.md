@@ -31,7 +31,7 @@ These hosts use different protocols but can render MCP-UI widgets via adapters:
 MCP-UI provides two adapters to bridge protocol differences:
 
 - **Apps SDK Adapter**: For ChatGPT and other Apps SDK hosts. Uses `text/html+skybridge` MIME type.
-- **MCP Apps Adapter**: For hosts implementing the [MCP Apps SEP protocol](https://github.com/modelcontextprotocol/ext-apps). Uses `text/html+mcp` MIME type.
+- **MCP Apps Adapter**: For hosts implementing the [MCP Apps SEP protocol](https://github.com/modelcontextprotocol/ext-apps). Uses `text/html;profile=mcp` MIME type.
 
 Both adapters are automatically injected into your HTML when enabled, translating MCP-UI messages to the host's native protocol.
 

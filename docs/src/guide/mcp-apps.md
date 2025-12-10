@@ -210,7 +210,7 @@ createUIResource({
 
 ## MIME Type
 
-When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html+mcp`. This is the expected MIME type for MCP Apps-compliant hosts.
+When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html;profile=mcp`. This is the expected MIME type for MCP Apps-compliant hosts.
 
 ## Receiving Data in Your Widget
 

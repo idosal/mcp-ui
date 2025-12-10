@@ -219,7 +219,7 @@ server.registerTool(
 
 ## MIME Type
 
-When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html+mcp`, which is the expected type for MCP Apps hosts.
+When the MCP Apps adapter is enabled, the resource MIME type is automatically set to `text/html;profile=mcp`, which is the expected type for MCP Apps hosts.
 
 ## Mutual Exclusivity with Apps SDK Adapter
 
