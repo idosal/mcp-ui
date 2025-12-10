@@ -79,9 +79,9 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
     return adaptersConfig.appsSdk.mimeType ?? 'text/html+skybridge';
   }
 
-  // MCP Apps adapter uses text/html+mcp as per the ext-apps specification
+  // MCP Apps adapter uses text/html;profile=mcp as per the ext-apps specification
   if (adaptersConfig.mcpApps?.enabled) {
-    return 'text/html+mcp';
+    return 'text/html;profile=mcp';
   }
 
   // Future adapters can be added here by checking for their config and returning their mime type.
