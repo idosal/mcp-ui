@@ -6,11 +6,11 @@ export default defineConfig({
     environment: 'jsdom', // Default environment, can be overridden per package/file
     setupFiles: './vitest.setup.ts',
     globalSetup: './vitest.global-setup.ts',
+    // include: ['sdks/typescript/*/src/**/__tests__/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './coverage',
-      all: true, // Cover all files, not just tested ones
       include: ['sdks/typescript/*/src/**/*.{ts,tsx}'],
       exclude: [
         'sdks/typescript/*/src/index.{ts,tsx}',
