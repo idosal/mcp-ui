@@ -2,35 +2,34 @@ import {
   McpUiSandboxProxyReadyNotificationSchema,
   RESOURCE_URI_META_KEY,
   RESOURCE_MIME_TYPE,
-} from "@modelcontextprotocol/ext-apps/app-bridge";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { Tool } from "@modelcontextprotocol/sdk/types.js";
+} from '@modelcontextprotocol/ext-apps/app-bridge';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe: HTMLIFrameElement;
   onReady: Promise<void>;
 }> {
-  const iframe = document.createElement("iframe");
-  iframe.style.width = "100%";
-  iframe.style.height = "600px";
-  iframe.style.border = "none";
-  iframe.style.backgroundColor = "transparent";
-  iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '600px';
+  iframe.style.border = 'none';
+  iframe.style.backgroundColor = 'transparent';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
 
   const onReady = new Promise<void>((resolve, _reject) => {
     const initialListener = async (event: MessageEvent) => {
       if (event.source === iframe.contentWindow) {
         if (
           event.data &&
-          event.data.method ===
-            McpUiSandboxProxyReadyNotificationSchema.shape.method._def.values[0]
+          event.data.method === McpUiSandboxProxyReadyNotificationSchema.shape.method._def.values[0]
         ) {
-          window.removeEventListener("message", initialListener);
+          window.removeEventListener('message', initialListener);
           resolve();
         }
       }
     };
-    window.addEventListener("message", initialListener);
+    window.addEventListener('message', initialListener);
   });
 
   iframe.src = sandboxProxyUrl.href;
@@ -66,10 +65,8 @@ export async function getToolUiResourceUri(
   } else {
     return null;
   }
-  if (!uri.startsWith("ui://")) {
-    throw new Error(
-      `tool ${toolName} has unsupported output template URI: ${uri}`,
-    );
+  if (!uri.startsWith('ui://')) {
+    throw new Error(`tool ${toolName} has unsupported output template URI: ${uri}`);
   }
   return { uri };
 }
@@ -83,33 +80,21 @@ export async function readToolUiResourceHtml(
   const resource = await client.readResource({ uri: opts.uri });
 
   if (!resource) {
-    throw new Error("UI resource not found: " + opts.uri);
+    throw new Error('UI resource not found: ' + opts.uri);
   }
   if (resource.contents.length !== 1) {
-    throw new Error(
-      "Unsupported UI resource content length: " + resource.contents.length,
-    );
+    throw new Error('Unsupported UI resource content length: ' + resource.contents.length);
   }
   const content = resource.contents[0];
   let html: string;
   const isHtml = (t?: string) => t === RESOURCE_MIME_TYPE;
 
-  if (
-    "text" in content &&
-    typeof content.text === "string" &&
-    isHtml(content.mimeType)
-  ) {
+  if ('text' in content && typeof content.text === 'string' && isHtml(content.mimeType)) {
     html = content.text;
-  } else if (
-    "blob" in content &&
-    typeof content.blob === "string" &&
-    isHtml(content.mimeType)
-  ) {
+  } else if ('blob' in content && typeof content.blob === 'string' && isHtml(content.mimeType)) {
     html = atob(content.blob);
   } else {
-    throw new Error(
-      "Unsupported UI resource content format: " + JSON.stringify(content),
-    );
+    throw new Error('Unsupported UI resource content format: ' + JSON.stringify(content));
   }
 
   return html;

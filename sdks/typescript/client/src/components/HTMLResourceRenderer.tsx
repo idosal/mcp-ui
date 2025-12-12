@@ -26,7 +26,7 @@ export const InternalMessageType = {
   UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
   UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
   UI_REQUEST_RENDER_DATA: 'ui-request-render-data',
-  
+
   // Proxy-only lifecycle for outer iframe (distinct from widget readiness)
   UI_PROXY_IFRAME_READY: 'ui-proxy-iframe-ready',
   // Content transport for raw HTML when using proxy
@@ -120,15 +120,9 @@ export const HTMLResourceRenderer = ({
             htmlString &&
             iframeSrcToRender?.includes('contentType=rawhtml')
           ) {
-            postToFrame(
-              InternalMessageType.UI_HTML_CONTENT,
-              source,
-              origin,
-              undefined,
-              {
-                html: htmlString,
-              },
-            );
+            postToFrame(InternalMessageType.UI_HTML_CONTENT, source, origin, undefined, {
+              html: htmlString,
+            });
           }
           return;
         }
@@ -211,8 +205,6 @@ export const HTMLResourceRenderer = ({
   }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender]);
 
   if (error) return <p className="text-red-500">{error}</p>;
-
-
 
   if (iframeRenderMode === 'srcDoc') {
     if (htmlString === null || htmlString === undefined) {

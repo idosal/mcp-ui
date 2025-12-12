@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from "react";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
   type CallToolRequest,
   type CallToolResult,
@@ -15,7 +15,7 @@ import {
   type ReadResourceResult,
   McpError,
   ErrorCode,
-} from "@modelcontextprotocol/sdk/types.js";
+} from '@modelcontextprotocol/sdk/types.js';
 
 import {
   AppBridge,
@@ -28,21 +28,16 @@ import {
   type McpUiToolInputPartialNotification,
   type McpUiToolCancelledNotification,
   type McpUiHostContext,
-} from "@modelcontextprotocol/ext-apps/app-bridge";
+} from '@modelcontextprotocol/ext-apps/app-bridge';
 
-import { AppFrame, type SandboxConfig } from "./AppFrame";
-import {
-  getToolUiResourceUri,
-  readToolUiResourceHtml,
-} from "../utils/app-host-utils";
-import { UIActionResult } from "..";
+import { AppFrame, type SandboxConfig } from './AppFrame';
+import { getToolUiResourceUri, readToolUiResourceHtml } from '../utils/app-host-utils';
+import { UIActionResult } from '..';
 
 /**
  * Extra metadata passed to request handlers (from AppBridge).
  */
-export type RequestHandlerExtra = Parameters<
-  Parameters<AppBridge["setRequestHandler"]>[1]
->[1];
+export type RequestHandlerExtra = Parameters<Parameters<AppBridge['setRequestHandler']>[1]>[1];
 
 /**
  * Handle to access AppRenderer methods for sending notifications to the Guest UI.
@@ -56,13 +51,13 @@ export interface AppRendererHandle {
   /** Notify the Guest UI that the server's prompt list has changed */
   sendPromptListChanged: () => void;
   /** Send tool input to the Guest UI */
-  sendToolInput: (params: McpUiToolInputNotification["params"]) => void;
+  sendToolInput: (params: McpUiToolInputNotification['params']) => void;
   /** Send partial/streaming tool input to the Guest UI */
-  sendToolInputPartial: (params: McpUiToolInputPartialNotification["params"]) => void;
+  sendToolInputPartial: (params: McpUiToolInputPartialNotification['params']) => void;
   /** Send tool result to the Guest UI */
   sendToolResult: (params: CallToolResult) => void;
   /** Notify the Guest UI that the tool was cancelled */
-  sendToolCancelled: (params: McpUiToolCancelledNotification["params"]) => void;
+  sendToolCancelled: (params: McpUiToolCancelledNotification['params']) => void;
 }
 
 /**
@@ -98,21 +93,21 @@ export interface AppRendererProps {
 
   /** Handler for open-link requests from the guest UI */
   onopenlink?: (
-    params: McpUiOpenLinkRequest["params"],
+    params: McpUiOpenLinkRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<McpUiOpenLinkResult>;
 
   /** Handler for message requests from the guest UI */
   onmessage?: (
-    params: McpUiMessageRequest["params"],
+    params: McpUiMessageRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<McpUiMessageResult>;
 
   /** Handler for logging messages from the guest UI */
-  onloggingmessage?: (params: LoggingMessageNotification["params"]) => void;
+  onloggingmessage?: (params: LoggingMessageNotification['params']) => void;
 
   /** Handler for size change notifications from the guest UI */
-  onsizechange?: (params: McpUiSizeChangedNotification["params"]) => void;
+  onsizechange?: (params: McpUiSizeChangedNotification['params']) => void;
 
   /** Callback invoked when the tool UI requests an action (link, prompt, notify) */
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
@@ -127,7 +122,7 @@ export interface AppRendererProps {
    * If provided, overrides the automatic forwarding to the MCP client.
    */
   oncalltool?: (
-    params: CallToolRequest["params"],
+    params: CallToolRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<CallToolResult>;
 
@@ -136,7 +131,7 @@ export interface AppRendererProps {
    * If provided, overrides the automatic forwarding to the MCP client.
    */
   onlistresources?: (
-    params: ListResourcesRequest["params"],
+    params: ListResourcesRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListResourcesResult>;
 
@@ -145,7 +140,7 @@ export interface AppRendererProps {
    * If provided, overrides the automatic forwarding to the MCP client.
    */
   onlistresourcetemplates?: (
-    params: ListResourceTemplatesRequest["params"],
+    params: ListResourceTemplatesRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListResourceTemplatesResult>;
 
@@ -154,7 +149,7 @@ export interface AppRendererProps {
    * If provided, overrides the automatic forwarding to the MCP client.
    */
   onreadresource?: (
-    params: ReadResourceRequest["params"],
+    params: ReadResourceRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ReadResourceResult>;
 
@@ -163,7 +158,7 @@ export interface AppRendererProps {
    * If provided, overrides the automatic forwarding to the MCP client.
    */
   onlistprompts?: (
-    params: ListPromptsRequest["params"],
+    params: ListPromptsRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListPromptsResult>;
 }
@@ -264,11 +259,11 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     if (sandboxProp) return sandboxProp;
     if (sandboxProxyUrl) {
       console.warn(
-        "[AppRenderer] sandboxProxyUrl is deprecated, use sandbox={{ url: ... }} instead",
+        '[AppRenderer] sandboxProxyUrl is deprecated, use sandbox={{ url: ... }} instead',
       );
       return { url: sandboxProxyUrl };
     }
-    throw new Error("AppRenderer requires sandbox.url or sandboxProxyUrl");
+    throw new Error('AppRenderer requires sandbox.url or sandboxProxyUrl');
   }, [sandboxProp, sandboxProxyUrl]);
 
   // State
@@ -304,15 +299,19 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   });
 
   // Expose send methods via ref for Host → Guest notifications
-  useImperativeHandle(ref, () => ({
-    sendToolListChanged: () => appBridge?.sendToolListChanged(),
-    sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
-    sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
-    sendToolInput: (params) => appBridge?.sendToolInput(params),
-    sendToolInputPartial: (params) => appBridge?.sendToolInputPartial(params),
-    sendToolResult: (params) => appBridge?.sendToolResult(params),
-    sendToolCancelled: (params) => appBridge?.sendToolCancelled(params),
-  }), [appBridge]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      sendToolListChanged: () => appBridge?.sendToolListChanged(),
+      sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
+      sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
+      sendToolInput: (params) => appBridge?.sendToolInput(params),
+      sendToolInputPartial: (params) => appBridge?.sendToolInputPartial(params),
+      sendToolResult: (params) => appBridge?.sendToolResult(params),
+      sendToolCancelled: (params) => appBridge?.sendToolCancelled(params),
+    }),
+    [appBridge],
+  );
 
   // Effect 1: Create and configure AppBridge
   useEffect(() => {
@@ -324,8 +323,8 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         const bridge = new AppBridge(
           client,
           {
-            name: "MCP-UI Host",
-            version: "1.0.0",
+            name: 'MCP-UI Host',
+            version: '1.0.0',
           },
           {
             openLinks: {},
@@ -339,18 +338,16 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           if (onUIActionRef.current) {
             try {
               await onUIActionRef.current({
-                type: "prompt",
+                type: 'prompt',
                 payload: {
                   prompt: params.content
-                    .map((c: { type: string; text?: string }) =>
-                      c.type === "text" ? c.text : "",
-                    )
-                    .join("\n"),
+                    .map((c: { type: string; text?: string }) => (c.type === 'text' ? c.text : ''))
+                    .join('\n'),
                 },
               });
               return { isError: false };
             } catch (e) {
-              console.error("[AppRenderer] Message handler error:", e);
+              console.error('[AppRenderer] Message handler error:', e);
               const error = e instanceof Error ? e : new Error(String(e));
               onerrorRef.current?.(error);
               return { isError: true };
@@ -358,7 +355,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           } else if (onmessageRef.current) {
             return onmessageRef.current(params, extra);
           } else {
-            throw new McpError(ErrorCode.MethodNotFound, "Method not found");
+            throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
           }
         };
 
@@ -367,12 +364,12 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           if (onUIActionRef.current) {
             try {
               await onUIActionRef.current({
-                type: "link",
+                type: 'link',
                 payload: { url: params.url },
               });
               return { isError: false };
             } catch (e) {
-              console.error("[AppRenderer] Open link handler error:", e);
+              console.error('[AppRenderer] Open link handler error:', e);
               const error = e instanceof Error ? e : new Error(String(e));
               onerrorRef.current?.(error);
               return { isError: true };
@@ -380,7 +377,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           } else if (onopenlinkRef.current) {
             return onopenlinkRef.current(params, extra);
           } else {
-            throw new McpError(ErrorCode.MethodNotFound, "Method not found");
+            throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
           }
         };
 
@@ -388,7 +385,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         bridge.onloggingmessage = (params) => {
           if (onUIActionRef.current) {
             onUIActionRef.current({
-              type: "notify",
+              type: 'notify',
               payload: {
                 message: String(params.message ?? params.data),
               },
@@ -406,7 +403,8 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           bridge.onlistresources = (params, extra) => onlistresourcesRef.current!(params, extra);
         }
         if (onlistresourcetemplatesRef.current) {
-          bridge.onlistresourcetemplates = (params, extra) => onlistresourcetemplatesRef.current!(params, extra);
+          bridge.onlistresourcetemplates = (params, extra) =>
+            onlistresourcetemplatesRef.current!(params, extra);
         }
         if (onreadresourceRef.current) {
           bridge.onreadresource = (params, extra) => onreadresourceRef.current!(params, extra);
@@ -418,7 +416,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         if (!mounted) return;
         setAppBridge(bridge);
       } catch (err) {
-        console.error("[AppRenderer] Error creating bridge:", err);
+        console.error('[AppRenderer] Error creating bridge:', err);
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
@@ -456,9 +454,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           uri = toolResourceUri;
           console.log(`[AppRenderer] Using provided resource URI: ${uri}`);
         } else {
-          console.log(
-            `[AppRenderer] Fetching resource URI for tool: ${toolName}`,
-          );
+          console.log(`[AppRenderer] Fetching resource URI for tool: ${toolName}`);
           const info = await getToolUiResourceUri(client, toolName);
           if (!info) {
             throw new Error(
@@ -501,17 +497,13 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   }, [appBridge, hostContext]);
 
   // Handle size change callback
-  const handleSizeChange = (params: McpUiSizeChangedNotification["params"]) => {
+  const handleSizeChange = (params: McpUiSizeChangedNotification['params']) => {
     onsizechangeRef.current?.(params);
   };
 
   // Render error state
   if (error) {
-    return (
-      <div style={{ color: "red", padding: "1rem" }}>
-        Error: {error.message}
-      </div>
-    );
+    return <div style={{ color: 'red', padding: '1rem' }}>Error: {error.message}</div>;
   }
 
   // Render loading state
@@ -533,4 +525,4 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   );
 });
 
-AppRenderer.displayName = "AppRenderer";
+AppRenderer.displayName = 'AppRenderer';
