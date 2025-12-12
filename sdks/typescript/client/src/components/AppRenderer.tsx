@@ -50,14 +50,8 @@ export interface AppRendererHandle {
   sendResourceListChanged: () => void;
   /** Notify the Guest UI that the server's prompt list has changed */
   sendPromptListChanged: () => void;
-  /** Send tool input to the Guest UI */
-  sendToolInput: (params: McpUiToolInputNotification['params']) => void;
-  /** Send partial/streaming tool input to the Guest UI */
-  sendToolInputPartial: (params: McpUiToolInputPartialNotification['params']) => void;
-  /** Send tool result to the Guest UI */
-  sendToolResult: (params: CallToolResult) => void;
-  /** Notify the Guest UI that the tool was cancelled */
-  sendToolCancelled: (params: McpUiToolCancelledNotification['params']) => void;
+  /** Notify the Guest UI that the resource is being torn down / cleaned up */
+  sendResourceTeardown: () => void;
 }
 
 /**
@@ -88,6 +82,12 @@ export interface AppRendererProps {
   /** Optional result from tool execution to pass to the tool UI once it's ready */
   toolResult?: CallToolResult;
 
+  /** Partial/streaming tool input to send to the guest UI */
+  toolInputPartial?: McpUiToolInputPartialNotification['params'];
+
+  /** Set to true to notify the guest UI that the tool execution was cancelled */
+  toolCancelled?: boolean;
+
   /** Host context (theme, viewport, locale, etc.) to pass to the guest UI */
   hostContext?: McpUiHostContext;
 
@@ -109,7 +109,10 @@ export interface AppRendererProps {
   /** Handler for size change notifications from the guest UI */
   onsizechange?: (params: McpUiSizeChangedNotification['params']) => void;
 
-  /** Callback invoked when the tool UI requests an action (link, prompt, notify) */
+  /**
+   * @deprecated Use individual handlers instead: `onopenlink`, `onmessage`, `onloggingmessage`
+   * Callback invoked when the tool UI requests an action (link, prompt, notify)
+   */
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
 
   /** Callback invoked when an error occurs during setup or message handling */
@@ -240,6 +243,8 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     html: htmlProp,
     toolInput,
     toolResult,
+    toolInputPartial,
+    toolCancelled,
     hostContext,
     onmessage,
     onopenlink,
@@ -305,10 +310,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       sendToolListChanged: () => appBridge?.sendToolListChanged(),
       sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
       sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
-      sendToolInput: (params) => appBridge?.sendToolInput(params),
-      sendToolInputPartial: (params) => appBridge?.sendToolInputPartial(params),
-      sendToolResult: (params) => appBridge?.sendToolResult(params),
-      sendToolCancelled: (params) => appBridge?.sendToolCancelled(params),
+      sendResourceTeardown: () => appBridge?.sendResourceTeardown({}),
     }),
     [appBridge],
   );
@@ -496,10 +498,22 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     }
   }, [appBridge, hostContext]);
 
+  // Effect 4: Send partial tool input when it changes
+  useEffect(() => {
+    if (appBridge && toolInputPartial) {
+      appBridge.sendToolInputPartial(toolInputPartial);
+    }
+  }, [appBridge, toolInputPartial]);
+
+  // Effect 5: Send tool cancelled notification when flag is set
+  useEffect(() => {
+    if (appBridge && toolCancelled) {
+      appBridge.sendToolCancelled({});
+    }
+  }, [appBridge, toolCancelled]);
+
   // Handle size change callback
-  const handleSizeChange = (params: McpUiSizeChangedNotification['params']) => {
-    onsizechangeRef.current?.(params);
-  };
+  const handleSizeChanged = onsizechangeRef.current;
 
   // Render error state
   if (error) {
@@ -519,7 +533,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       appBridge={appBridge}
       toolInput={toolInput}
       toolResult={toolResult}
-      onSizeChange={handleSizeChange}
+      onSizeChanged={handleSizeChanged}
       onerror={onerror}
     />
   );

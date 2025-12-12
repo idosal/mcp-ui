@@ -52,7 +52,7 @@ export interface AppFrameProps {
   appBridge: AppBridge;
 
   /** Callback when guest reports size change */
-  onSizeChange?: (params: McpUiSizeChangedNotification['params']) => void;
+  onSizeChanged?: (params: McpUiSizeChangedNotification['params']) => void;
 
   /** Callback when guest sends a logging message */
   onLoggingMessage?: (params: LoggingMessageNotification['params']) => void;
@@ -88,7 +88,7 @@ export interface AppFrameProps {
  *   appBridge={appBridge}
  *   toolInput={args}
  *   toolResult={result}
- *   onSizeChange={({ width, height }) => console.log('Size:', width, height)}
+ *   onSizeChanged={({ width, height }) => console.log('Size:', width, height)}
  * />
  * ```
  */
@@ -97,7 +97,7 @@ export const AppFrame = (props: AppFrameProps) => {
     html,
     sandbox,
     appBridge,
-    onSizeChange,
+    onSizeChanged,
     onLoggingMessage,
     onInitialized,
     toolInput,
@@ -112,13 +112,13 @@ export const AppFrame = (props: AppFrameProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   // Refs for callbacks to avoid effect re-runs
-  const onSizeChangeRef = useRef(onSizeChange);
+  const onSizeChangedRef = useRef(onSizeChanged);
   const onLoggingMessageRef = useRef(onLoggingMessage);
   const onInitializedRef = useRef(onInitialized);
   const onerrorRef = useRef(onerror);
 
   useEffect(() => {
-    onSizeChangeRef.current = onSizeChange;
+    onSizeChangedRef.current = onSizeChanged;
     onLoggingMessageRef.current = onLoggingMessage;
     onInitializedRef.current = onInitialized;
     onerrorRef.current = onerror;
@@ -145,7 +145,7 @@ export const AppFrame = (props: AppFrameProps) => {
 
         // Register size change handler
         appBridge.onsizechange = async (params) => {
-          onSizeChangeRef.current?.(params);
+          onSizeChangedRef.current?.(params);
           // Also update iframe size
           if (iframeRef.current) {
             if (params.width !== undefined) {

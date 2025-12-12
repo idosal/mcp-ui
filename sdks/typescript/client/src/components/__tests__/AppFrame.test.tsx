@@ -220,10 +220,10 @@ describe('<AppFrame />', () => {
     });
   });
 
-  it('should call onSizeChange when size changes', async () => {
-    const onSizeChange = vi.fn();
+  it('should call onSizeChanged when size changes', async () => {
+    const onSizeChanged = vi.fn();
 
-    render(<AppFrame {...getPropsWithBridge({ onSizeChange })} />);
+    render(<AppFrame {...getPropsWithBridge({ onSizeChanged })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -233,7 +233,7 @@ describe('<AppFrame />', () => {
       registeredOnsizechange?.({ width: 800, height: 600 });
     });
 
-    expect(onSizeChange).toHaveBeenCalledWith({ width: 800, height: 600 });
+    expect(onSizeChanged).toHaveBeenCalledWith({ width: 800, height: 600 });
   });
 
   it('should call onLoggingMessage when logging message received', async () => {
