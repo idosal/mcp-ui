@@ -1,9 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from "react";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
+  type CallToolRequest,
   type CallToolResult,
+  type ListPromptsRequest,
+  type ListPromptsResult,
+  type ListResourcesRequest,
+  type ListResourcesResult,
+  type ListResourceTemplatesRequest,
+  type ListResourceTemplatesResult,
   type LoggingMessageNotification,
+  type ReadResourceRequest,
+  type ReadResourceResult,
   McpError,
   ErrorCode,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -27,16 +36,31 @@ import { UIActionResult } from "..";
 /**
  * Extra metadata passed to request handlers (from AppBridge).
  */
-type RequestHandlerExtra = Parameters<
+export type RequestHandlerExtra = Parameters<
   Parameters<AppBridge["setRequestHandler"]>[1]
 >[1];
+
+/**
+ * Handle to access AppBridge methods for advanced use cases.
+ * Obtained via ref on AppRenderer.
+ */
+export interface AppRendererHandle {
+  /** The underlying AppBridge instance */
+  appBridge: AppBridge | null;
+  /** Notify the Guest UI that the server's tool list has changed */
+  sendToolListChanged: () => void;
+  /** Notify the Guest UI that the server's resource list has changed */
+  sendResourceListChanged: () => void;
+  /** Notify the Guest UI that the server's prompt list has changed */
+  sendPromptListChanged: () => void;
+}
 
 /**
  * Props for the AppRenderer component.
  */
 export interface AppRendererProps {
-  /** MCP client connected to the server providing the tool */
-  client: Client;
+  /** MCP client connected to the server providing the tool. Pass `null` to disable automatic MCP forwarding and use custom handlers instead. */
+  client: Client | null;
 
   /** Name of the MCP tool to render UI for */
   toolName: string;
@@ -82,6 +106,53 @@ export interface AppRendererProps {
 
   /** Callback invoked when an error occurs during setup or message handling */
   onerror?: (error: Error) => void;
+
+  // --- MCP Request Handlers (override automatic forwarding) ---
+
+  /**
+   * Handler for tools/call requests from the guest UI.
+   * If provided, overrides the automatic forwarding to the MCP client.
+   */
+  oncalltool?: (
+    params: CallToolRequest["params"],
+    extra: RequestHandlerExtra,
+  ) => Promise<CallToolResult>;
+
+  /**
+   * Handler for resources/list requests from the guest UI.
+   * If provided, overrides the automatic forwarding to the MCP client.
+   */
+  onlistresources?: (
+    params: ListResourcesRequest["params"],
+    extra: RequestHandlerExtra,
+  ) => Promise<ListResourcesResult>;
+
+  /**
+   * Handler for resources/templates/list requests from the guest UI.
+   * If provided, overrides the automatic forwarding to the MCP client.
+   */
+  onlistresourcetemplates?: (
+    params: ListResourceTemplatesRequest["params"],
+    extra: RequestHandlerExtra,
+  ) => Promise<ListResourceTemplatesResult>;
+
+  /**
+   * Handler for resources/read requests from the guest UI.
+   * If provided, overrides the automatic forwarding to the MCP client.
+   */
+  onreadresource?: (
+    params: ReadResourceRequest["params"],
+    extra: RequestHandlerExtra,
+  ) => Promise<ReadResourceResult>;
+
+  /**
+   * Handler for prompts/list requests from the guest UI.
+   * If provided, overrides the automatic forwarding to the MCP client.
+   */
+  onlistprompts?: (
+    params: ListPromptsRequest["params"],
+    extra: RequestHandlerExtra,
+  ) => Promise<ListPromptsResult>;
 }
 
 /**
@@ -122,8 +193,36 @@ export interface AppRendererProps {
  *   toolInput={args}
  * />
  * ```
+ *
+ * @example Using ref to access AppBridge methods
+ * ```tsx
+ * const appRef = useRef<AppRendererHandle>(null);
+ *
+ * // Notify guest UI when tools change
+ * useEffect(() => {
+ *   appRef.current?.sendToolListChanged();
+ * }, [toolsVersion]);
+ *
+ * <AppRenderer ref={appRef} ... />
+ * ```
+ *
+ * @example With custom MCP request handlers
+ * ```tsx
+ * <AppRenderer
+ *   client={null}  // Disable automatic forwarding
+ *   oncalltool={async (params) => {
+ *     // Custom tool call handling with caching/filtering
+ *     return myCustomToolCall(params);
+ *   }}
+ *   onlistresources={async () => {
+ *     // Aggregate resources from multiple servers
+ *     return { resources: [...server1Resources, ...server2Resources] };
+ *   }}
+ *   ...
+ * />
+ * ```
  */
-export const AppRenderer = (props: AppRendererProps) => {
+export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((props, ref) => {
   const {
     client,
     toolName,
@@ -139,6 +238,11 @@ export const AppRenderer = (props: AppRendererProps) => {
     onsizechange,
     onUIAction,
     onerror,
+    oncalltool,
+    onlistresources,
+    onlistresourcetemplates,
+    onreadresource,
+    onlistprompts,
   } = props;
 
   // Handle deprecated sandboxProxyUrl prop
@@ -165,6 +269,11 @@ export const AppRenderer = (props: AppRendererProps) => {
   const onsizechangeRef = useRef(onsizechange);
   const onUIActionRef = useRef(onUIAction);
   const onerrorRef = useRef(onerror);
+  const oncalltoolRef = useRef(oncalltool);
+  const onlistresourcesRef = useRef(onlistresources);
+  const onlistresourcetemplatesRef = useRef(onlistresourcetemplates);
+  const onreadresourceRef = useRef(onreadresource);
+  const onlistpromptsRef = useRef(onlistprompts);
 
   useEffect(() => {
     onmessageRef.current = onmessage;
@@ -173,7 +282,20 @@ export const AppRenderer = (props: AppRendererProps) => {
     onsizechangeRef.current = onsizechange;
     onUIActionRef.current = onUIAction;
     onerrorRef.current = onerror;
+    oncalltoolRef.current = oncalltool;
+    onlistresourcesRef.current = onlistresources;
+    onlistresourcetemplatesRef.current = onlistresourcetemplates;
+    onreadresourceRef.current = onreadresource;
+    onlistpromptsRef.current = onlistprompts;
   });
+
+  // Expose AppBridge methods via ref
+  useImperativeHandle(ref, () => ({
+    appBridge,
+    sendToolListChanged: () => appBridge?.sendToolListChanged(),
+    sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
+    sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
+  }), [appBridge]);
 
   // Effect 1: Create and configure AppBridge
   useEffect(() => {
@@ -181,7 +303,7 @@ export const AppRenderer = (props: AppRendererProps) => {
 
     const createBridge = () => {
       try {
-        const serverCapabilities = client.getServerCapabilities();
+        const serverCapabilities = client?.getServerCapabilities();
         const bridge = new AppBridge(
           client,
           {
@@ -259,6 +381,23 @@ export const AppRenderer = (props: AppRendererProps) => {
           }
         };
 
+        // Register custom MCP request handlers (these override automatic forwarding)
+        if (oncalltoolRef.current) {
+          bridge.oncalltool = (params, extra) => oncalltoolRef.current!(params, extra);
+        }
+        if (onlistresourcesRef.current) {
+          bridge.onlistresources = (params, extra) => onlistresourcesRef.current!(params, extra);
+        }
+        if (onlistresourcetemplatesRef.current) {
+          bridge.onlistresourcetemplates = (params, extra) => onlistresourcetemplatesRef.current!(params, extra);
+        }
+        if (onreadresourceRef.current) {
+          bridge.onreadresource = (params, extra) => onreadresourceRef.current!(params, extra);
+        }
+        if (onlistpromptsRef.current) {
+          bridge.onlistprompts = (params, extra) => onlistpromptsRef.current!(params, extra);
+        }
+
         if (!mounted) return;
         setAppBridge(bridge);
       } catch (err) {
@@ -281,6 +420,12 @@ export const AppRenderer = (props: AppRendererProps) => {
   useEffect(() => {
     if (htmlProp) {
       setHtml(htmlProp);
+      return;
+    }
+
+    // If no client and no HTML provided, we can't fetch
+    if (!client) {
+      setError(new Error("Either 'html' prop or 'client' must be provided to fetch UI resource"));
       return;
     }
 
@@ -362,4 +507,6 @@ export const AppRenderer = (props: AppRendererProps) => {
       onerror={onerror}
     />
   );
-};
+});
+
+AppRenderer.displayName = "AppRenderer";
