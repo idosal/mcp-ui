@@ -386,8 +386,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       '@modelcontextprotocol/ext-apps':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: github:modelcontextprotocol/ext-apps#ochafik/app-bridge-setters
+        version: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/98a82d16bb7e4380bb2844e818d57c0bce233f41
       '@modelcontextprotocol/sdk':
         specifier: ^1.23.0
         version: 1.24.3(zod@3.25.67)
@@ -1925,8 +1925,9 @@ packages:
   '@mjackson/node-fetch-server@0.6.1':
     resolution: {integrity: sha512-9ZJnk/DJjt805uv5PPv11haJIW+HHf3YEEyVXv+8iLQxLD/iXA68FH220XoiTPBC4gCg5q+IMadDw8qPqlA5wg==}
 
-  '@modelcontextprotocol/ext-apps@0.1.0':
-    resolution: {integrity: sha512-xL94MjKZwyosJ37q3AvUT9hQzNcfYMAkMxr8vkfYacLQ6ik7OFmu69zodAFXLtthLcaTbAzFLqXz34Cc8gOx7A==}
+  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/98a82d16bb7e4380bb2844e818d57c0bce233f41':
+    resolution: {tarball: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/98a82d16bb7e4380bb2844e818d57c0bce233f41}
+    version: 0.1.0
 
   '@modelcontextprotocol/sdk@1.22.0':
     resolution: {integrity: sha512-VUpl106XVTCpDmTBil2ehgJZjhyLY2QZikzF8NvTXtLRF1CvO5iEE2UNZdVIUer35vFOwMKYeUGbjJtvPWan3g==}
@@ -6831,6 +6832,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  prettier@3.7.4:
+    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -9781,9 +9787,10 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.6.1': {}
 
-  '@modelcontextprotocol/ext-apps@0.1.0':
+  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/98a82d16bb7e4380bb2844e818d57c0bce233f41':
     dependencies:
       '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.67)
+      prettier: 3.7.4
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       zod: 3.25.67
@@ -15475,6 +15482,8 @@ snapshots:
   prettier@2.8.8: {}
 
   prettier@3.6.0: {}
+
+  prettier@3.7.4: {}
 
   pretty-format@27.5.1:
     dependencies:
