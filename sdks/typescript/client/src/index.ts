@@ -2,8 +2,9 @@ export { UIResourceRenderer } from './components/UIResourceRenderer';
 export { getUIResourceMetadata, getResourceMetadata } from './utils/metadataUtils';
 export { isUIResource } from './utils/isUIResource';
 
-// MCP Apps renderer
+// MCP Apps renderers
 export { AppRenderer, type AppRendererProps } from './components/AppRenderer';
+export { AppFrame, type AppFrameProps, type SandboxConfig, type AppInfo } from './components/AppFrame';
 
 // The types needed to create a custom component library
 export type {

@@ -1,4 +1,8 @@
-import { McpUiSandboxProxyReadyNotificationSchema, RESOURCE_URI_META_KEY } from "@modelcontextprotocol/ext-apps";
+import {
+  McpUiSandboxProxyReadyNotificationSchema,
+  RESOURCE_URI_META_KEY,
+  RESOURCE_MIME_TYPE,
+} from "@modelcontextprotocol/ext-apps/app-bridge";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
@@ -88,7 +92,7 @@ export async function readToolUiResourceHtml(
   }
   const content = resource.contents[0];
   let html: string;
-  const isHtml = (t?: string) => t === "text/html+mcp";
+  const isHtml = (t?: string) => t === RESOURCE_MIME_TYPE;
 
   if (
     "text" in content &&

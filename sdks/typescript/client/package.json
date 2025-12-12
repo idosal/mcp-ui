@@ -19,7 +19,7 @@
     "dist"
   ],
   "dependencies": {
-    "@modelcontextprotocol/ext-apps": "file:../../../../ext-apps",
+    "@modelcontextprotocol/ext-apps": "^0.1.0",
     "@modelcontextprotocol/sdk": "^1.23.0",
     "@mcp-ui/shared": "workspace:*",
     "@quilted/threads": "^3.1.3",
