@@ -1,3 +1,38 @@
+## [5.16.2](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.1...server/v5.16.2) (2025-12-08)
+
+
+### Bug Fixes
+
+* revert externalUrl adapter for compatibility ([#159](https://github.com/MCP-UI-Org/mcp-ui/issues/159)) ([3c5289a](https://github.com/MCP-UI-Org/mcp-ui/commit/3c5289a5e59812f556bc2bb9e67c3ce2e3ce764e))
+
+## [5.16.1](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.0...server/v5.16.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* use document.write in proxy sandbox ([#156](https://github.com/MCP-UI-Org/mcp-ui/issues/156)) ([447f582](https://github.com/MCP-UI-Org/mcp-ui/commit/447f582105a0889ee47d912925d7f02034fc39a9))
+
+# [5.16.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.15.0...server/v5.16.0) (2025-11-30)
+
+
+### Features
+
+* externalUrl adapter ([5a1e4de](https://github.com/MCP-UI-Org/mcp-ui/commit/5a1e4deeeda9ae0120d17b5abdf9096edf52054f))
+
+# [5.15.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.14.0...server/v5.15.0) (2025-11-29)
+
+
+### Features
+
+* add MCP Apps adapter ([#154](https://github.com/MCP-UI-Org/mcp-ui/issues/154)) ([986fd63](https://github.com/MCP-UI-Org/mcp-ui/commit/986fd634448637aa6488a18ad80ee9cd6b8de318))
+
+# [5.14.0](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.13.1...server/v5.14.0) (2025-11-29)
+
+
+### Features
+
+* support metadata in Python SDK ([#134](https://github.com/MCP-UI-Org/mcp-ui/issues/134)) ([9bc3c64](https://github.com/MCP-UI-Org/mcp-ui/commit/9bc3c646c2638e16ac62edf9faca2dbee2b8cb7e))
+
 ## [5.13.1](https://github.com/idosal/mcp-ui/compare/server/v5.13.0...server/v5.13.1) (2025-10-25)
 
 

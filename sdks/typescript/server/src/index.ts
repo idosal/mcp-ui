@@ -10,7 +10,12 @@ import {
   UIActionResultIntent,
   UIActionResultToolCall,
 } from './types.js';
-import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';
+import {
+  getAdditionalResourceProps,
+  utf8ToBase64,
+  wrapHtmlWithAdapters,
+  getAdapterMimeType,
+} from './utils.js';
 
 export type UIResource = {
   type: 'resource';
@@ -22,10 +27,13 @@ export type UIResource = {
 /**
  * Creates a UIResource.
  * This is the object that should be included in the 'content' array of a toolResult.
+ * 
  * @param options Configuration for the interactive resource.
- * @returns a UIResource.
+ * @returns a UIResource
  */
-export function createUIResource(options: CreateUIResourceOptions): UIResource {
+export function createUIResource(
+  options: CreateUIResourceOptions,
+): UIResource {
   let actualContentString: string;
   let mimeType: MimeType;
 
@@ -54,12 +62,13 @@ export function createUIResource(options: CreateUIResourceOptions): UIResource {
         "MCP-UI SDK: URI must start with 'ui://' when content.type is 'externalUrl'.",
       );
     }
-    actualContentString = options.content.iframeUrl;
-    if (typeof actualContentString !== 'string') {
+    const iframeUrl = options.content.iframeUrl;
+    if (typeof iframeUrl !== 'string') {
       throw new Error(
         "MCP-UI SDK: content.iframeUrl must be provided as a string when content.type is 'externalUrl'.",
       );
     }
+    actualContentString = iframeUrl;
     mimeType = 'text/uri-list';
   } else if (options.content.type === 'remoteDom') {
     if (!options.uri.startsWith('ui://')) {
@@ -117,6 +126,10 @@ export type {
   AdaptersConfig,
   AppsSdkAdapterOptions,
 } from './types.js';
+
+// Re-export constants from @modelcontextprotocol/ext-apps via types.js
+// This allows users to import everything they need from @mcp-ui/server
+export { RESOURCE_URI_META_KEY, RESOURCE_MIME_TYPE } from './types.js';
 
 // Export adapters
 export { wrapHtmlWithAdapters, getAdapterMimeType } from './utils.js';

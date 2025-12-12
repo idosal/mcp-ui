@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { createUIResource } from '../../index';
 import { wrapHtmlWithAdapters, getAdapterMimeType } from '../../utils';
 
-describe('Apps SDK Adapter Integration', () => {
+describe('Adapter Integration', () => {
+  describe('Apps SDK Adapter', () => {
   describe('createUIResource with adapters', () => {
     it('should create UI resource without adapter by default', () => {
       const resource = createUIResource({
@@ -141,7 +142,25 @@ describe('Apps SDK Adapter Integration', () => {
         },
       });
 
-      // External URLs should not be wrapped
+      // External URLs should not be wrapped, even with adapters enabled
+      expect(resource.resource.mimeType).toBe('text/uri-list');
+      expect(resource.resource.text).toBe('https://example.com');
+      expect(resource.resource.text).not.toContain('<script>');
+    });
+
+    it('should not affect external URL resources when adapter is disabled', () => {
+      const resource = createUIResource({
+        uri: 'ui://test',
+        content: {
+          type: 'externalUrl',
+          iframeUrl: 'https://example.com',
+        },
+        encoding: 'text',
+        // No adapters
+      });
+
+      // External URLs without adapters should remain as-is (synchronous)
+      expect(resource.resource.mimeType).toBe('text/uri-list');
       expect(resource.resource.text).toBe('https://example.com');
       expect(resource.resource.text).not.toContain('<script>');
     });
@@ -345,5 +364,203 @@ describe('Apps SDK Adapter Integration', () => {
       expect(minimalConfig).toBeDefined();
     });
   });
+  });
+
+  describe('MCP Apps Adapter', () => {
+    describe('createUIResource with MCP Apps adapter', () => {
+      it('should wrap HTML with MCP Apps adapter when enabled', () => {
+        const resource = createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'rawHtml',
+            htmlString: '<div>Test</div>',
+          },
+          encoding: 'text',
+          adapters: {
+            mcpApps: {
+              enabled: true,
+            },
+          },
+        });
+
+        expect(resource.resource.text).toContain('<script>');
+        expect(resource.resource.text).toContain('</script>');
+        expect(resource.resource.text).toContain('<div>Test</div>');
+        expect(resource.resource.text).toContain('McpAppsAdapter');
+      });
+
+      it('should pass adapter config to the wrapper', () => {
+        const resource = createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'rawHtml',
+            htmlString: '<div>Test</div>',
+          },
+          encoding: 'text',
+          adapters: {
+            mcpApps: {
+              enabled: true,
+              config: {
+                timeout: 5000,
+              },
+            },
+          },
+        });
+
+        const html = resource.resource.text as string;
+        expect(html).toContain('5000');
+      });
+
+      it('should not wrap when adapter is disabled', () => {
+        const resource = createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'rawHtml',
+            htmlString: '<div>Test</div>',
+          },
+          encoding: 'text',
+          adapters: {
+            mcpApps: {
+              enabled: false,
+            },
+          },
+        });
+
+        expect(resource.resource.text).toBe('<div>Test</div>');
+      });
+
+      it('should not affect external URL resources', () => {
+        const resource = createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'externalUrl',
+            iframeUrl: 'https://example.com',
+          },
+          encoding: 'text',
+          adapters: {
+            mcpApps: {
+              enabled: true,
+            },
+          },
+        });
+
+        // External URLs should not be wrapped, even with adapters enabled
+        expect(resource.resource.mimeType).toBe('text/uri-list');
+        expect(resource.resource.text).toBe('https://example.com');
+        expect(resource.resource.text).not.toContain('<script>');
+      });
+    });
+
+    describe('wrapHtmlWithAdapters with MCP Apps', () => {
+      it('should wrap HTML with MCP Apps adapter', () => {
+        const html = '<div>Test</div>';
+        const result = wrapHtmlWithAdapters(html, {
+          mcpApps: {
+            enabled: true,
+          },
+        });
+
+        expect(result).toContain('<script>');
+        expect(result).toContain('</script>');
+        expect(result).toContain(html);
+        expect(result).toContain('McpAppsAdapter');
+      });
+
+      it('should pass config to MCP Apps adapter script', () => {
+        const html = '<div>Test</div>';
+        const result = wrapHtmlWithAdapters(html, {
+          mcpApps: {
+            enabled: true,
+            config: {
+              timeout: 10000,
+            },
+          },
+        });
+
+        expect(result).toContain('10000');
+      });
+    });
+
+    describe('getAdapterMimeType with MCP Apps', () => {
+      it('should return text/html;profile=mcp-app for MCP Apps adapter', () => {
+        const result = getAdapterMimeType({
+          mcpApps: {
+            enabled: true,
+          },
+        });
+
+        expect(result).toBe('text/html;profile=mcp-app');
+      });
+    });
+
+    describe('Type Safety', () => {
+      it('should enforce valid MCP Apps adapter configuration', () => {
+        const validConfig = createUIResource({
+          uri: 'ui://test',
+          content: {
+            type: 'rawHtml',
+            htmlString: '<div>Test</div>',
+          },
+          encoding: 'text',
+          adapters: {
+            mcpApps: {
+              enabled: true,
+              config: {
+                timeout: 5000,
+              },
+            },
+          },
+        });
+
+        expect(validConfig).toBeDefined();
+      });
+    });
+  });
+
+  describe('Adapter Mutual Exclusivity', () => {
+    it('should not allow both adapters to be enabled (TypeScript enforced)', () => {
+      // This test documents the expected behavior - TypeScript should prevent this
+      // The AdaptersConfig type is a discriminated union that prevents both adapters
+
+      // Valid: only appsSdk
+      const appsSdkOnly = createUIResource({
+        uri: 'ui://test',
+        content: { type: 'rawHtml', htmlString: '<div>Test</div>' },
+        encoding: 'text',
+        adapters: { appsSdk: { enabled: true } },
+      });
+      expect(appsSdkOnly).toBeDefined();
+
+      // Valid: only mcpApps
+      const mcpAppsOnly = createUIResource({
+        uri: 'ui://test',
+        content: { type: 'rawHtml', htmlString: '<div>Test</div>' },
+        encoding: 'text',
+        adapters: { mcpApps: { enabled: true } },
+      });
+      expect(mcpAppsOnly).toBeDefined();
+
+      // Valid: neither
+      const neitherAdapter = createUIResource({
+        uri: 'ui://test',
+        content: { type: 'rawHtml', htmlString: '<div>Test</div>' },
+        encoding: 'text',
+        adapters: {},
+      });
+      expect(neitherAdapter).toBeDefined();
+    });
+
+    it('should return correct MIME type based on which adapter is enabled', () => {
+      // Apps SDK adapter
+      expect(getAdapterMimeType({ appsSdk: { enabled: true } })).toBe('text/html+skybridge');
+
+      // MCP Apps adapter
+      expect(getAdapterMimeType({ mcpApps: { enabled: true } })).toBe('text/html;profile=mcp-app');
+
+      // No adapter
+      expect(getAdapterMimeType({})).toBeUndefined();
+    });
+  });
+
 });
 

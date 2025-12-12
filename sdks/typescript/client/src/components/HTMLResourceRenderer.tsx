@@ -127,7 +127,6 @@ export const HTMLResourceRenderer = ({
               undefined,
               {
                 html: htmlString,
-                sandbox,
               },
             );
           }
@@ -209,7 +208,7 @@ export const HTMLResourceRenderer = ({
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender, sandbox]);
+  }, [onUIAction, initialRenderData, iframeRenderMode, htmlString, iframeSrcToRender]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 

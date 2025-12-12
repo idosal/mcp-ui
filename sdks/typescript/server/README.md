@@ -197,6 +197,7 @@ The adapter scripts are automatically injected into your HTML content and handle
 - ✅ **Render data** - Access to `toolInput`, `toolOutput`, `widgetState`, `theme`, `locale`
 - ⚠️ **Links** - `{ type: 'link', payload: { url } }` (may not be supported, returns error in some environments)
 
+
 #### Advanced Usage
 
 You can manually wrap HTML with adapters, get MIME types, or access adapter scripts directly:

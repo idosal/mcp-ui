@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from '../utils.js';
-import { UI_METADATA_PREFIX } from '../types.js';
+import { UI_METADATA_PREFIX, RESOURCE_MIME_TYPE } from '../types.js';
+import { RESOURCE_MIME_TYPE as EXT_APPS_RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps';
 
 describe('getAdditionalResourceProps', () => {
   it('should return the additional resource props', () => {
@@ -175,6 +176,33 @@ describe('getAdapterMimeType', () => {
       appsSdk: { enabled: false },
     });
     expect(result).toBeUndefined();
+  });
+
+  it('should return mcp-app mime type when mcpApps adapter is enabled', () => {
+    const result = getAdapterMimeType({
+      mcpApps: { enabled: true },
+    });
+    expect(result).toBe('text/html;profile=mcp-app');
+  });
+
+  it('should return undefined when mcpApps is disabled', () => {
+    const result = getAdapterMimeType({
+      mcpApps: { enabled: false },
+    });
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('RESOURCE_MIME_TYPE constant from @modelcontextprotocol/ext-apps', () => {
+  it('should match the expected MCP Apps MIME type', () => {
+    // This test ensures that if @modelcontextprotocol/ext-apps changes RESOURCE_MIME_TYPE,
+    // we'll be alerted to the breaking change
+    expect(EXT_APPS_RESOURCE_MIME_TYPE).toBe('text/html;profile=mcp-app');
+  });
+
+  it('should be re-exported correctly from types.ts', () => {
+    // Verify that our re-export matches the original
+    expect(RESOURCE_MIME_TYPE).toBe(EXT_APPS_RESOURCE_MIME_TYPE);
   });
 });
 

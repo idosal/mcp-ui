@@ -150,6 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write # to be able to comment on released pull requests
       issues: write
       id-token: write
     steps:
@@ -169,7 +170,6 @@ jobs:
         working-directory: sdks/typescript/client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
   release_ts_server:
@@ -183,6 +183,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      pull-requests: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -203,7 +204,6 @@ jobs:
         working-directory: sdks/typescript/server
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
   release_ruby_sdk:
