@@ -48,14 +48,8 @@ export interface AppFrameProps {
   /** Sandbox configuration */
   sandbox: SandboxConfig;
 
-  /** Pre-configured AppBridge for full MCP support (optional) */
-  appBridge?: AppBridge;
-
-  /** Simple callback when guest requests to open a link (used if no appBridge) */
-  onOpenLink?: (url: string) => void;
-
-  /** Simple callback when guest sends a message (used if no appBridge) */
-  onMessage?: (content: string) => void;
+  /** Pre-configured AppBridge for MCP communication (required) */
+  appBridge: AppBridge;
 
   /** Callback when guest reports size change */
   onSizeChange?: (params: McpUiSizeChangedNotification["params"]) => void;
@@ -79,21 +73,11 @@ export interface AppFrameProps {
 /**
  * Low-level component that renders pre-fetched HTML in a sandboxed iframe.
  *
- * Use this component when you already have the HTML content and optionally
- * a pre-configured AppBridge. For automatic resource fetching from an MCP
- * server, use the higher-level AppRenderer component instead.
+ * This component requires a pre-configured AppBridge for MCP communication.
+ * For automatic AppBridge creation and resource fetching, use the higher-level
+ * AppRenderer component instead.
  *
- * @example Basic usage with pre-fetched HTML
- * ```tsx
- * <AppFrame
- *   html={myHtmlContent}
- *   sandbox={{ url: new URL('http://localhost:8081/sandbox.html') }}
- *   toolInput={{ data: [1, 2, 3] }}
- *   onSizeChange={({ width, height }) => console.log('Size:', width, height)}
- * />
- * ```
- *
- * @example With pre-configured AppBridge for full MCP support
+ * @example With pre-configured AppBridge
  * ```tsx
  * const appBridge = new AppBridge(client, hostInfo, capabilities);
  * // ... configure appBridge handlers ...
@@ -104,6 +88,7 @@ export interface AppFrameProps {
  *   appBridge={appBridge}
  *   toolInput={args}
  *   toolResult={result}
+ *   onSizeChange={({ width, height }) => console.log('Size:', width, height)}
  * />
  * ```
  */
@@ -111,9 +96,7 @@ export const AppFrame = (props: AppFrameProps) => {
   const {
     html,
     sandbox,
-    appBridge: externalAppBridge,
-    onOpenLink,
-    onMessage,
+    appBridge,
     onSizeChange,
     onLoggingMessage,
     onInitialized,
@@ -122,24 +105,20 @@ export const AppFrame = (props: AppFrameProps) => {
     onerror,
   } = props;
 
-  const [appBridge, setAppBridge] = useState<AppBridge | null>(null);
   const [iframeReady, setIframeReady] = useState(false);
+  const [bridgeConnected, setBridgeConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   // Refs for callbacks to avoid effect re-runs
   const onSizeChangeRef = useRef(onSizeChange);
-  const onOpenLinkRef = useRef(onOpenLink);
-  const onMessageRef = useRef(onMessage);
   const onLoggingMessageRef = useRef(onLoggingMessage);
   const onInitializedRef = useRef(onInitialized);
   const onerrorRef = useRef(onerror);
 
   useEffect(() => {
     onSizeChangeRef.current = onSizeChange;
-    onOpenLinkRef.current = onOpenLink;
-    onMessageRef.current = onMessage;
     onLoggingMessageRef.current = onLoggingMessage;
     onInitializedRef.current = onInitialized;
     onerrorRef.current = onerror;
@@ -164,90 +143,47 @@ export const AppFrame = (props: AppFrameProps) => {
 
         if (!mounted) return;
 
-        // Use external AppBridge if provided
-        const bridge = externalAppBridge;
-
-        if (bridge) {
-          // Register size change handler
-          bridge.onsizechange = async (params) => {
-            onSizeChangeRef.current?.(params);
-            // Also update iframe size
-            if (iframeRef.current) {
-              if (params.width !== undefined) {
-                iframeRef.current.style.width = `${params.width}px`;
-              }
-              if (params.height !== undefined) {
-                iframeRef.current.style.height = `${params.height}px`;
-              }
+        // Register size change handler
+        appBridge.onsizechange = async (params) => {
+          onSizeChangeRef.current?.(params);
+          // Also update iframe size
+          if (iframeRef.current) {
+            if (params.width !== undefined) {
+              iframeRef.current.style.width = `${params.width}px`;
             }
-          };
+            if (params.height !== undefined) {
+              iframeRef.current.style.height = `${params.height}px`;
+            }
+          }
+        };
 
-          // Hook into initialization
-          bridge.oninitialized = () => {
-            if (!mounted) return;
-            console.log("[AppFrame] App initialized");
-            setIframeReady(true);
-            onInitializedRef.current?.({
-              appVersion: bridge.getAppVersion(),
-              appCapabilities: bridge.getAppCapabilities(),
-            });
-          };
-
-          // Register logging handler
-          bridge.onloggingmessage = (params) => {
-            onLoggingMessageRef.current?.(params);
-          };
-
-          // Connect the bridge
-          await bridge.connect(
-            new PostMessageTransport(
-              iframe.contentWindow!,
-              iframe.contentWindow!,
-            ),
-          );
-
+        // Hook into initialization
+        appBridge.oninitialized = () => {
           if (!mounted) return;
-
-          setAppBridge(bridge);
-        } else {
-          // No AppBridge - just listen for basic postMessage events
-          const handleMessage = (event: MessageEvent) => {
-            if (event.source !== iframe.contentWindow) return;
-
-            const { method, params } = event.data || {};
-
-            if (method === "ui/size-changed") {
-              onSizeChangeRef.current?.(params);
-              if (iframeRef.current) {
-                if (params?.width !== undefined) {
-                  iframeRef.current.style.width = `${params.width}px`;
-                }
-                if (params?.height !== undefined) {
-                  iframeRef.current.style.height = `${params.height}px`;
-                }
-              }
-            } else if (method === "ui/open-link") {
-              onOpenLinkRef.current?.(params?.url);
-            } else if (method === "ui/message") {
-              const content = params?.content
-                ?.map((c: { type: string; text?: string }) =>
-                  c.type === "text" ? c.text : "",
-                )
-                .join("\n");
-              onMessageRef.current?.(content);
-            } else if (method === "notifications/message") {
-              // Logging message
-              onLoggingMessageRef.current?.(params);
-            }
-          };
-
-          window.addEventListener("message", handleMessage);
+          console.log("[AppFrame] App initialized");
           setIframeReady(true);
+          onInitializedRef.current?.({
+            appVersion: appBridge.getAppVersion(),
+            appCapabilities: appBridge.getAppCapabilities(),
+          });
+        };
 
-          return () => {
-            window.removeEventListener("message", handleMessage);
-          };
-        }
+        // Register logging handler
+        appBridge.onloggingmessage = (params) => {
+          onLoggingMessageRef.current?.(params);
+        };
+
+        // Connect the bridge
+        await appBridge.connect(
+          new PostMessageTransport(
+            iframe.contentWindow!,
+            iframe.contentWindow!,
+          ),
+        );
+
+        if (!mounted) return;
+
+        setBridgeConnected(true);
       } catch (err) {
         console.error("[AppFrame] Error:", err);
         if (!mounted) return;
@@ -268,31 +204,19 @@ export const AppFrame = (props: AppFrameProps) => {
         containerRef.current.removeChild(iframeRef.current);
       }
     };
-  }, [sandbox.url, externalAppBridge]);
+  }, [sandbox.url, appBridge]);
 
-  // Effect 2: Send HTML to sandbox when ready
+  // Effect 2: Send HTML to sandbox when bridge is connected
   useEffect(() => {
-    if (!iframeReady || !html) return;
+    if (!bridgeConnected || !html) return;
 
     const sendHtml = async () => {
       try {
         console.log("[AppFrame] Sending HTML to sandbox");
-        if (appBridge) {
-          await appBridge.sendSandboxResourceReady({
-            html,
-            csp: sandbox.csp,
-          });
-        } else if (iframeRef.current?.contentWindow) {
-          // Direct postMessage for non-AppBridge mode
-          iframeRef.current.contentWindow.postMessage(
-            {
-              jsonrpc: "2.0",
-              method: "ui/notifications/sandbox-resource-ready",
-              params: { html, csp: sandbox.csp },
-            },
-            "*",
-          );
-        }
+        await appBridge.sendSandboxResourceReady({
+          html,
+          csp: sandbox.csp,
+        });
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
@@ -301,23 +225,23 @@ export const AppFrame = (props: AppFrameProps) => {
     };
 
     sendHtml();
-  }, [iframeReady, html, appBridge, sandbox.csp]);
+  }, [bridgeConnected, html, appBridge, sandbox.csp]);
 
   // Effect 3: Send tool input when ready
   useEffect(() => {
-    if (appBridge && iframeReady && toolInput) {
+    if (bridgeConnected && iframeReady && toolInput) {
       console.log("[AppFrame] Sending tool input:", toolInput);
       appBridge.sendToolInput({ arguments: toolInput });
     }
-  }, [appBridge, iframeReady, toolInput]);
+  }, [appBridge, bridgeConnected, iframeReady, toolInput]);
 
   // Effect 4: Send tool result when ready
   useEffect(() => {
-    if (appBridge && iframeReady && toolResult) {
+    if (bridgeConnected && iframeReady && toolResult) {
       console.log("[AppFrame] Sending tool result:", toolResult);
       appBridge.sendToolResult(toolResult);
     }
-  }, [appBridge, iframeReady, toolResult]);
+  }, [appBridge, bridgeConnected, iframeReady, toolResult]);
 
   return (
     <div
