@@ -63,8 +63,6 @@ export interface AppRendererHandle {
   sendToolResult: (params: CallToolResult) => void;
   /** Notify the Guest UI that the tool was cancelled */
   sendToolCancelled: (params: McpUiToolCancelledNotification["params"]) => void;
-  /** Set the host context (theme, viewport, locale, etc.) and notify the Guest UI of changes */
-  setHostContext: (hostContext: McpUiHostContext) => void;
 }
 
 /**
@@ -94,6 +92,9 @@ export interface AppRendererProps {
 
   /** Optional result from tool execution to pass to the tool UI once it's ready */
   toolResult?: CallToolResult;
+
+  /** Host context (theme, viewport, locale, etc.) to pass to the guest UI */
+  hostContext?: McpUiHostContext;
 
   /** Handler for open-link requests from the guest UI */
   onopenlink?: (
@@ -244,6 +245,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     html: htmlProp,
     toolInput,
     toolResult,
+    hostContext,
     onmessage,
     onopenlink,
     onloggingmessage,
@@ -310,7 +312,6 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     sendToolInputPartial: (params) => appBridge?.sendToolInputPartial(params),
     sendToolResult: (params) => appBridge?.sendToolResult(params),
     sendToolCancelled: (params) => appBridge?.sendToolCancelled(params),
-    setHostContext: (hostContext) => appBridge?.setHostContext(hostContext),
   }), [appBridge]);
 
   // Effect 1: Create and configure AppBridge
@@ -491,6 +492,13 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       mounted = false;
     };
   }, [client, toolName, toolResourceUri, htmlProp]);
+
+  // Effect 3: Sync host context when it changes
+  useEffect(() => {
+    if (appBridge && hostContext) {
+      appBridge.setHostContext(hostContext);
+    }
+  }, [appBridge, hostContext]);
 
   // Handle size change callback
   const handleSizeChange = (params: McpUiSizeChangedNotification["params"]) => {
