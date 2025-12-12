@@ -69,11 +69,6 @@ describe("<AppFrame />", () => {
   let onReadyResolve: () => void;
   let mockAppBridge: ReturnType<typeof createMockAppBridge>;
 
-  const defaultProps: AppFrameProps = {
-    html: "<html><body>Test</body></html>",
-    sandbox: { url: new URL("http://localhost:8081/sandbox.html") },
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     registeredOninitialized = null;
@@ -109,13 +104,25 @@ describe("<AppFrame />", () => {
     vi.clearAllMocks();
   });
 
+  const defaultProps: AppFrameProps = {
+    html: "<html><body>Test</body></html>",
+    sandbox: { url: new URL("http://localhost:8081/sandbox.html") },
+    appBridge: null as any, // Will be set in tests
+  };
+
+  const getPropsWithBridge = (overrides: Partial<AppFrameProps> = {}): AppFrameProps => ({
+    ...defaultProps,
+    appBridge: mockAppBridge as any,
+    ...overrides,
+  });
+
   it("should render without crashing", () => {
-    render(<AppFrame {...defaultProps} />);
+    render(<AppFrame {...getPropsWithBridge()} />);
     expect(document.querySelector("div")).toBeInTheDocument();
   });
 
   it("should call setupSandboxProxyIframe with sandbox URL", async () => {
-    render(<AppFrame {...defaultProps} />);
+    render(<AppFrame {...getPropsWithBridge()} />);
 
     await waitFor(() => {
       expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledWith(
@@ -124,32 +131,8 @@ describe("<AppFrame />", () => {
     });
   });
 
-  it("should send HTML to sandbox via postMessage when no appBridge", async () => {
-    render(<AppFrame {...defaultProps} />);
-
-    await act(async () => {
-      onReadyResolve();
-    });
-
-    await waitFor(() => {
-      expect(mockContentWindow.postMessage).toHaveBeenCalledWith(
-        {
-          jsonrpc: "2.0",
-          method: "ui/notifications/sandbox-resource-ready",
-          params: { html: defaultProps.html, csp: undefined },
-        },
-        "*"
-      );
-    });
-  });
-
-  it("should use AppBridge when provided", async () => {
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-    };
-
-    render(<AppFrame {...props} />);
+  it("should connect AppBridge when provided", async () => {
+    render(<AppFrame {...getPropsWithBridge()} />);
 
     await act(async () => {
       onReadyResolve();
@@ -161,12 +144,7 @@ describe("<AppFrame />", () => {
   });
 
   it("should send HTML via AppBridge.sendSandboxResourceReady", async () => {
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-    };
-
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge()} />);
 
     await act(async () => {
       onReadyResolve();
@@ -187,13 +165,8 @@ describe("<AppFrame />", () => {
 
   it("should call onInitialized with app info when app initializes", async () => {
     const onInitialized = vi.fn();
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-      onInitialized,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ onInitialized })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -213,13 +186,8 @@ describe("<AppFrame />", () => {
 
   it("should send tool input after initialization", async () => {
     const toolInput = { foo: "bar" };
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-      toolInput,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ toolInput })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -238,13 +206,8 @@ describe("<AppFrame />", () => {
 
   it("should send tool result after initialization", async () => {
     const toolResult = { content: [{ type: "text", text: "result" }] };
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-      toolResult: toolResult as any,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ toolResult: toolResult as any })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -261,13 +224,8 @@ describe("<AppFrame />", () => {
 
   it("should call onSizeChange when size changes", async () => {
     const onSizeChange = vi.fn();
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-      onSizeChange,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ onSizeChange })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -282,13 +240,8 @@ describe("<AppFrame />", () => {
 
   it("should call onLoggingMessage when logging message received", async () => {
     const onLoggingMessage = vi.fn();
-    const props: AppFrameProps = {
-      ...defaultProps,
-      appBridge: mockAppBridge as any,
-      onLoggingMessage,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ onLoggingMessage })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -307,13 +260,8 @@ describe("<AppFrame />", () => {
       connectDomains: ["api.example.com"],
       resourceDomains: ["cdn.example.com"],
     };
-    const props: AppFrameProps = {
-      ...defaultProps,
-      sandbox: { ...defaultProps.sandbox, csp },
-      appBridge: mockAppBridge as any,
-    };
 
-    render(<AppFrame {...props} />);
+    render(<AppFrame {...getPropsWithBridge({ sandbox: { ...defaultProps.sandbox, csp } })} />);
 
     await act(async () => {
       onReadyResolve();
@@ -337,7 +285,7 @@ describe("<AppFrame />", () => {
 
     vi.mocked(appHostUtils.setupSandboxProxyIframe).mockRejectedValue(error);
 
-    render(<AppFrame {...defaultProps} onerror={onerror} />);
+    render(<AppFrame {...getPropsWithBridge({ onerror })} />);
 
     await waitFor(() => {
       expect(onerror).toHaveBeenCalledWith(error);
@@ -348,7 +296,7 @@ describe("<AppFrame />", () => {
     const error = new Error("Test error");
     vi.mocked(appHostUtils.setupSandboxProxyIframe).mockRejectedValue(error);
 
-    render(<AppFrame {...defaultProps} />);
+    render(<AppFrame {...getPropsWithBridge()} />);
 
     await waitFor(() => {
       expect(screen.getByText(/Error: Test error/)).toBeInTheDocument();

@@ -24,6 +24,10 @@ import {
   type McpUiOpenLinkRequest,
   type McpUiOpenLinkResult,
   type McpUiSizeChangedNotification,
+  type McpUiToolInputNotification,
+  type McpUiToolInputPartialNotification,
+  type McpUiToolCancelledNotification,
+  type McpUiHostContext,
 } from "@modelcontextprotocol/ext-apps/app-bridge";
 
 import { AppFrame, type SandboxConfig } from "./AppFrame";
@@ -41,18 +45,26 @@ export type RequestHandlerExtra = Parameters<
 >[1];
 
 /**
- * Handle to access AppBridge methods for advanced use cases.
+ * Handle to access AppRenderer methods for sending notifications to the Guest UI.
  * Obtained via ref on AppRenderer.
  */
 export interface AppRendererHandle {
-  /** The underlying AppBridge instance */
-  appBridge: AppBridge | null;
   /** Notify the Guest UI that the server's tool list has changed */
   sendToolListChanged: () => void;
   /** Notify the Guest UI that the server's resource list has changed */
   sendResourceListChanged: () => void;
   /** Notify the Guest UI that the server's prompt list has changed */
   sendPromptListChanged: () => void;
+  /** Send tool input to the Guest UI */
+  sendToolInput: (params: McpUiToolInputNotification["params"]) => void;
+  /** Send partial/streaming tool input to the Guest UI */
+  sendToolInputPartial: (params: McpUiToolInputPartialNotification["params"]) => void;
+  /** Send tool result to the Guest UI */
+  sendToolResult: (params: CallToolResult) => void;
+  /** Notify the Guest UI that the tool was cancelled */
+  sendToolCancelled: (params: McpUiToolCancelledNotification["params"]) => void;
+  /** Set the host context (theme, viewport, locale, etc.) and notify the Guest UI of changes */
+  setHostContext: (hostContext: McpUiHostContext) => void;
 }
 
 /**
@@ -289,12 +301,16 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     onlistpromptsRef.current = onlistprompts;
   });
 
-  // Expose AppBridge methods via ref
+  // Expose send methods via ref for Host → Guest notifications
   useImperativeHandle(ref, () => ({
-    appBridge,
     sendToolListChanged: () => appBridge?.sendToolListChanged(),
     sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
     sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
+    sendToolInput: (params) => appBridge?.sendToolInput(params),
+    sendToolInputPartial: (params) => appBridge?.sendToolInputPartial(params),
+    sendToolResult: (params) => appBridge?.sendToolResult(params),
+    sendToolCancelled: (params) => appBridge?.sendToolCancelled(params),
+    setHostContext: (hostContext) => appBridge?.setHostContext(hostContext),
   }), [appBridge]);
 
   // Effect 1: Create and configure AppBridge
