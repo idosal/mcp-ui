@@ -200,15 +200,15 @@ describe('<AppRenderer />', () => {
     });
   });
 
-  it('should call onerror when resource fetch fails', async () => {
-    const onerror = vi.fn();
+  it('should call onError when resource fetch fails', async () => {
+    const onError = vi.fn();
     const error = new Error('Fetch failed');
     vi.mocked(appHostUtils.readToolUiResourceHtml).mockRejectedValue(error);
 
-    render(<AppRenderer {...defaultProps} onerror={onerror} />);
+    render(<AppRenderer {...defaultProps} onError={onError} />);
 
     await waitFor(() => {
-      expect(onerror).toHaveBeenCalledWith(error);
+      expect(onError).toHaveBeenCalledWith(error);
     });
   });
 

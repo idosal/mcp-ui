@@ -277,16 +277,16 @@ describe('<AppFrame />', () => {
     });
   });
 
-  it('should call onerror when setup fails', async () => {
-    const onerror = vi.fn();
+  it('should call onError when setup fails', async () => {
+    const onError = vi.fn();
     const error = new Error('Setup failed');
 
     vi.mocked(appHostUtils.setupSandboxProxyIframe).mockRejectedValue(error);
 
-    render(<AppFrame {...getPropsWithBridge({ onerror })} />);
+    render(<AppFrame {...getPropsWithBridge({ onError })} />);
 
     await waitFor(() => {
-      expect(onerror).toHaveBeenCalledWith(error);
+      expect(onError).toHaveBeenCalledWith(error);
     });
   });
 

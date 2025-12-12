@@ -67,7 +67,7 @@ export interface AppFrameProps {
   toolResult?: CallToolResult;
 
   /** Callback when an error occurs */
-  onerror?: (error: Error) => void;
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -102,7 +102,7 @@ export const AppFrame = (props: AppFrameProps) => {
     onInitialized,
     toolInput,
     toolResult,
-    onerror,
+    onError,
   } = props;
 
   const [iframeReady, setIframeReady] = useState(false);
@@ -115,13 +115,13 @@ export const AppFrame = (props: AppFrameProps) => {
   const onSizeChangedRef = useRef(onSizeChanged);
   const onLoggingMessageRef = useRef(onLoggingMessage);
   const onInitializedRef = useRef(onInitialized);
-  const onerrorRef = useRef(onerror);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
     onSizeChangedRef.current = onSizeChanged;
     onLoggingMessageRef.current = onLoggingMessage;
     onInitializedRef.current = onInitialized;
-    onerrorRef.current = onerror;
+    onErrorRef.current = onError;
   });
 
   // Effect 1: Set up sandbox iframe and connect AppBridge
@@ -186,7 +186,7 @@ export const AppFrame = (props: AppFrameProps) => {
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onerrorRef.current?.(error);
+        onErrorRef.current?.(error);
       }
     };
 
@@ -214,7 +214,7 @@ export const AppFrame = (props: AppFrameProps) => {
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onerrorRef.current?.(error);
+        onErrorRef.current?.(error);
       }
     };
 

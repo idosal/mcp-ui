@@ -92,31 +92,31 @@ export interface AppRendererProps {
   hostContext?: McpUiHostContext;
 
   /** Handler for open-link requests from the guest UI */
-  onopenlink?: (
+  onOpenLink?: (
     params: McpUiOpenLinkRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<McpUiOpenLinkResult>;
 
   /** Handler for message requests from the guest UI */
-  onmessage?: (
+  onMessage?: (
     params: McpUiMessageRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<McpUiMessageResult>;
 
   /** Handler for logging messages from the guest UI */
-  onloggingmessage?: (params: LoggingMessageNotification['params']) => void;
+  onLoggingMessage?: (params: LoggingMessageNotification['params']) => void;
 
   /** Handler for size change notifications from the guest UI */
-  onsizechange?: (params: McpUiSizeChangedNotification['params']) => void;
+  onSizeChanged?: (params: McpUiSizeChangedNotification['params']) => void;
 
   /**
-   * @deprecated Use individual handlers instead: `onopenlink`, `onmessage`, `onloggingmessage`
+   * @deprecated Use individual handlers instead: `onOpenLink`, `onMessage`, `onLoggingMessage`
    * Callback invoked when the tool UI requests an action (link, prompt, notify)
    */
   onUIAction?: (result: UIActionResult) => Promise<unknown>;
 
   /** Callback invoked when an error occurs during setup or message handling */
-  onerror?: (error: Error) => void;
+  onError?: (error: Error) => void;
 
   // --- MCP Request Handlers (override automatic forwarding) ---
 
@@ -124,7 +124,7 @@ export interface AppRendererProps {
    * Handler for tools/call requests from the guest UI.
    * If provided, overrides the automatic forwarding to the MCP client.
    */
-  oncalltool?: (
+  onCallTool?: (
     params: CallToolRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<CallToolResult>;
@@ -133,7 +133,7 @@ export interface AppRendererProps {
    * Handler for resources/list requests from the guest UI.
    * If provided, overrides the automatic forwarding to the MCP client.
    */
-  onlistresources?: (
+  onListResources?: (
     params: ListResourcesRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListResourcesResult>;
@@ -142,7 +142,7 @@ export interface AppRendererProps {
    * Handler for resources/templates/list requests from the guest UI.
    * If provided, overrides the automatic forwarding to the MCP client.
    */
-  onlistresourcetemplates?: (
+  onListResourceTemplates?: (
     params: ListResourceTemplatesRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListResourceTemplatesResult>;
@@ -151,7 +151,7 @@ export interface AppRendererProps {
    * Handler for resources/read requests from the guest UI.
    * If provided, overrides the automatic forwarding to the MCP client.
    */
-  onreadresource?: (
+  onReadResource?: (
     params: ReadResourceRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ReadResourceResult>;
@@ -160,7 +160,7 @@ export interface AppRendererProps {
    * Handler for prompts/list requests from the guest UI.
    * If provided, overrides the automatic forwarding to the MCP client.
    */
-  onlistprompts?: (
+  onListPrompts?: (
     params: ListPromptsRequest['params'],
     extra: RequestHandlerExtra,
   ) => Promise<ListPromptsResult>;
@@ -185,12 +185,8 @@ export interface AppRendererProps {
  *   client={mcpClient}
  *   toolName="create-chart"
  *   toolInput={{ data: [1, 2, 3], type: 'bar' }}
- *   onUIAction={async (action) => {
- *     if (action.type === 'intent') {
- *       console.log('Intent:', action.payload.intent);
- *     }
- *   }}
- *   onerror={(error) => console.error('UI Error:', error)}
+ *   onOpenLink={async ({ url }) => window.open(url)}
+ *   onError={(error) => console.error('UI Error:', error)}
  * />
  * ```
  *
@@ -246,17 +242,17 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     toolInputPartial,
     toolCancelled,
     hostContext,
-    onmessage,
-    onopenlink,
-    onloggingmessage,
-    onsizechange,
+    onMessage,
+    onOpenLink,
+    onLoggingMessage,
+    onSizeChanged,
     onUIAction,
-    onerror,
-    oncalltool,
-    onlistresources,
-    onlistresourcetemplates,
-    onreadresource,
-    onlistprompts,
+    onError,
+    onCallTool,
+    onListResources,
+    onListResourceTemplates,
+    onReadResource,
+    onListPrompts,
   } = props;
 
   // Handle deprecated sandboxProxyUrl prop
@@ -277,30 +273,30 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   const [error, setError] = useState<Error | null>(null);
 
   // Refs for callbacks
-  const onmessageRef = useRef(onmessage);
-  const onopenlinkRef = useRef(onopenlink);
-  const onloggingmessageRef = useRef(onloggingmessage);
-  const onsizechangeRef = useRef(onsizechange);
+  const onMessageRef = useRef(onMessage);
+  const onOpenLinkRef = useRef(onOpenLink);
+  const onLoggingMessageRef = useRef(onLoggingMessage);
+  const onSizeChangedRef = useRef(onSizeChanged);
   const onUIActionRef = useRef(onUIAction);
-  const onerrorRef = useRef(onerror);
-  const oncalltoolRef = useRef(oncalltool);
-  const onlistresourcesRef = useRef(onlistresources);
-  const onlistresourcetemplatesRef = useRef(onlistresourcetemplates);
-  const onreadresourceRef = useRef(onreadresource);
-  const onlistpromptsRef = useRef(onlistprompts);
+  const onErrorRef = useRef(onError);
+  const onCallToolRef = useRef(onCallTool);
+  const onListResourcesRef = useRef(onListResources);
+  const onListResourceTemplatesRef = useRef(onListResourceTemplates);
+  const onReadResourceRef = useRef(onReadResource);
+  const onListPromptsRef = useRef(onListPrompts);
 
   useEffect(() => {
-    onmessageRef.current = onmessage;
-    onopenlinkRef.current = onopenlink;
-    onloggingmessageRef.current = onloggingmessage;
-    onsizechangeRef.current = onsizechange;
+    onMessageRef.current = onMessage;
+    onOpenLinkRef.current = onOpenLink;
+    onLoggingMessageRef.current = onLoggingMessage;
+    onSizeChangedRef.current = onSizeChanged;
     onUIActionRef.current = onUIAction;
-    onerrorRef.current = onerror;
-    oncalltoolRef.current = oncalltool;
-    onlistresourcesRef.current = onlistresources;
-    onlistresourcetemplatesRef.current = onlistresourcetemplates;
-    onreadresourceRef.current = onreadresource;
-    onlistpromptsRef.current = onlistprompts;
+    onErrorRef.current = onError;
+    onCallToolRef.current = onCallTool;
+    onListResourcesRef.current = onListResources;
+    onListResourceTemplatesRef.current = onListResourceTemplates;
+    onReadResourceRef.current = onReadResource;
+    onListPromptsRef.current = onListPrompts;
   });
 
   // Expose send methods via ref for Host → Guest notifications
@@ -351,11 +347,11 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
             } catch (e) {
               console.error('[AppRenderer] Message handler error:', e);
               const error = e instanceof Error ? e : new Error(String(e));
-              onerrorRef.current?.(error);
+              onErrorRef.current?.(error);
               return { isError: true };
             }
-          } else if (onmessageRef.current) {
-            return onmessageRef.current(params, extra);
+          } else if (onMessageRef.current) {
+            return onMessageRef.current(params, extra);
           } else {
             throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
           }
@@ -373,11 +369,11 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
             } catch (e) {
               console.error('[AppRenderer] Open link handler error:', e);
               const error = e instanceof Error ? e : new Error(String(e));
-              onerrorRef.current?.(error);
+              onErrorRef.current?.(error);
               return { isError: true };
             }
-          } else if (onopenlinkRef.current) {
-            return onopenlinkRef.current(params, extra);
+          } else if (onOpenLinkRef.current) {
+            return onOpenLinkRef.current(params, extra);
           } else {
             throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
           }
@@ -392,27 +388,27 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
                 message: String(params.message ?? params.data),
               },
             });
-          } else if (onloggingmessageRef.current) {
-            onloggingmessageRef.current(params);
+          } else if (onLoggingMessageRef.current) {
+            onLoggingMessageRef.current(params);
           }
         };
 
         // Register custom MCP request handlers (these override automatic forwarding)
-        if (oncalltoolRef.current) {
-          bridge.oncalltool = (params, extra) => oncalltoolRef.current!(params, extra);
+        if (onCallToolRef.current) {
+          bridge.oncalltool = (params, extra) => onCallToolRef.current!(params, extra);
         }
-        if (onlistresourcesRef.current) {
-          bridge.onlistresources = (params, extra) => onlistresourcesRef.current!(params, extra);
+        if (onListResourcesRef.current) {
+          bridge.onlistresources = (params, extra) => onListResourcesRef.current!(params, extra);
         }
-        if (onlistresourcetemplatesRef.current) {
+        if (onListResourceTemplatesRef.current) {
           bridge.onlistresourcetemplates = (params, extra) =>
-            onlistresourcetemplatesRef.current!(params, extra);
+            onListResourceTemplatesRef.current!(params, extra);
         }
-        if (onreadresourceRef.current) {
-          bridge.onreadresource = (params, extra) => onreadresourceRef.current!(params, extra);
+        if (onReadResourceRef.current) {
+          bridge.onreadresource = (params, extra) => onReadResourceRef.current!(params, extra);
         }
-        if (onlistpromptsRef.current) {
-          bridge.onlistprompts = (params, extra) => onlistpromptsRef.current!(params, extra);
+        if (onListPromptsRef.current) {
+          bridge.onlistprompts = (params, extra) => onListPromptsRef.current!(params, extra);
         }
 
         if (!mounted) return;
@@ -422,7 +418,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onerrorRef.current?.(error);
+        onErrorRef.current?.(error);
       }
     };
 
@@ -480,7 +476,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        onerrorRef.current?.(error);
+        onErrorRef.current?.(error);
       }
     };
 
@@ -513,7 +509,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   }, [appBridge, toolCancelled]);
 
   // Handle size change callback
-  const handleSizeChanged = onsizechangeRef.current;
+  const handleSizeChanged = onSizeChangedRef.current;
 
   // Render error state
   if (error) {
@@ -534,7 +530,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       toolInput={toolInput}
       toolResult={toolResult}
       onSizeChanged={handleSizeChanged}
-      onerror={onerror}
+      onError={onError}
     />
   );
 });
