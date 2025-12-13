@@ -24,9 +24,7 @@ import {
   type McpUiOpenLinkRequest,
   type McpUiOpenLinkResult,
   type McpUiSizeChangedNotification,
-  type McpUiToolInputNotification,
   type McpUiToolInputPartialNotification,
-  type McpUiToolCancelledNotification,
   type McpUiHostContext,
 } from '@modelcontextprotocol/ext-apps/app-bridge';
 

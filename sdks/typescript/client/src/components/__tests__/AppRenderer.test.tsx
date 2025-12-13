@@ -1,13 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 
 import { AppRenderer, type AppRendererProps, type AppRendererHandle } from '../AppRenderer';
 import * as appHostUtils from '../../utils/app-host-utils';
-
-// Track mock AppBridge instance
-let mockAppBridgeInstance: any = null;
 
 // Mock AppFrame to capture props
 const mockAppFrame = vi.fn();
@@ -29,29 +26,34 @@ vi.mock('../../utils/app-host-utils', () => ({
   readToolUiResourceHtml: vi.fn(),
 }));
 
+// Store mock bridge instance for test access
+let mockBridgeInstance: any = null;
+
 // Mock AppBridge constructor
-vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => ({
-  AppBridge: vi.fn().mockImplementation(() => {
-    mockAppBridgeInstance = {
-      onmessage: null,
-      onopenlink: null,
-      onloggingmessage: null,
-      oncalltool: null,
-      onlistresources: null,
-      onlistresourcetemplates: null,
-      onreadresource: null,
-      onlistprompts: null,
-      setHostContext: vi.fn(),
-      sendToolInputPartial: vi.fn(),
-      sendToolCancelled: vi.fn(),
-      sendToolListChanged: vi.fn(),
-      sendResourceListChanged: vi.fn(),
-      sendPromptListChanged: vi.fn(),
-      sendResourceTeardown: vi.fn(),
-    };
-    return mockAppBridgeInstance;
-  }),
-}));
+vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
+  return {
+    AppBridge: vi.fn().mockImplementation(function() {
+      mockBridgeInstance = {
+        onmessage: null,
+        onopenlink: null,
+        onloggingmessage: null,
+        oncalltool: null,
+        onlistresources: null,
+        onlistresourcetemplates: null,
+        onreadresource: null,
+        onlistprompts: null,
+        setHostContext: vi.fn(),
+        sendToolInputPartial: vi.fn(),
+        sendToolCancelled: vi.fn(),
+        sendToolListChanged: vi.fn(),
+        sendResourceListChanged: vi.fn(),
+        sendPromptListChanged: vi.fn(),
+        sendResourceTeardown: vi.fn(),
+      };
+      return mockBridgeInstance;
+    }),
+  };
+});
 
 // Mock MCP Client
 const mockClient = {
@@ -59,18 +61,6 @@ const mockClient = {
     tools: {},
     resources: {},
   }),
-};
-
-// Helper component to test ref
-const AppRendererWithRef = (props: AppRendererProps & { onRef?: (handle: AppRendererHandle | null) => void }) => {
-  const ref = useRef<AppRendererHandle>(null);
-
-  // Call onRef when ref is available
-  if (props.onRef && ref.current) {
-    props.onRef(ref.current);
-  }
-
-  return <AppRenderer ref={ref} {...props} />;
 };
 
 describe('<AppRenderer />', () => {
@@ -82,7 +72,7 @@ describe('<AppRenderer />', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockAppBridgeInstance = null;
+    mockBridgeInstance = null;
     mockAppFrame.mockClear();
 
     // Default mock implementations
@@ -268,7 +258,7 @@ describe('<AppRenderer />', () => {
       render(<AppRenderer {...defaultProps} hostContext={hostContext} />);
 
       await waitFor(() => {
-        expect(mockAppBridgeInstance?.setHostContext).toHaveBeenCalledWith(hostContext);
+        expect(mockBridgeInstance?.setHostContext).toHaveBeenCalledWith(hostContext);
       });
     });
 
@@ -276,13 +266,13 @@ describe('<AppRenderer />', () => {
       const { rerender } = render(<AppRenderer {...defaultProps} hostContext={{ theme: 'light' as const }} />);
 
       await waitFor(() => {
-        expect(mockAppBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'light' });
+        expect(mockBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'light' });
       });
 
       rerender(<AppRenderer {...defaultProps} hostContext={{ theme: 'dark' as const }} />);
 
       await waitFor(() => {
-        expect(mockAppBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'dark' });
+        expect(mockBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'dark' });
       });
     });
   });
@@ -294,7 +284,7 @@ describe('<AppRenderer />', () => {
       render(<AppRenderer {...defaultProps} toolInputPartial={toolInputPartial} />);
 
       await waitFor(() => {
-        expect(mockAppBridgeInstance?.sendToolInputPartial).toHaveBeenCalledWith(toolInputPartial);
+        expect(mockBridgeInstance?.sendToolInputPartial).toHaveBeenCalledWith(toolInputPartial);
       });
     });
   });
@@ -304,7 +294,7 @@ describe('<AppRenderer />', () => {
       render(<AppRenderer {...defaultProps} toolCancelled={true} />);
 
       await waitFor(() => {
-        expect(mockAppBridgeInstance?.sendToolCancelled).toHaveBeenCalledWith({});
+        expect(mockBridgeInstance?.sendToolCancelled).toHaveBeenCalledWith({});
       });
     });
 
@@ -315,7 +305,7 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      expect(mockAppBridgeInstance?.sendToolCancelled).not.toHaveBeenCalled();
+      expect(mockBridgeInstance?.sendToolCancelled).not.toHaveBeenCalled();
     });
   });
 
@@ -329,7 +319,6 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      // Wait for ref to be populated
       await waitFor(() => {
         expect(ref.current).not.toBeNull();
       });
@@ -338,7 +327,7 @@ describe('<AppRenderer />', () => {
         ref.current?.sendToolListChanged();
       });
 
-      expect(mockAppBridgeInstance?.sendToolListChanged).toHaveBeenCalled();
+      expect(mockBridgeInstance?.sendToolListChanged).toHaveBeenCalled();
     });
 
     it('should expose sendResourceListChanged via ref', async () => {
@@ -358,7 +347,7 @@ describe('<AppRenderer />', () => {
         ref.current?.sendResourceListChanged();
       });
 
-      expect(mockAppBridgeInstance?.sendResourceListChanged).toHaveBeenCalled();
+      expect(mockBridgeInstance?.sendResourceListChanged).toHaveBeenCalled();
     });
 
     it('should expose sendPromptListChanged via ref', async () => {
@@ -378,7 +367,7 @@ describe('<AppRenderer />', () => {
         ref.current?.sendPromptListChanged();
       });
 
-      expect(mockAppBridgeInstance?.sendPromptListChanged).toHaveBeenCalled();
+      expect(mockBridgeInstance?.sendPromptListChanged).toHaveBeenCalled();
     });
 
     it('should expose sendResourceTeardown via ref', async () => {
@@ -398,7 +387,7 @@ describe('<AppRenderer />', () => {
         ref.current?.sendResourceTeardown();
       });
 
-      expect(mockAppBridgeInstance?.sendResourceTeardown).toHaveBeenCalledWith({});
+      expect(mockBridgeInstance?.sendResourceTeardown).toHaveBeenCalledWith({});
     });
   });
 
@@ -413,7 +402,7 @@ describe('<AppRenderer />', () => {
       });
 
       // The handler should be registered
-      expect(mockAppBridgeInstance?.oncalltool).toBeDefined();
+      expect(mockBridgeInstance?.oncalltool).toBeDefined();
     });
 
     it('should register onListResources handler on AppBridge', async () => {
@@ -425,7 +414,7 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      expect(mockAppBridgeInstance?.onlistresources).toBeDefined();
+      expect(mockBridgeInstance?.onlistresources).toBeDefined();
     });
 
     it('should register onListResourceTemplates handler on AppBridge', async () => {
@@ -437,7 +426,7 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      expect(mockAppBridgeInstance?.onlistresourcetemplates).toBeDefined();
+      expect(mockBridgeInstance?.onlistresourcetemplates).toBeDefined();
     });
 
     it('should register onReadResource handler on AppBridge', async () => {
@@ -449,7 +438,7 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      expect(mockAppBridgeInstance?.onreadresource).toBeDefined();
+      expect(mockBridgeInstance?.onreadresource).toBeDefined();
     });
 
     it('should register onListPrompts handler on AppBridge', async () => {
@@ -461,7 +450,7 @@ describe('<AppRenderer />', () => {
         expect(screen.getByTestId('app-frame')).toBeInTheDocument();
       });
 
-      expect(mockAppBridgeInstance?.onlistprompts).toBeDefined();
+      expect(mockBridgeInstance?.onlistprompts).toBeDefined();
     });
   });
 
