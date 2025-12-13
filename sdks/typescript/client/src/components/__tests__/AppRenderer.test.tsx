@@ -263,7 +263,7 @@ describe('<AppRenderer />', () => {
 
   describe('hostContext prop', () => {
     it('should call setHostContext when hostContext is provided', async () => {
-      const hostContext = { theme: 'dark', locale: 'en-US' };
+      const hostContext = { theme: 'dark' as const };
 
       render(<AppRenderer {...defaultProps} hostContext={hostContext} />);
 
@@ -273,13 +273,13 @@ describe('<AppRenderer />', () => {
     });
 
     it('should update hostContext when prop changes', async () => {
-      const { rerender } = render(<AppRenderer {...defaultProps} hostContext={{ theme: 'light' }} />);
+      const { rerender } = render(<AppRenderer {...defaultProps} hostContext={{ theme: 'light' as const }} />);
 
       await waitFor(() => {
         expect(mockAppBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'light' });
       });
 
-      rerender(<AppRenderer {...defaultProps} hostContext={{ theme: 'dark' }} />);
+      rerender(<AppRenderer {...defaultProps} hostContext={{ theme: 'dark' as const }} />);
 
       await waitFor(() => {
         expect(mockAppBridgeInstance?.setHostContext).toHaveBeenCalledWith({ theme: 'dark' });
@@ -289,7 +289,7 @@ describe('<AppRenderer />', () => {
 
   describe('toolInputPartial prop', () => {
     it('should call sendToolInputPartial when toolInputPartial is provided', async () => {
-      const toolInputPartial = { delta: 'partial data', isStreaming: true };
+      const toolInputPartial = { arguments: { delta: 'partial data' } };
 
       render(<AppRenderer {...defaultProps} toolInputPartial={toolInputPartial} />);
 
