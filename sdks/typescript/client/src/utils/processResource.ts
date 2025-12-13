@@ -112,7 +112,7 @@ export function processHTMLResource(
   } else if (resource.mimeType === 'text/html') {
     // Handle HTML content
     let htmlContent = '';
-    
+
     if ('text' in resource && typeof resource.text === 'string') {
       htmlContent = resource.text;
     } else if ('blob' in resource && typeof resource.blob === 'string') {

@@ -17,7 +17,6 @@ vi.mock('../UIResourceRenderer', () => ({
   }),
 }));
 
-
 describe('UIResourceRendererWC', () => {
   const resource = {
     mimeType: 'text/html',
@@ -53,10 +52,10 @@ describe('UIResourceRendererWC', () => {
     (el as any).resource = resource;
 
     await waitFor(() => {
-        expect(UIResourceRenderer).toHaveBeenCalled();
-        const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
-        expect(iframe).toBeInTheDocument();
-        expect(iframe.srcdoc).toContain('<h1>Hello, World!</h1>');
+      expect(UIResourceRenderer).toHaveBeenCalled();
+      const iframe = screen.getByTitle('MCP HTML Resource (Embedded Content)') as HTMLIFrameElement;
+      expect(iframe).toBeInTheDocument();
+      expect(iframe.srcdoc).toContain('<h1>Hello, World!</h1>');
     });
   });
 
@@ -80,7 +79,7 @@ describe('UIResourceRendererWC', () => {
     await act(async () => {
       triggerUIAction(mockEventPayload);
     });
-    
+
     expect(onUIAction).toHaveBeenCalled();
     const dispatchedEvent = onUIAction.mock.calls[0][0] as CustomEvent;
     expect(dispatchedEvent.detail).toEqual(mockEventPayload);
