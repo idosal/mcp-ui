@@ -19,7 +19,7 @@
     "dist"
   ],
   "dependencies": {
-    "@modelcontextprotocol/ext-apps": "github:modelcontextprotocol/ext-apps#ochafik/app-bridge-setters",
+    "@modelcontextprotocol/ext-apps": "github:modelcontextprotocol/ext-apps#main",
     "@modelcontextprotocol/sdk": "^1.23.0",
     "@mcp-ui/shared": "workspace:*",
     "@quilted/threads": "^3.1.3",
