@@ -50,7 +50,7 @@ export interface AppRendererHandle {
   /** Notify the Guest UI that the server's prompt list has changed */
   sendPromptListChanged: () => void;
   /** Notify the Guest UI that the resource is being torn down / cleaned up */
-  sendResourceTeardown: () => void;
+  teardownResource: () => void;
 }
 
 /**
@@ -311,7 +311,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       sendToolListChanged: () => appBridge?.sendToolListChanged(),
       sendResourceListChanged: () => appBridge?.sendResourceListChanged(),
       sendPromptListChanged: () => appBridge?.sendPromptListChanged(),
-      sendResourceTeardown: () => appBridge?.sendResourceTeardown({}),
+      teardownResource: () => appBridge?.teardownResource({}),
     }),
     [appBridge],
   );

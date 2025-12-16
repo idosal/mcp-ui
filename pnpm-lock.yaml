@@ -178,10 +178,10 @@ importers:
         specifier: workspace:*
         version: link:../../sdks/typescript/server
       '@modelcontextprotocol/ext-apps':
-        specifier: github:modelcontextprotocol/ext-apps#main
-        version: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/8550545ccbb87545a2321697edd7f07e9fde1435(zod@3.25.76)
+        specifier: ^0.2.0
+        version: 0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@3.25.76))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@3.25.76)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
+        specifier: ^1.24.0
         version: 1.24.3(zod@3.25.76)
       cors:
         specifier: ^2.8.5
@@ -423,10 +423,10 @@ importers:
         specifier: workspace:*
         version: link:../shared
       '@modelcontextprotocol/ext-apps':
-        specifier: github:modelcontextprotocol/ext-apps#main
-        version: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/8550545ccbb87545a2321697edd7f07e9fde1435(zod@3.25.76)
+        specifier: ^0.2.0
+        version: 0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@3.25.76))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.25.76)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.23.0
+        specifier: ^1.24.0
         version: 1.24.3(zod@3.25.76)
       '@quilted/threads':
         specifier: ^3.1.3
@@ -493,11 +493,11 @@ importers:
   sdks/typescript/server:
     dependencies:
       '@modelcontextprotocol/ext-apps':
-        specifier: ^0.0.7
-        version: 0.0.7
+        specifier: ^0.2.0
+        version: 0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.1.13)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
-        version: 1.24.3(zod@3.25.76)
+        specifier: ^1.24.0
+        version: 1.24.3(zod@4.1.13)
     devDependencies:
       '@types/node':
         specifier: ^18.19.100
@@ -2179,14 +2179,18 @@ packages:
   '@mjackson/node-fetch-server@0.2.0':
     resolution: {integrity: sha512-EMlH1e30yzmTpGLQjlFmaDAjyOeZhng1/XCd7DExR8PNAnG/G1tyruZxEoUe11ClnwGhGrtsdnyyUx1frSzjng==}
 
-  '@modelcontextprotocol/ext-apps@0.0.7':
-    resolution: {integrity: sha512-paNc/5NTUoofQ54Heg45xSSVzyDWQc81IgYODnHTUayg7SU3hXI2ZYU9B1oYyyrX//+dHzC52/Kuheq2qoyZdA==}
-
-  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/8550545ccbb87545a2321697edd7f07e9fde1435':
-    resolution: {tarball: https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/8550545ccbb87545a2321697edd7f07e9fde1435}
-    version: 0.1.0
+  '@modelcontextprotocol/ext-apps@0.2.0':
+    resolution: {integrity: sha512-50+5ykWsme7sp2sdFis2LrGY1qZMcQ+ZTxoMeUefmgo6oFVjUtc2MrfL78+C1dsbrWYPLZNgeM3YR6VZbvXURA==}
     peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.24.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
       zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@modelcontextprotocol/sdk@1.24.3':
     resolution: {integrity: sha512-YgSHW29fuzKKAHTGe9zjNoo+yF8KaQPzDC2W9Pv41E7/57IfY+AMGJ/aDFlgTLcVVELoggKE4syABCE75u3NCw==}
@@ -2270,6 +2274,61 @@ packages:
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
+
+  '@oven/bun-darwin-aarch64@1.3.4':
+    resolution: {integrity: sha512-2Ie4jDGvNGuPSD+pyyBKL8dJmX+bZfDNYEalwgROImVtwB1XYAatJK20dMaRlPA7jOhjvS9Io+4IZAJu7Js0AA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@oven/bun-darwin-x64-baseline@1.3.4':
+    resolution: {integrity: sha512-ZYxzIOCDqylTMsnWYERjKMMuK2b4an4qbloBmUZTwLHmVzos00yrhtpitZhJBgH6yB/l4Q5eoJ2W98UKtFFeiQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@oven/bun-darwin-x64@1.3.4':
+    resolution: {integrity: sha512-4/BJojT8hk5g6Gecjn5yI7y96/+9Mtzsvdp9+2dcy9sTMdlV7jBvDzswqyJPZyQqw0F3HV3Vu9XuMubZwKd9lA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@oven/bun-linux-aarch64-musl@1.3.4':
+    resolution: {integrity: sha512-6UtmM4wXgRKz+gnLZEfddfsuBSVQpJr09K12e5pbdnLzeWgXYlBT5FG8S7SVn1t6cbgBMnigEsFjWwfTuMNoCw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@oven/bun-linux-aarch64@1.3.4':
+    resolution: {integrity: sha512-8DUIlanftMdFxLGq2FxwKwfrp8O4ZofF/8Oc6lxCyEFmg2hixbHhL04+fPfJIi5D4hZloynxZdwTeDbGv/Kc4A==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@oven/bun-linux-x64-baseline@1.3.4':
+    resolution: {integrity: sha512-ZMGPbFPqmG/VYJv61D+Y1V7T23jPK57vYl7yYLakmkTRjG6vcJ0Akhb2qR1iW94rHvfEBjeuVDAZBp8Qp9oyWA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@oven/bun-linux-x64-musl-baseline@1.3.4':
+    resolution: {integrity: sha512-qsGSSlNsxiX8lAayK2uYCfMLtqu776F0nn7qoyzg9Ti7mElM3woNh7RtGClTwQ6qsp5/UvgqT9g4pLaDHmqJFg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@oven/bun-linux-x64-musl@1.3.4':
+    resolution: {integrity: sha512-xUXPuJHndGhk4K3Cx1FgTyTgDZOn+ki3eWvdXYqKdfi0EaNA9KpUq+/vUtpJbZRjzpHs9L+OJcdDILq5H0LX4g==}
+    cpu: [x64]
+    os: [linux]
+
+  '@oven/bun-linux-x64@1.3.4':
+    resolution: {integrity: sha512-03iSDMqdrmIFAsvsRptq+A7EGNjkg20dNzPnqxAlXHk5rc1PeIRWIP0eIn0i3nI6mmdj33mimf9AGr0+d0lKMg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@oven/bun-windows-x64-baseline@1.3.4':
+    resolution: {integrity: sha512-ZQiSDFfSUdOrPTiL2GvkxlC/kMED4fsJwdZnwJK6S9ylXnk9xY/9ZXfe1615SFLQl2LsVRzJAtjQLeM0BifIKQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@oven/bun-windows-x64@1.3.4':
+    resolution: {integrity: sha512-nswsuN6+HZPim6x4tFpDFpMa/qpTKfywbGvCkzxwrbJO9MtpuW/54NA1nFbHhpV14OLU0xuxyBj2PK4FHq4MlA==}
+    cpu: [x64]
+    os: [win32]
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -2683,11 +2742,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-arm64@4.53.3':
-    resolution: {integrity: sha512-Nr7SlQeqIBpOV6BHHGZgYBuSdanCXuw09hon14MGOLGmXAFYjx1wNvquVPmpZnl0tLjg25dEdr4IQ6GgyToCUA==}
-    cpu: [arm64]
-    os: [darwin]
-
   '@rollup/rollup-darwin-arm64@4.53.4':
     resolution: {integrity: sha512-+w06QvXsgzKwdVg5qRLZpTHh1bigHZIqoIUPtiqh05ZiJVUQ6ymOxaPkXTvRPRLH88575ZCRSRM3PwIoNma01Q==}
     cpu: [arm64]
@@ -2695,11 +2749,6 @@ packages:
 
   '@rollup/rollup-darwin-x64@4.44.0':
     resolution: {integrity: sha512-fBkyrDhwquRvrTxSGH/qqt3/T0w5Rg0L7ZIDypvBPc1/gzjJle6acCpZ36blwuwcKD/u6oCE/sRWlUAcxLWQbQ==}
-    cpu: [x64]
-    os: [darwin]
-
-  '@rollup/rollup-darwin-x64@4.53.3':
-    resolution: {integrity: sha512-DZ8N4CSNfl965CmPktJ8oBnfYr3F8dTTNBQkRlffnUarJ2ohudQD17sZBa097J8xhQ26AwhHJ5mvUyQW8ddTsQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -2730,11 +2779,6 @@ packages:
 
   '@rollup/rollup-linux-arm64-gnu@4.44.0':
     resolution: {integrity: sha512-ZTR2mxBHb4tK4wGf9b8SYg0Y6KQPjGpR4UWwTFdnmjB4qRtoATZ5dWn3KsDwGa5Z2ZBOE7K52L36J9LueKBdOQ==}
-    cpu: [arm64]
-    os: [linux]
-
-  '@rollup/rollup-linux-arm64-gnu@4.53.3':
-    resolution: {integrity: sha512-RGrFLWgMhSxRs/EWJMIFM1O5Mzuz3Xy3/mnxJp/5cVhZ2XoCAxJnmNsEyeMJtpK+wu0FJFWz+QF4mjCA7AUQ3w==}
     cpu: [arm64]
     os: [linux]
 
@@ -2778,11 +2822,6 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-gnu@4.53.3':
-    resolution: {integrity: sha512-3EhFi1FU6YL8HTUJZ51imGJWEX//ajQPfqWLI3BQq4TlvHy4X0MOr5q3D2Zof/ka0d5FNdPwZXm3Yyib/UEd+w==}
-    cpu: [x64]
-    os: [linux]
-
   '@rollup/rollup-linux-x64-gnu@4.53.4':
     resolution: {integrity: sha512-jjEMkzvASQBbzzlzf4os7nzSBd/cvPrpqXCUOqoeCh1dQ4BP3RZCJk8XBeik4MUln3m+8LeTJcY54C/u8wb3DQ==}
     cpu: [x64]
@@ -2805,11 +2844,6 @@ packages:
 
   '@rollup/rollup-win32-x64-msvc@4.44.0':
     resolution: {integrity: sha512-Q2Mgwt+D8hd5FIPUuPDsvPR7Bguza6yTkJxspDGkZj7tBRn2y4KSWYuIXpftFSjBra76TbKerCV7rgFPQrn+wQ==}
-    cpu: [x64]
-    os: [win32]
-
-  '@rollup/rollup-win32-x64-msvc@4.53.3':
-    resolution: {integrity: sha512-UhTd8u31dXadv0MopwGgNOBpUVROFKWVQgAg5N1ESyCz8AuBcMqm4AuTjrwgQKGDfoFuz02EuMRHQIw/frmYKQ==}
     cpu: [x64]
     os: [win32]
 
@@ -10050,7 +10084,7 @@ snapshots:
   '@jest/console@30.0.2':
     dependencies:
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       jest-message-util: 30.0.2
       jest-util: 30.0.2
@@ -10064,14 +10098,14 @@ snapshots:
       '@jest/test-result': 30.0.2
       '@jest/transform': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 4.3.1
       exit-x: 0.2.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.0.2
-      jest-config: 30.0.2(@types/node@22.19.3)(ts-node@10.9.2(@swc/core@1.15.5)(@types/node@22.19.3)(typescript@5.9.3))
+      jest-config: 30.0.2(@types/node@20.19.27)(ts-node@10.9.2(@swc/core@1.15.5)(@types/node@22.19.3)(typescript@5.9.3))
       jest-haste-map: 30.0.2
       jest-message-util: 30.0.2
       jest-regex-util: 30.0.1
@@ -10098,7 +10132,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       jest-mock: 30.0.2
 
   '@jest/expect-utils@29.7.0':
@@ -10120,7 +10154,7 @@ snapshots:
     dependencies:
       '@jest/types': 30.0.1
       '@sinonjs/fake-timers': 13.0.5
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       jest-message-util: 30.0.2
       jest-mock: 30.0.2
       jest-util: 30.0.2
@@ -10138,7 +10172,7 @@ snapshots:
 
   '@jest/pattern@30.0.1':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       jest-regex-util: 30.0.1
 
   '@jest/reporters@30.0.2':
@@ -10149,7 +10183,7 @@ snapshots:
       '@jest/transform': 30.0.2
       '@jest/types': 30.0.1
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit-x: 0.2.2
@@ -10239,7 +10273,7 @@ snapshots:
       '@jest/schemas': 30.0.1
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -10412,38 +10446,80 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.2.0': {}
 
-  '@modelcontextprotocol/ext-apps@0.0.7':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.76)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      zod: 3.25.76
-    optionalDependencies:
-      '@rollup/rollup-darwin-arm64': 4.53.3
-      '@rollup/rollup-darwin-x64': 4.53.3
-      '@rollup/rollup-linux-arm64-gnu': 4.53.3
-      '@rollup/rollup-linux-x64-gnu': 4.53.3
-      '@rollup/rollup-win32-x64-msvc': 4.53.3
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - supports-color
-
-  '@modelcontextprotocol/ext-apps@https://codeload.github.com/modelcontextprotocol/ext-apps/tar.gz/8550545ccbb87545a2321697edd7f07e9fde1435(zod@3.25.76)':
+  '@modelcontextprotocol/ext-apps@0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@3.25.76))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.25.76)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.76)
       prettier: 3.7.4
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
       zod: 3.25.76
     optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.4
+      '@oven/bun-darwin-x64': 1.3.4
+      '@oven/bun-darwin-x64-baseline': 1.3.4
+      '@oven/bun-linux-aarch64': 1.3.4
+      '@oven/bun-linux-aarch64-musl': 1.3.4
+      '@oven/bun-linux-x64': 1.3.4
+      '@oven/bun-linux-x64-baseline': 1.3.4
+      '@oven/bun-linux-x64-musl': 1.3.4
+      '@oven/bun-linux-x64-musl-baseline': 1.3.4
+      '@oven/bun-windows-x64': 1.3.4
+      '@oven/bun-windows-x64-baseline': 1.3.4
       '@rollup/rollup-darwin-arm64': 4.53.4
       '@rollup/rollup-darwin-x64': 4.53.4
       '@rollup/rollup-linux-arm64-gnu': 4.53.4
       '@rollup/rollup-linux-x64-gnu': 4.53.4
       '@rollup/rollup-win32-x64-msvc': 4.53.4
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - supports-color
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@modelcontextprotocol/ext-apps@0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@3.25.76))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@3.25.76)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(zod@3.25.76)
+      prettier: 3.7.4
+      zod: 3.25.76
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.4
+      '@oven/bun-darwin-x64': 1.3.4
+      '@oven/bun-darwin-x64-baseline': 1.3.4
+      '@oven/bun-linux-aarch64': 1.3.4
+      '@oven/bun-linux-aarch64-musl': 1.3.4
+      '@oven/bun-linux-x64': 1.3.4
+      '@oven/bun-linux-x64-baseline': 1.3.4
+      '@oven/bun-linux-x64-musl': 1.3.4
+      '@oven/bun-linux-x64-musl-baseline': 1.3.4
+      '@oven/bun-windows-x64': 1.3.4
+      '@oven/bun-windows-x64-baseline': 1.3.4
+      '@rollup/rollup-darwin-arm64': 4.53.4
+      '@rollup/rollup-darwin-x64': 4.53.4
+      '@rollup/rollup-linux-arm64-gnu': 4.53.4
+      '@rollup/rollup-linux-x64-gnu': 4.53.4
+      '@rollup/rollup-win32-x64-msvc': 4.53.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+
+  '@modelcontextprotocol/ext-apps@0.2.0(@modelcontextprotocol/sdk@1.24.3(zod@4.1.13))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.1.13)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(zod@4.1.13)
+      prettier: 3.7.4
+      zod: 4.1.13
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.4
+      '@oven/bun-darwin-x64': 1.3.4
+      '@oven/bun-darwin-x64-baseline': 1.3.4
+      '@oven/bun-linux-aarch64': 1.3.4
+      '@oven/bun-linux-aarch64-musl': 1.3.4
+      '@oven/bun-linux-x64': 1.3.4
+      '@oven/bun-linux-x64-baseline': 1.3.4
+      '@oven/bun-linux-x64-musl': 1.3.4
+      '@oven/bun-linux-x64-musl-baseline': 1.3.4
+      '@oven/bun-windows-x64': 1.3.4
+      '@oven/bun-windows-x64-baseline': 1.3.4
+      '@rollup/rollup-darwin-arm64': 4.53.4
+      '@rollup/rollup-darwin-x64': 4.53.4
+      '@rollup/rollup-linux-arm64-gnu': 4.53.4
+      '@rollup/rollup-linux-x64-gnu': 4.53.4
+      '@rollup/rollup-win32-x64-msvc': 4.53.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@modelcontextprotocol/sdk@1.24.3(zod@3.25.76)':
     dependencies:
@@ -10568,6 +10644,39 @@ snapshots:
       '@octokit/openapi-types': 27.0.0
 
   '@opentelemetry/api@1.9.0': {}
+
+  '@oven/bun-darwin-aarch64@1.3.4':
+    optional: true
+
+  '@oven/bun-darwin-x64-baseline@1.3.4':
+    optional: true
+
+  '@oven/bun-darwin-x64@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-aarch64-musl@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-aarch64@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-x64-baseline@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-x64-musl-baseline@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-x64-musl@1.3.4':
+    optional: true
+
+  '@oven/bun-linux-x64@1.3.4':
+    optional: true
+
+  '@oven/bun-windows-x64-baseline@1.3.4':
+    optional: true
+
+  '@oven/bun-windows-x64@1.3.4':
+    optional: true
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -10938,16 +11047,10 @@ snapshots:
   '@rollup/rollup-darwin-arm64@4.44.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.53.3':
-    optional: true
-
   '@rollup/rollup-darwin-arm64@4.53.4':
     optional: true
 
   '@rollup/rollup-darwin-x64@4.44.0':
-    optional: true
-
-  '@rollup/rollup-darwin-x64@4.53.3':
     optional: true
 
   '@rollup/rollup-darwin-x64@4.53.4':
@@ -10966,9 +11069,6 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-arm64-gnu@4.44.0':
-    optional: true
-
-  '@rollup/rollup-linux-arm64-gnu@4.53.3':
     optional: true
 
   '@rollup/rollup-linux-arm64-gnu@4.53.4':
@@ -10995,9 +11095,6 @@ snapshots:
   '@rollup/rollup-linux-x64-gnu@4.44.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.53.3':
-    optional: true
-
   '@rollup/rollup-linux-x64-gnu@4.53.4':
     optional: true
 
@@ -11011,9 +11108,6 @@ snapshots:
     optional: true
 
   '@rollup/rollup-win32-x64-msvc@4.44.0':
-    optional: true
-
-  '@rollup/rollup-win32-x64-msvc@4.53.3':
     optional: true
 
   '@rollup/rollup-win32-x64-msvc@4.53.4':
@@ -14928,7 +15022,7 @@ snapshots:
       '@jest/expect': 30.0.2
       '@jest/test-result': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.0
@@ -14966,6 +15060,39 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
+
+  jest-config@30.0.2(@types/node@20.19.27)(ts-node@10.9.2(@swc/core@1.15.5)(@types/node@22.19.3)(typescript@5.9.3)):
+    dependencies:
+      '@babel/core': 7.28.5
+      '@jest/get-type': 30.0.1
+      '@jest/pattern': 30.0.1
+      '@jest/test-sequencer': 30.0.2
+      '@jest/types': 30.0.1
+      babel-jest: 30.0.2(@babel/core@7.28.5)
+      chalk: 4.1.2
+      ci-info: 4.3.1
+      deepmerge: 4.3.1
+      glob: 10.5.0
+      graceful-fs: 4.2.11
+      jest-circus: 30.0.2
+      jest-docblock: 30.0.1
+      jest-environment-node: 30.0.2
+      jest-regex-util: 30.0.1
+      jest-resolve: 30.0.2
+      jest-runner: 30.0.2
+      jest-util: 30.0.2
+      jest-validate: 30.0.2
+      micromatch: 4.0.8
+      parse-json: 5.2.0
+      pretty-format: 30.0.2
+      slash: 3.0.0
+      strip-json-comments: 3.1.1
+    optionalDependencies:
+      '@types/node': 20.19.27
+      ts-node: 10.9.2(@swc/core@1.15.5)(@types/node@22.19.3)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - supports-color
 
   jest-config@30.0.2(@types/node@22.19.3)(ts-node@10.9.2(@swc/core@1.15.5)(@types/node@22.19.3)(typescript@5.9.3)):
     dependencies:
@@ -15031,7 +15158,7 @@ snapshots:
       '@jest/environment': 30.0.2
       '@jest/fake-timers': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       jest-mock: 30.0.2
       jest-util: 30.0.2
       jest-validate: 30.0.2
@@ -15041,7 +15168,7 @@ snapshots:
   jest-haste-map@30.0.2:
     dependencies:
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -15099,7 +15226,7 @@ snapshots:
   jest-mock@30.0.2:
     dependencies:
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       jest-util: 30.0.2
 
   jest-pnp-resolver@1.2.3(jest-resolve@30.0.2):
@@ -15133,7 +15260,7 @@ snapshots:
       '@jest/test-result': 30.0.2
       '@jest/transform': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       emittery: 0.13.1
       exit-x: 0.2.2
@@ -15162,7 +15289,7 @@ snapshots:
       '@jest/test-result': 30.0.2
       '@jest/transform': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       cjs-module-lexer: 2.1.1
       collect-v8-coverage: 1.0.3
@@ -15218,7 +15345,7 @@ snapshots:
   jest-util@30.0.2:
     dependencies:
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       chalk: 4.1.2
       ci-info: 4.3.1
       graceful-fs: 4.2.11
@@ -15237,7 +15364,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 30.0.2
       '@jest/types': 30.0.1
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -15246,7 +15373,7 @@ snapshots:
 
   jest-worker@30.0.2:
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 20.19.27
       '@ungap/structured-clone': 1.3.0
       jest-util: 30.0.2
       merge-stream: 2.0.0

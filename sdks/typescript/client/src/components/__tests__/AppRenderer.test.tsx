@@ -48,7 +48,7 @@ vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
         sendToolListChanged: vi.fn(),
         sendResourceListChanged: vi.fn(),
         sendPromptListChanged: vi.fn(),
-        sendResourceTeardown: vi.fn(),
+        teardownResource: vi.fn(),
       };
       return mockBridgeInstance;
     }),
@@ -371,7 +371,7 @@ describe('<AppRenderer />', () => {
       expect(mockBridgeInstance?.sendPromptListChanged).toHaveBeenCalled();
     });
 
-    it('should expose sendResourceTeardown via ref', async () => {
+    it('should expose teardownResource via ref', async () => {
       const ref = React.createRef<AppRendererHandle>();
 
       render(<AppRenderer ref={ref} {...defaultProps} />);
@@ -385,10 +385,10 @@ describe('<AppRenderer />', () => {
       });
 
       act(() => {
-        ref.current?.sendResourceTeardown();
+        ref.current?.teardownResource();
       });
 
-      expect(mockBridgeInstance?.sendResourceTeardown).toHaveBeenCalledWith({});
+      expect(mockBridgeInstance?.teardownResource).toHaveBeenCalledWith({});
     });
   });
 
