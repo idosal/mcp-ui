@@ -6,6 +6,8 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
+const DEFAULT_SANDBOX_TIMEOUT_MS = 10000;
+
 export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe: HTMLIFrameElement;
   onReady: Promise<void>;
@@ -17,19 +19,49 @@ export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe.style.backgroundColor = 'transparent';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
 
-  const onReady = new Promise<void>((resolve, _reject) => {
-    const initialListener = async (event: MessageEvent) => {
+  const onReady = new Promise<void>((resolve, reject) => {
+    let settled = false;
+
+    const cleanup = () => {
+      window.removeEventListener('message', messageListener);
+      iframe.removeEventListener('error', errorListener);
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        cleanup();
+        reject(new Error('Timed out waiting for sandbox proxy iframe to be ready'));
+      }
+    }, DEFAULT_SANDBOX_TIMEOUT_MS);
+
+    const messageListener = (event: MessageEvent) => {
       if (event.source === iframe.contentWindow) {
         if (
           event.data &&
           event.data.method === McpUiSandboxProxyReadyNotificationSchema.shape.method._def.values[0]
         ) {
-          window.removeEventListener('message', initialListener);
-          resolve();
+          if (!settled) {
+            settled = true;
+            clearTimeout(timeoutId);
+            cleanup();
+            resolve();
+          }
         }
       }
     };
-    window.addEventListener('message', initialListener);
+
+    const errorListener = () => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timeoutId);
+        cleanup();
+        reject(new Error('Failed to load sandbox proxy iframe'));
+      }
+    };
+
+    window.addEventListener('message', messageListener);
+    iframe.addEventListener('error', errorListener);
   });
 
   iframe.src = sandboxProxyUrl.href;
