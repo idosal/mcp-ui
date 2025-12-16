@@ -19,6 +19,7 @@ import {
 
 import {
   AppBridge,
+  RESOURCE_MIME_TYPE,
   type McpUiMessageRequest,
   type McpUiMessageResult,
   type McpUiOpenLinkRequest,
@@ -56,8 +57,8 @@ export interface AppRendererHandle {
  * Props for the AppRenderer component.
  */
 export interface AppRendererProps {
-  /** MCP client connected to the server providing the tool. Pass `null` to disable automatic MCP forwarding and use custom handlers instead. */
-  client: Client | null;
+  /** MCP client connected to the server providing the tool. Omit to disable automatic MCP forwarding and use custom handlers instead. */
+  client?: Client;
 
   /** Name of the MCP tool to render UI for */
   toolName: string;
@@ -211,19 +212,25 @@ export interface AppRendererProps {
  * <AppRenderer ref={appRef} ... />
  * ```
  *
- * @example With custom MCP request handlers
+ * @example With custom MCP request handlers (no client)
  * ```tsx
  * <AppRenderer
- *   client={null}  // Disable automatic forwarding
- *   oncalltool={async (params) => {
+ *   // client omitted - use toolResourceUri + onReadResource to fetch HTML
+ *   sandbox={{ url: sandboxUrl }}
+ *   toolName="my-tool"
+ *   toolResourceUri="ui://my-server/my-tool"
+ *   onReadResource={async ({ uri }) => {
+ *     // Proxy to your MCP client (e.g., in a different context)
+ *     return myMcpProxy.readResource({ uri });
+ *   }}
+ *   onCallTool={async (params) => {
  *     // Custom tool call handling with caching/filtering
  *     return myCustomToolCall(params);
  *   }}
- *   onlistresources={async () => {
+ *   onListResources={async () => {
  *     // Aggregate resources from multiple servers
  *     return { resources: [...server1Resources, ...server2Resources] };
  *   }}
- *   ...
  * />
  * ```
  */
@@ -317,7 +324,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       try {
         const serverCapabilities = client?.getServerCapabilities();
         const bridge = new AppBridge(
-          client,
+          client ?? null,
           {
             name: 'MCP-UI Host',
             version: '1.0.0',
@@ -434,9 +441,16 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
       return;
     }
 
-    // If no client and no HTML provided, we can't fetch
-    if (!client) {
-      setError(new Error("Either 'html' prop or 'client' must be provided to fetch UI resource"));
+    // Determine if we can fetch HTML
+    const canFetchWithClient = !!client;
+    const canFetchWithCallback = !!toolResourceUri && !!onReadResourceRef.current;
+
+    if (!canFetchWithClient && !canFetchWithCallback) {
+      setError(
+        new Error(
+          "Either 'html' prop, 'client', or ('toolResourceUri' + 'onReadResource') must be provided to fetch UI resource",
+        ),
+      );
       return;
     }
 
@@ -449,7 +463,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
         if (toolResourceUri) {
           uri = toolResourceUri;
           console.log(`[AppRenderer] Using provided resource URI: ${uri}`);
-        } else {
+        } else if (client) {
           console.log(`[AppRenderer] Fetching resource URI for tool: ${toolName}`);
           const info = await getToolUiResourceUri(client, toolName);
           if (!info) {
@@ -459,13 +473,41 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
           }
           uri = info.uri;
           console.log(`[AppRenderer] Got resource URI: ${uri}`);
+        } else {
+          throw new Error('Cannot determine resource URI without client or toolResourceUri');
         }
 
         if (!mounted) return;
 
-        // Read HTML content
+        // Read HTML content - use client if available, otherwise use onReadResource callback
         console.log(`[AppRenderer] Reading resource HTML from: ${uri}`);
-        const htmlContent = await readToolUiResourceHtml(client, { uri });
+        let htmlContent: string;
+
+        if (client) {
+          htmlContent = await readToolUiResourceHtml(client, { uri });
+        } else if (onReadResourceRef.current) {
+          // Use the onReadResource callback to fetch the HTML
+          const result = await onReadResourceRef.current({ uri }, {} as RequestHandlerExtra);
+          if (!result.contents || result.contents.length !== 1) {
+            throw new Error('Unsupported UI resource content length: ' + result.contents?.length);
+          }
+          const content = result.contents[0];
+          const isHtml = (t?: string) => t === RESOURCE_MIME_TYPE;
+
+          if ('text' in content && typeof content.text === 'string' && isHtml(content.mimeType)) {
+            htmlContent = content.text;
+          } else if (
+            'blob' in content &&
+            typeof content.blob === 'string' &&
+            isHtml(content.mimeType)
+          ) {
+            htmlContent = atob(content.blob);
+          } else {
+            throw new Error('Unsupported UI resource content format: ' + JSON.stringify(content));
+          }
+        } else {
+          throw new Error('No way to read resource HTML');
+        }
 
         if (!mounted) return;
 

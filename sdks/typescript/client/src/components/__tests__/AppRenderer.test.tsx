@@ -32,7 +32,7 @@ let mockBridgeInstance: any = null;
 // Mock AppBridge constructor
 vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
   return {
-    AppBridge: vi.fn().mockImplementation(function() {
+    AppBridge: vi.fn().mockImplementation(function () {
       mockBridgeInstance = {
         onmessage: null,
         onopenlink: null,
@@ -52,6 +52,7 @@ vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
       };
       return mockBridgeInstance;
     }),
+    RESOURCE_MIME_TYPE: 'text/html',
   };
 });
 
@@ -488,10 +489,10 @@ describe('<AppRenderer />', () => {
     });
   });
 
-  describe('null client', () => {
-    it('should work with null client when html is provided', async () => {
+  describe('no client', () => {
+    it('should work without client when html is provided', async () => {
       const props: AppRendererProps = {
-        client: null,
+        // client omitted - using html prop instead
         toolName: 'test-tool',
         sandbox: { url: new URL('http://localhost:8081/sandbox.html') },
         html: '<html><body>Static HTML</body></html>',
@@ -508,9 +509,9 @@ describe('<AppRenderer />', () => {
       });
     });
 
-    it('should show error with null client and no html', async () => {
+    it('should show error without client and no html', async () => {
       const props: AppRendererProps = {
-        client: null,
+        // client omitted, no html provided
         toolName: 'test-tool',
         sandbox: { url: new URL('http://localhost:8081/sandbox.html') },
       };
@@ -519,6 +520,40 @@ describe('<AppRenderer />', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Error:/)).toBeInTheDocument();
+      });
+    });
+
+    it('should work with onReadResource and toolResourceUri instead of client', async () => {
+      const mockReadResource = vi.fn().mockResolvedValue({
+        contents: [
+          {
+            uri: 'ui://test/tool',
+            mimeType: 'text/html',
+            text: '<html><body>Custom fetched HTML</body></html>',
+          },
+        ],
+      });
+
+      const props: AppRendererProps = {
+        // client omitted - using onReadResource + toolResourceUri instead
+        toolName: 'test-tool',
+        sandbox: { url: new URL('http://localhost:8081/sandbox.html') },
+        toolResourceUri: 'ui://test/tool',
+        onReadResource: mockReadResource,
+      };
+
+      render(<AppRenderer {...props} />);
+
+      await waitFor(() => {
+        expect(mockReadResource).toHaveBeenCalledWith(
+          { uri: 'ui://test/tool' },
+          expect.anything(),
+        );
+        expect(screen.getByTestId('app-frame')).toBeInTheDocument();
+        expect(screen.getByTestId('app-frame')).toHaveAttribute(
+          'data-html',
+          '<html><body>Custom fetched HTML</body></html>',
+        );
       });
     });
   });
