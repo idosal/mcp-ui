@@ -104,6 +104,12 @@ describe('MCP Apps Adapter', () => {
       expect(script).toMatch(/case\s+["']prompt["']/);
     });
 
+    it('should format ui/message content as array per ext-apps spec', () => {
+      const script = getMcpAppsAdapterScript();
+      
+      expect(script).toMatch(/content:\s*\[\s*\{\s*type:\s*["']text["']/);
+    });
+
     it('should handle render data', () => {
       const script = getMcpAppsAdapterScript();
       

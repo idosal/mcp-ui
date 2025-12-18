@@ -533,7 +533,7 @@ class McpAppsAdapter {
 
                 this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
-                    content: { type: 'text', text: prompt }
+                    content: [{ type: 'text', text: prompt }]
                 });
                 break;
             }
@@ -576,7 +576,7 @@ class McpAppsAdapter {
                 // Translate intent to a message
                 this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
-                    content: { type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }
+                    content: [{ type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }]
                 });
                 break;
             }
