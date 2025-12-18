@@ -4,11 +4,12 @@ import '@testing-library/jest-dom';
 
 import { AppFrame, type AppFrameProps } from '../AppFrame';
 import * as appHostUtils from '../../utils/app-host-utils';
+import type { AppBridge } from '@modelcontextprotocol/ext-apps/app-bridge';
 
 // Mock the ext-apps module
 vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
   // Create a mock constructor for PostMessageTransport
-  const MockPostMessageTransport = vi.fn().mockImplementation(function(this: any) {
+  const MockPostMessageTransport = vi.fn().mockImplementation(function(this: unknown) {
     return this;
   });
 
@@ -108,15 +109,14 @@ describe('<AppFrame />', () => {
     vi.clearAllMocks();
   });
 
-  const defaultProps: AppFrameProps = {
+  const defaultProps: Omit<AppFrameProps, 'appBridge'> = {
     html: '<html><body>Test</body></html>',
     sandbox: { url: new URL('http://localhost:8081/sandbox.html') },
-    appBridge: null as any, // Will be set in tests
   };
 
   const getPropsWithBridge = (overrides: Partial<AppFrameProps> = {}): AppFrameProps => ({
     ...defaultProps,
-    appBridge: mockAppBridge as any,
+    appBridge: mockAppBridge as unknown as AppBridge,
     ...overrides,
   });
 
@@ -207,9 +207,9 @@ describe('<AppFrame />', () => {
   });
 
   it('should send tool result after initialization', async () => {
-    const toolResult = { content: [{ type: 'text', text: 'result' }] };
+    const toolResult = { content: [{ type: 'text' as const, text: 'result' }] };
 
-    render(<AppFrame {...getPropsWithBridge({ toolResult: toolResult as any })} />);
+    render(<AppFrame {...getPropsWithBridge({ toolResult })} />);
 
     await act(async () => {
       onReadyResolve();

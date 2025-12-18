@@ -390,7 +390,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
             onUIActionRef.current({
               type: 'notify',
               payload: {
-                message: String(params.message ?? params.data),
+                message: String(params.data),
               },
             });
           } else if (onLoggingMessageRef.current) {

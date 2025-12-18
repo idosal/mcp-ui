@@ -2,14 +2,16 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
 import { AppRenderer, type AppRendererProps, type AppRendererHandle } from '../AppRenderer';
+import type { AppFrameProps } from '../AppFrame';
 import * as appHostUtils from '../../utils/app-host-utils';
 
 // Mock AppFrame to capture props
 const mockAppFrame = vi.fn();
 vi.mock('../AppFrame', () => ({
-  AppFrame: (props: any) => {
+  AppFrame: (props: AppFrameProps) => {
     mockAppFrame(props);
     return (
       <div data-testid="app-frame" data-html={props.html} data-sandbox-url={props.sandbox?.url?.href}>
@@ -27,21 +29,21 @@ vi.mock('../../utils/app-host-utils', () => ({
 }));
 
 // Store mock bridge instance for test access
-let mockBridgeInstance: any = null;
+let mockBridgeInstance: Partial<import('@modelcontextprotocol/ext-apps/app-bridge').AppBridge> | null = null;
 
 // Mock AppBridge constructor
 vi.mock('@modelcontextprotocol/ext-apps/app-bridge', () => {
   return {
     AppBridge: vi.fn().mockImplementation(function () {
       mockBridgeInstance = {
-        onmessage: null,
-        onopenlink: null,
-        onloggingmessage: null,
-        oncalltool: null,
-        onlistresources: null,
-        onlistresourcetemplates: null,
-        onreadresource: null,
-        onlistprompts: null,
+        onmessage: undefined,
+        onopenlink: undefined,
+        onloggingmessage: undefined,
+        oncalltool: undefined,
+        onlistresources: undefined,
+        onlistresourcetemplates: undefined,
+        onreadresource: undefined,
+        onlistprompts: undefined,
         setHostContext: vi.fn(),
         sendToolInputPartial: vi.fn(),
         sendToolCancelled: vi.fn(),
@@ -66,7 +68,7 @@ const mockClient = {
 
 describe('<AppRenderer />', () => {
   const defaultProps: AppRendererProps = {
-    client: mockClient as any,
+    client: mockClient as unknown as Client,
     toolName: 'test-tool',
     sandbox: { url: new URL('http://localhost:8081/sandbox.html') },
   };
@@ -184,10 +186,10 @@ describe('<AppRenderer />', () => {
     });
 
     it('should pass toolResult to AppFrame', async () => {
-      const toolResult = { content: [{ type: 'text', text: 'result' }] };
+      const toolResult = { content: [{ type: 'text' as const, text: 'result' }] };
       const props: AppRendererProps = {
         ...defaultProps,
-        toolResult: toolResult as any,
+        toolResult,
       };
 
       render(<AppRenderer {...props} />);
@@ -202,7 +204,7 @@ describe('<AppRenderer />', () => {
       const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const props = {
-        client: mockClient as any,
+        client: mockClient as unknown as Client,
         toolName: 'test-tool',
         sandboxProxyUrl: new URL('http://localhost:8081/sandbox.html'),
       } as AppRendererProps;

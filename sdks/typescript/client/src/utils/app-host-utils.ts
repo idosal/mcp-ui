@@ -39,7 +39,7 @@ export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
       if (event.source === iframe.contentWindow) {
         if (
           event.data &&
-          event.data.method === McpUiSandboxProxyReadyNotificationSchema.shape.method._def.values[0]
+          event.data.method === McpUiSandboxProxyReadyNotificationSchema.shape.method._def.value
         ) {
           if (!settled) {
             settled = true;
