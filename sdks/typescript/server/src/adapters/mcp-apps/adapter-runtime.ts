@@ -406,7 +406,7 @@ class McpAppsAdapter {
             this.pendingRequests.delete(String(data.id));
             clearTimeout(pendingRequest.timeoutId);
             
-            // Send response back to the app (if it was expecting one)
+            // Send response back to the app (if expected)
              this.dispatchMessageToIframe({
                 type: 'ui-message-response',
                 messageId: pendingRequest.messageId, // The original message ID from the App
