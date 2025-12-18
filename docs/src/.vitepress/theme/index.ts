@@ -15,7 +15,7 @@ export default {
       ])
     })
   },
-  enhanceApp({ app, router, siteData }) {
+  enhanceApp({ app: _app, router: _router, siteData: _siteData }) {
     // Custom app enhancements can go here
   },
 } satisfies Theme;

@@ -319,7 +319,7 @@ export default withMermaid(
         dark: 'github-dark',
       },
       lineNumbers: true,
-      config: (md) => {
+      config: (_md) => {
         // Add any markdown-it plugins here
       },
     },
