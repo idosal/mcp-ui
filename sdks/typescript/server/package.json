@@ -1,6 +1,6 @@
 {
   "name": "@mcp-ui/server",
-  "version": "5.16.2",
+  "version": "5.16.3",
   "private": false,
   "description": "mcp-ui Server SDK",
   "type": "module",
