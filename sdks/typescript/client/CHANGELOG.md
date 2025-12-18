@@ -1,3 +1,22 @@
+# [5.18.0-alpha.1](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.17.1...client/v5.18.0-alpha.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* **client:** use type-only imports for @modelcontextprotocol/sdk types ([#157](https://github.com/MCP-UI-Org/mcp-ui/issues/157)) ([d84cb3e](https://github.com/MCP-UI-Org/mcp-ui/commit/d84cb3e217dfa90f038a8fbe64b4ffd0e0a1bc3f))
+* revert externalUrl adapter for compatibility ([#159](https://github.com/MCP-UI-Org/mcp-ui/issues/159)) ([3c5289a](https://github.com/MCP-UI-Org/mcp-ui/commit/3c5289a5e59812f556bc2bb9e67c3ce2e3ce764e))
+* trigger TS release ([e28d1f6](https://github.com/MCP-UI-Org/mcp-ui/commit/e28d1f65cd5f26e46801480995e178ee50c31e51))
+* update adapter to latest MCP Apps spec ([#163](https://github.com/MCP-UI-Org/mcp-ui/issues/163)) ([e342034](https://github.com/MCP-UI-Org/mcp-ui/commit/e3420348098fe716f45b2182bc8c8d3358714035))
+* update MCP Apps adapter mimetype ([#162](https://github.com/MCP-UI-Org/mcp-ui/issues/162)) ([c91e533](https://github.com/MCP-UI-Org/mcp-ui/commit/c91e5331b68c65de2347b16766a5711e05985e68))
+* update ui/message to pass an array ([#167](https://github.com/MCP-UI-Org/mcp-ui/issues/167)) ([80cf222](https://github.com/MCP-UI-Org/mcp-ui/commit/80cf22290ff5e2f981be839f74705454483c21b5))
+
+
+### Features
+
+* **client:** expose MCP request handlers and AppBridge ref ([3cf3c37](https://github.com/MCP-UI-Org/mcp-ui/commit/3cf3c3731eaf05c7b3d235f7dd30f100fa2e16bb))
+* **client:** make Client optional with onReadResource alternative ([fece80e](https://github.com/MCP-UI-Org/mcp-ui/commit/fece80e99c4e39de57444ac1dbf865830680fdbe))
+* use ext-apps branch with setter-based MCP forwarding handlers ([a312e52](https://github.com/MCP-UI-Org/mcp-ui/commit/a312e52141c1396068e07f5f4ad634de831604fe))
+
 ## [5.17.1](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.17.0...client/v5.17.1) (2025-12-01)
 
 
