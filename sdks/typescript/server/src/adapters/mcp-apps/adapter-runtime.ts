@@ -45,7 +45,6 @@ const LATEST_PROTOCOL_VERSION = '2025-11-21';
  * 
  * @see https://github.com/modelcontextprotocol/ext-apps/blob/main/src/spec.types.ts
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Used in switch cases below
 const METHODS = {
   // Lifecycle
   INITIALIZE: 'ui/initialize',
@@ -234,7 +233,7 @@ class McpAppsAdapter {
 
     try {
       await initPromise;
-    } catch (error) {
+    } catch (_error) {
       // Initialization failed, but we still try to work
       this.config.logger.warn('[MCP Apps Adapter] Continuing despite initialization error');
     }
@@ -407,7 +406,7 @@ class McpAppsAdapter {
             this.pendingRequests.delete(String(data.id));
             clearTimeout(pendingRequest.timeoutId);
             
-            // Send response back to the app (if it was expecting one)
+            // Send response back to the app (if expected)
              this.dispatchMessageToIframe({
                 type: 'ui-message-response',
                 messageId: pendingRequest.messageId, // The original message ID from the App
@@ -533,7 +532,7 @@ class McpAppsAdapter {
 
                 this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
-                    content: { type: 'text', text: prompt }
+                    content: [{ type: 'text', text: prompt }]
                 });
                 break;
             }
@@ -576,7 +575,7 @@ class McpAppsAdapter {
                 // Translate intent to a message
                 this.sendJsonRpcRequest(jsonRpcId, METHODS.MESSAGE, {
                     role: 'user',
-                    content: { type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }
+                    content: [{ type: 'text', text: `Intent: ${intent}. Parameters: ${JSON.stringify(params)}` }]
                 });
                 break;
             }
