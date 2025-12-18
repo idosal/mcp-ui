@@ -11,7 +11,6 @@ export default defineConfig({
       tsconfigPath: path.resolve(__dirname, 'tsconfig.json'),
       exclude: ['**/__tests__/**', '**/*.test.ts', '**/*.spec.ts'],
     }),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ],
   build: {
     lib: {

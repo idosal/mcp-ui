@@ -55,7 +55,7 @@ export function utf8ToBase64(str: string): string {
     );
     try {
       return btoa(str);
-    } catch (e) {
+    } catch (_e) {
       throw new Error(
         'MCP-UI SDK: Suitable UTF-8 to Base64 encoding method not found, and fallback btoa failed.',
       );

@@ -11,8 +11,8 @@
     "test:ruby": "cd sdks/ruby && bundle install && bundle exec rake spec",
     "test:watch": "vitest watch",
     "coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "version:patch": "echo \"Versioning with Changesets, then run pnpm install\" && pnpm changeset version && pnpm install --lockfile-only",
     "publish-packages": "pnpm build && pnpm changeset publish",
@@ -21,6 +21,7 @@
     "docs:preview": "vitepress preview docs/src"
   },
   "devDependencies": {
+    "@eslint/js": "^9.25.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/exec": "^7.1.0",
@@ -44,6 +45,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.0.0",
     "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "prettier": "^3.7.4",
