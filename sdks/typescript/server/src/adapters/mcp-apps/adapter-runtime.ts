@@ -45,7 +45,6 @@ const LATEST_PROTOCOL_VERSION = '2025-11-21';
  * 
  * @see https://github.com/modelcontextprotocol/ext-apps/blob/main/src/spec.types.ts
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Used in switch cases below
 const METHODS = {
   // Lifecycle
   INITIALIZE: 'ui/initialize',
@@ -234,7 +233,7 @@ class McpAppsAdapter {
 
     try {
       await initPromise;
-    } catch (error) {
+    } catch (_error) {
       // Initialization failed, but we still try to work
       this.config.logger.warn('[MCP Apps Adapter] Continuing despite initialization error');
     }
