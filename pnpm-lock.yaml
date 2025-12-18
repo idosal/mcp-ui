@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.25.0
+        version: 9.39.1
       '@semantic-release/changelog':
         specifier: ^6.0.3
         version: 6.0.3(semantic-release@25.0.2(typescript@5.9.3))
@@ -77,6 +80,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.0.1(eslint@9.39.1(jiti@2.4.2))
+      globals:
+        specifier: ^16.0.0
+        version: 16.2.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -101,6 +107,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.30.1
+        version: 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
       vite:
         specifier: ^7.2.7
         version: 7.2.7(@types/node@22.15.33)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.20.6)
@@ -178,8 +187,8 @@ importers:
         specifier: workspace:*
         version: link:../../sdks/typescript/server
       '@modelcontextprotocol/ext-apps':
-        specifier: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
-        version: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz
+        specifier: ^0.2.2
+        version: 0.2.2(@modelcontextprotocol/sdk@1.23.0(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)
       '@modelcontextprotocol/sdk':
         specifier: ^1.22.0
         version: 1.23.0(zod@3.25.67)
@@ -484,11 +493,11 @@ importers:
   sdks/typescript/server:
     dependencies:
       '@modelcontextprotocol/ext-apps':
-        specifier: ^0.0.7
-        version: 0.0.7
+        specifier: ^0.2.2
+        version: 0.2.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
-        version: 1.22.0
+        specifier: ^1.25.1
+        version: 1.25.1(hono@4.11.1)(zod@3.25.67)
     devDependencies:
       '@types/node':
         specifier: ^18.19.100
@@ -1741,6 +1750,12 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
+  '@hono/node-server@1.19.7':
+    resolution: {integrity: sha512-vUcD0uauS7EU2caukW8z5lJKtoGMokxNbJtBiwHgpqxEXokaHCBkQUmCHhjFB1VUTWdqj25QoMkMKzgjq+uhrw==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
+
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -2067,12 +2082,18 @@ packages:
   '@mjackson/node-fetch-server@0.6.1':
     resolution: {integrity: sha512-9ZJnk/DJjt805uv5PPv11haJIW+HHf3YEEyVXv+8iLQxLD/iXA68FH220XoiTPBC4gCg5q+IMadDw8qPqlA5wg==}
 
-  '@modelcontextprotocol/ext-apps@0.0.7':
-    resolution: {integrity: sha512-paNc/5NTUoofQ54Heg45xSSVzyDWQc81IgYODnHTUayg7SU3hXI2ZYU9B1oYyyrX//+dHzC52/Kuheq2qoyZdA==}
-
-  '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
-    resolution: {tarball: https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz}
-    version: 0.0.1
+  '@modelcontextprotocol/ext-apps@0.2.2':
+    resolution: {integrity: sha512-h8sN3QIBLqMsRXjKL76M5VmBQf3N0I1G1DiDiSYAgtdynYQctHqCs79WEo1d5wClyZVYBWXdRcxgiR/WBfSOqw==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.24.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@modelcontextprotocol/sdk@1.22.0':
     resolution: {integrity: sha512-VUpl106XVTCpDmTBil2ehgJZjhyLY2QZikzF8NvTXtLRF1CvO5iEE2UNZdVIUer35vFOwMKYeUGbjJtvPWan3g==}
@@ -2085,6 +2106,16 @@ packages:
 
   '@modelcontextprotocol/sdk@1.23.0':
     resolution: {integrity: sha512-MCGd4K9aZKvuSqdoBkdMvZNcYXCkZRYVs/Gh92mdV5IHbctX9H9uIvd4X93+9g8tBbXv08sxc/QHXTzf8y65bA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cfworker/json-schema': ^4.1.1
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      '@cfworker/json-schema':
+        optional: true
+
+  '@modelcontextprotocol/sdk@1.25.1':
+    resolution: {integrity: sha512-yO28oVFFC7EBoiKdAn+VqRm+plcfv4v0xp6osG/VsCB0NlPZWi87ajbCZZ8f/RvOFLEu7//rSRmuZZ7lMoe3gQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -4224,11 +4255,6 @@ packages:
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
 
-  bun@1.3.3:
-    resolution: {integrity: sha512-2hJ4ocTZ634/Ptph4lysvO+LbbRZq8fzRvMwX0/CqaLBxrF2UB5D1LdMB8qGcdtCer4/VR9Bx5ORub0yn+yzmw==}
-    os: [darwin, linux, win32]
-    hasBin: true
-
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
@@ -5634,6 +5660,10 @@ packages:
   highlight.js@10.7.3:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
 
+  hono@4.11.1:
+    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
+    engines: {node: '>=16.9.0'}
+
   hook-std@4.0.0:
     resolution: {integrity: sha512-IHI4bEVOt3vRUDJ+bFA9VUJlo7SzvFARPNLw75pqSmAOP2HmTWfFJtPvLBrDrlgjEYXY9zs7SFdHPQaJShkSCQ==}
     engines: {node: '>=20'}
@@ -6164,6 +6194,9 @@ packages:
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
+  jose@6.1.3:
+    resolution: {integrity: sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -6233,6 +6266,9 @@ packages:
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+
+  json-schema-typed@8.0.2:
+    resolution: {integrity: sha512-fQhoXdcvc3V28x7C7BMs4P5+kNlgUURe2jmUT1T//oBRMDrqy1QPelJimwZGo7Hg9VPV3EQV5Bnq4hbFy2vetA==}
 
   json-schema@0.4.0:
     resolution: {integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==}
@@ -10045,6 +10081,10 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
+  '@hono/node-server@1.19.7(hono@4.11.1)':
+    dependencies:
+      hono: 4.11.1
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -10540,32 +10580,55 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.6.1': {}
 
-  '@modelcontextprotocol/ext-apps@0.0.7':
+  '@modelcontextprotocol/ext-apps@0.2.2(@modelcontextprotocol/sdk@1.23.0(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
+      prettier: 3.7.4
       zod: 3.25.67
     optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.3
+      '@oven/bun-darwin-x64': 1.3.3
+      '@oven/bun-darwin-x64-baseline': 1.3.3
+      '@oven/bun-linux-aarch64': 1.3.3
+      '@oven/bun-linux-aarch64-musl': 1.3.3
+      '@oven/bun-linux-x64': 1.3.3
+      '@oven/bun-linux-x64-baseline': 1.3.3
+      '@oven/bun-linux-x64-musl': 1.3.3
+      '@oven/bun-linux-x64-musl-baseline': 1.3.3
+      '@oven/bun-windows-x64': 1.3.3
+      '@oven/bun-windows-x64-baseline': 1.3.3
       '@rollup/rollup-darwin-arm64': 4.53.3
       '@rollup/rollup-darwin-x64': 4.53.3
       '@rollup/rollup-linux-arm64-gnu': 4.53.3
       '@rollup/rollup-linux-x64-gnu': 4.53.3
       '@rollup/rollup-win32-x64-msvc': 4.53.3
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - supports-color
-
-  '@modelcontextprotocol/ext-apps@https://github.com/modelcontextprotocol/ext-apps/archive/192d29f2ba122d0ad22e4456b9fd6b1e0fa7110f.tar.gz':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
-      bun: 1.3.3
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
+
+  '@modelcontextprotocol/ext-apps@0.2.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.1)(zod@3.25.67)
+      prettier: 3.7.4
       zod: 3.25.67
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - supports-color
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.3
+      '@oven/bun-darwin-x64': 1.3.3
+      '@oven/bun-darwin-x64-baseline': 1.3.3
+      '@oven/bun-linux-aarch64': 1.3.3
+      '@oven/bun-linux-aarch64-musl': 1.3.3
+      '@oven/bun-linux-x64': 1.3.3
+      '@oven/bun-linux-x64-baseline': 1.3.3
+      '@oven/bun-linux-x64-musl': 1.3.3
+      '@oven/bun-linux-x64-musl-baseline': 1.3.3
+      '@oven/bun-windows-x64': 1.3.3
+      '@oven/bun-windows-x64-baseline': 1.3.3
+      '@rollup/rollup-darwin-arm64': 4.53.3
+      '@rollup/rollup-darwin-x64': 4.53.3
+      '@rollup/rollup-linux-arm64-gnu': 4.53.3
+      '@rollup/rollup-linux-x64-gnu': 4.53.3
+      '@rollup/rollup-win32-x64-msvc': 4.53.3
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
 
   '@modelcontextprotocol/sdk@1.22.0':
     dependencies:
@@ -10601,6 +10664,28 @@ snapshots:
       zod: 3.25.67
       zod-to-json-schema: 3.25.0(zod@3.25.67)
     transitivePeerDependencies:
+      - supports-color
+
+  '@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67)':
+    dependencies:
+      '@hono/node-server': 1.19.7(hono@4.11.1)
+      ajv: 8.17.1
+      ajv-formats: 3.0.1(ajv@8.17.1)
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.0.6
+      express: 5.1.0
+      express-rate-limit: 7.5.1(express@5.1.0)
+      jose: 6.1.3
+      json-schema-typed: 8.0.2
+      pkce-challenge: 5.0.0
+      raw-body: 3.0.2
+      zod: 3.25.67
+      zod-to-json-schema: 3.25.0(zod@3.25.67)
+    transitivePeerDependencies:
+      - hono
       - supports-color
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -12013,6 +12098,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/eslint-plugin@8.35.0(@typescript-eslint/parser@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3))(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      '@typescript-eslint/parser': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      '@typescript-eslint/scope-manager': 8.35.0
+      '@typescript-eslint/type-utils': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      '@typescript-eslint/visitor-keys': 8.35.0
+      eslint: 9.39.1(jiti@2.4.2)
+      graphemer: 1.4.0
+      ignore: 7.0.5
+      natural-compare: 1.4.0
+      ts-api-utils: 2.1.0(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/eslint-plugin@8.49.0(@typescript-eslint/parser@8.49.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3))(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.1
@@ -12054,6 +12156,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/parser@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.35.0
+      '@typescript-eslint/types': 8.35.0
+      '@typescript-eslint/typescript-estree': 8.35.0(typescript@5.9.3)
+      '@typescript-eslint/visitor-keys': 8.35.0
+      debug: 4.4.3
+      eslint: 9.39.1(jiti@2.4.2)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/parser@8.49.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.49.0
@@ -12072,6 +12186,15 @@ snapshots:
       '@typescript-eslint/types': 8.35.0
       debug: 4.4.3
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/project-service@8.35.0(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/tsconfig-utils': 8.35.0(typescript@5.9.3)
+      '@typescript-eslint/types': 8.35.0
+      debug: 4.4.3
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -12108,6 +12231,10 @@ snapshots:
     dependencies:
       typescript: 5.8.3
 
+  '@typescript-eslint/tsconfig-utils@8.35.0(typescript@5.9.3)':
+    dependencies:
+      typescript: 5.9.3
+
   '@typescript-eslint/tsconfig-utils@8.49.0(typescript@5.9.3)':
     dependencies:
       typescript: 5.9.3
@@ -12132,6 +12259,17 @@ snapshots:
       eslint: 9.29.0(jiti@2.4.2)
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/type-utils@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/typescript-estree': 8.35.0(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      debug: 4.4.3
+      eslint: 9.39.1(jiti@2.4.2)
+      ts-api-utils: 2.1.0(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -12200,6 +12338,22 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/typescript-estree@8.35.0(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.35.0(typescript@5.9.3)
+      '@typescript-eslint/tsconfig-utils': 8.35.0(typescript@5.9.3)
+      '@typescript-eslint/types': 8.35.0
+      '@typescript-eslint/visitor-keys': 8.35.0
+      debug: 4.4.3
+      fast-glob: 3.3.3
+      is-glob: 4.0.3
+      minimatch: 9.0.5
+      semver: 7.7.3
+      ts-api-utils: 2.1.0(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/typescript-estree@8.49.0(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/project-service': 8.49.0(typescript@5.9.3)
@@ -12249,6 +12403,17 @@ snapshots:
       '@typescript-eslint/typescript-estree': 8.35.0(typescript@5.8.3)
       eslint: 9.29.0(jiti@2.4.2)
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.39.1(jiti@2.4.2))
+      '@typescript-eslint/scope-manager': 8.35.0
+      '@typescript-eslint/types': 8.35.0
+      '@typescript-eslint/typescript-estree': 8.35.0(typescript@5.9.3)
+      eslint: 9.39.1(jiti@2.4.2)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13043,20 +13208,6 @@ snapshots:
       node-int64: 0.4.0
 
   buffer-from@1.1.2: {}
-
-  bun@1.3.3:
-    optionalDependencies:
-      '@oven/bun-darwin-aarch64': 1.3.3
-      '@oven/bun-darwin-x64': 1.3.3
-      '@oven/bun-darwin-x64-baseline': 1.3.3
-      '@oven/bun-linux-aarch64': 1.3.3
-      '@oven/bun-linux-aarch64-musl': 1.3.3
-      '@oven/bun-linux-x64': 1.3.3
-      '@oven/bun-linux-x64-baseline': 1.3.3
-      '@oven/bun-linux-x64-musl': 1.3.3
-      '@oven/bun-linux-x64-musl-baseline': 1.3.3
-      '@oven/bun-windows-x64': 1.3.3
-      '@oven/bun-windows-x64-baseline': 1.3.3
 
   bytes@3.1.2: {}
 
@@ -14784,6 +14935,8 @@ snapshots:
 
   highlight.js@10.7.3: {}
 
+  hono@4.11.1: {}
+
   hook-std@4.0.0: {}
 
   hookable@5.5.3: {}
@@ -15542,6 +15695,8 @@ snapshots:
 
   jju@1.4.0: {}
 
+  jose@6.1.3: {}
+
   js-tokens@4.0.0: {}
 
   js-tokens@9.0.1: {}
@@ -15657,6 +15812,8 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
+
+  json-schema-typed@8.0.2: {}
 
   json-schema@0.4.0: {}
 
@@ -17639,6 +17796,16 @@ snapshots:
       '@typescript-eslint/utils': 8.35.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
       eslint: 9.29.0(jiti@2.4.2)
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
+  typescript-eslint@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 8.35.0(@typescript-eslint/parser@8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3))(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.35.0(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.3)
+      eslint: 9.39.1(jiti@2.4.2)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
