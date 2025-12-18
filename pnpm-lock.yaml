@@ -493,7 +493,7 @@ importers:
   sdks/typescript/server:
     dependencies:
       '@modelcontextprotocol/ext-apps':
-        specifier: 0.2.2
+        specifier: ^0.2.2
         version: 0.2.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.1
