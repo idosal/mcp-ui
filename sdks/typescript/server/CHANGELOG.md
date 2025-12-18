@@ -1,3 +1,12 @@
+# [5.17.0-alpha.1](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.3...server/v5.17.0-alpha.1) (2025-12-18)
+
+
+### Features
+
+* **client:** expose MCP request handlers and AppBridge ref ([3cf3c37](https://github.com/MCP-UI-Org/mcp-ui/commit/3cf3c3731eaf05c7b3d235f7dd30f100fa2e16bb))
+* **client:** make Client optional with onReadResource alternative ([fece80e](https://github.com/MCP-UI-Org/mcp-ui/commit/fece80e99c4e39de57444ac1dbf865830680fdbe))
+* use ext-apps branch with setter-based MCP forwarding handlers ([a312e52](https://github.com/MCP-UI-Org/mcp-ui/commit/a312e52141c1396068e07f5f4ad634de831604fe))
+
 ## [5.16.3](https://github.com/MCP-UI-Org/mcp-ui/compare/server/v5.16.2...server/v5.16.3) (2025-12-18)
 
 
