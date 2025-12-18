@@ -2,7 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { getAppsSdkAdapterScript } from '../../adapters/appssdk/adapter';
 import type { AppsSdkAdapterConfig } from '../../adapters/appssdk/types';
 
-describe('Apps SDK Adapter', () => {
+/**
+ * Tests for Apps SDK Adapter script generation
+ * 
+ * Note: Behavioral tests for message translation are in appssdk-adapter.behavior.test.ts
+ * These tests focus on script structure, validity, and configuration injection.
+ */
+describe('Apps SDK Adapter - Script Generation', () => {
   describe('getAppsSdkAdapterScript', () => {
     it('should generate a valid script tag', () => {
       const script = getAppsSdkAdapterScript();
@@ -116,51 +122,6 @@ describe('Apps SDK Adapter', () => {
       const script = getAppsSdkAdapterScript();
       
       expect(script).toContain("'use strict'");
-    });
-
-    it('should contain core adapter functionality keywords', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      // Check for essential adapter components
-      expect(script).toContain('postMessage');
-      expect(script).toContain('window.openai');
-      expect(script).toContain('handleMCPUIMessage');
-    });
-
-    it('should support tool calling', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      expect(script).toContain('callTool');
-      expect(script).toContain('tool');
-    });
-
-    it('should support prompt sending', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      expect(script).toContain('sendFollowUpMessage');
-      expect(script).toContain('prompt');
-    });
-
-    it('should handle widget state', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      expect(script).toContain('widgetState');
-      // widgetState is read from Apps SDK
-    });
-
-    it('should handle render data', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      expect(script).toContain('renderData');
-      expect(script).toContain('toolInput');
-      expect(script).toContain('toolOutput');
-    });
-
-    it('should handle lifecycle messages', () => {
-      const script = getAppsSdkAdapterScript();
-      
-      expect(script).toContain('ui-lifecycle');
-      expect(script).toContain('ui-request');
     });
 
     it('should properly escape JSON in config', () => {
