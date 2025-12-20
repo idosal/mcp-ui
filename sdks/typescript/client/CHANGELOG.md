@@ -1,3 +1,10 @@
+## [5.17.3](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.17.2...client/v5.17.3) (2025-12-20)
+
+
+### Bug Fixes
+
+* add connectedMoveCallback to the WC implementation ([#170](https://github.com/MCP-UI-Org/mcp-ui/issues/170)) ([5ac4734](https://github.com/MCP-UI-Org/mcp-ui/commit/5ac4734078ff56e213e7a57029fd612638abb0b4))
+
 ## [5.17.2](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.17.1...client/v5.17.2) (2025-12-20)
 
 
