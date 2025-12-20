@@ -21,7 +21,6 @@
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "^0.2.0",
     "@modelcontextprotocol/sdk": "^1.24.0",
-    "@mcp-ui/shared": "workspace:*",
     "@quilted/threads": "^3.1.3",
     "@r2wc/react-to-web-component": "^2.0.4",
     "@remote-dom/core": "^1.8.0",

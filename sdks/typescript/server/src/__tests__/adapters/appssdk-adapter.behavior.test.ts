@@ -1,6 +1,6 @@
 /**
  * Behavioral tests for the Apps SDK Adapter Runtime
- * 
+ *
  * These tests verify the actual message translation behavior by:
  * 1. Setting up a simulated Apps SDK environment (window.openai)
  * 2. Running the adapter code
@@ -85,7 +85,12 @@ function createTestEnvironment() {
       eventListeners.get(event)?.delete(handler);
     }),
     dispatchEvent: vi.fn((event: Event) => {
-      if (event instanceof MessageEvent && event.data && typeof event.data === 'object' && 'type' in event.data) {
+      if (
+        event instanceof MessageEvent &&
+        event.data &&
+        typeof event.data === 'object' &&
+        'type' in event.data
+      ) {
         dispatchedToIframe.push(event.data as McpUiMessage);
       }
       // Also trigger registered listeners
@@ -157,14 +162,17 @@ function createTestEnvironment() {
 /**
  * Executes the adapter script and initializes it
  */
-function initializeAdapter(env: ReturnType<typeof createTestEnvironment>, config: AppsSdkAdapterConfig = {}) {
+function initializeAdapter(
+  env: ReturnType<typeof createTestEnvironment>,
+  config: AppsSdkAdapterConfig = {},
+) {
   const script = getAppsSdkAdapterScript(config);
   const jsCode = script.replace(/<\/?script>/gi, '');
-  
+
   // Execute the adapter code
   const fn = new Function(jsCode);
   fn();
-  
+
   return env;
 }
 
@@ -186,9 +194,9 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
     it('should not activate if window.openai is not present', () => {
       // Remove openai from mock window
       (env.window as unknown as { openai: undefined }).openai = undefined;
-      
+
       initializeAdapter(env);
-      
+
       // Should not dispatch any render data since adapter didn't activate
       expect(env.dispatchedToIframe.length).toBe(0);
     });
@@ -203,7 +211,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
 
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData).toBeDefined();
@@ -237,10 +245,9 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         // Advance timers to allow async handling
         await vi.runAllTimersAsync();
 
-        expect(env.mockOpenAI.callTool).toHaveBeenCalledWith(
-          'get_weather',
-          { city: 'San Francisco' }
-        );
+        expect(env.mockOpenAI.callTool).toHaveBeenCalledWith('get_weather', {
+          city: 'San Francisco',
+        });
       });
 
       it('should send acknowledgment for tool message', () => {
@@ -252,9 +259,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
           payload: { toolName: 'test_tool', params: {} },
         });
 
-        const ack = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-received'
-        );
+        const ack = env.dispatchedToIframe.find((msg) => msg.type === 'ui-message-received');
 
         expect(ack).toBeDefined();
         expect(ack?.payload?.messageId).toBe('tool-ack-1');
@@ -272,7 +277,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-success-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-success-1',
         );
 
         expect(response).toBeDefined();
@@ -292,7 +298,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-error-1'
+          (msg) => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-error-1',
         );
 
         expect(response).toBeDefined();
@@ -312,7 +318,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-unsupported-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-unsupported-1',
         );
 
         expect(response?.payload?.error?.message).toContain('not supported');
@@ -348,7 +355,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-success-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-success-1',
         );
 
         expect(response).toBeDefined();
@@ -367,7 +375,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-unsupported-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-unsupported-1',
         );
 
         expect(response?.payload?.error?.message).toContain('not supported');
@@ -413,7 +422,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         expect(env.mockOpenAI.sendFollowUpMessage).not.toHaveBeenCalled();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'intent-ignore-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'intent-ignore-1',
         );
 
         expect(response?.payload?.response).toEqual({ ignored: true });
@@ -431,7 +441,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const ack = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-received' && msg.payload?.messageId === 'notify-1'
+          (msg) => msg.type === 'ui-message-received' && msg.payload?.messageId === 'notify-1',
         );
 
         expect(ack).toBeDefined();
@@ -447,7 +457,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'notify-success-1'
+          (msg) =>
+            msg.type === 'ui-message-response' && msg.payload?.messageId === 'notify-success-1',
         );
 
         expect(response?.payload?.response).toEqual({ acknowledged: true });
@@ -465,7 +476,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         await vi.runAllTimersAsync();
 
         const response = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'link-1'
+          (msg) => msg.type === 'ui-message-response' && msg.payload?.messageId === 'link-1',
         );
 
         expect(response?.payload?.error).toBeDefined();
@@ -486,7 +497,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         });
 
         const renderData = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-iframe-render-data'
+          (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
         );
 
         expect(renderData).toBeDefined();
@@ -509,7 +520,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
         });
 
         const renderData = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-iframe-render-data'
+          (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
         );
 
         expect(renderData).toBeDefined();
@@ -537,7 +548,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       env.triggerGlobalsUpdate();
 
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData).toBeDefined();
@@ -561,7 +572,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
 
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData?.payload?.renderData).toEqual({
@@ -590,7 +601,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
 
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData?.payload?.renderData).toMatchObject({
@@ -621,7 +632,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       await vi.advanceTimersByTimeAsync(1500);
 
       const response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-timeout-1'
+        (msg) => msg.type === 'ui-message-response' && msg.payload?.messageId === 'tool-timeout-1',
       );
 
       expect(response?.payload?.error?.message).toContain('timed out');
@@ -641,7 +652,8 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       await vi.advanceTimersByTimeAsync(1500);
 
       const response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-timeout-1'
+        (msg) =>
+          msg.type === 'ui-message-response' && msg.payload?.messageId === 'prompt-timeout-1',
       );
 
       expect(response?.payload?.error?.message).toContain('timed out');
@@ -656,7 +668,7 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
 
       // The render data should be dispatched - we verify initialization worked
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData).toBeDefined();
@@ -679,14 +691,14 @@ describe('Apps SDK Adapter - Behavioral Tests', () => {
       // Should not timeout at 400ms
       await vi.advanceTimersByTimeAsync(400);
       let response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response' && msg.payload?.error
+        (msg) => msg.type === 'ui-message-response' && msg.payload?.error,
       );
       expect(response).toBeUndefined();
 
       // Should timeout at 600ms (past 500ms timeout)
       await vi.advanceTimersByTimeAsync(200);
       response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response' && msg.payload?.error
+        (msg) => msg.type === 'ui-message-response' && msg.payload?.error,
       );
       expect(response?.payload?.error?.message).toContain('timed out');
     });

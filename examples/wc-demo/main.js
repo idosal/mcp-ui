@@ -12,8 +12,8 @@ const mcpResource = {
   resource: {
     uri: 'ui://user-form/1',
     mimeType: 'text/uri-list',
-    text: 'https://remote-mcp-server-authless.idosalomon.workers.dev/task'
-  }
+    text: 'https://remote-mcp-server-authless.idosalomon.workers.dev/task',
+  },
 };
 
 // Wait for the component to be defined and ready

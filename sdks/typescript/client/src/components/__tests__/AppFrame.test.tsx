@@ -136,7 +136,7 @@ describe('<AppFrame />', () => {
   it('should connect AppBridge when provided', async () => {
     render(<AppFrame {...getPropsWithBridge()} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
@@ -148,12 +148,12 @@ describe('<AppFrame />', () => {
   it('should send HTML via AppBridge.sendSandboxResourceReady', async () => {
     render(<AppFrame {...getPropsWithBridge()} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
     // Trigger initialization
-    await act(async () => {
+    await act(() => {
       registeredOninitialized?.();
     });
 
@@ -170,11 +170,11 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ onInitialized })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
-    await act(async () => {
+    await act(() => {
       registeredOninitialized?.();
     });
 
@@ -191,11 +191,11 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ toolInput })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
-    await act(async () => {
+    await act(() => {
       registeredOninitialized?.();
     });
 
@@ -211,11 +211,11 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ toolResult })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
-    await act(async () => {
+    await act(() => {
       registeredOninitialized?.();
     });
 
@@ -229,11 +229,11 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ onSizeChanged })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
-    await act(async () => {
+    await act(() => {
       registeredOnsizechange?.({ width: 800, height: 600 });
     });
 
@@ -245,12 +245,12 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ onLoggingMessage })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
     const logParams = { level: 'info', data: 'test message' };
-    await act(async () => {
+    await act(() => {
       registeredOnloggingmessage?.(logParams);
     });
 
@@ -265,11 +265,11 @@ describe('<AppFrame />', () => {
 
     render(<AppFrame {...getPropsWithBridge({ sandbox: { ...defaultProps.sandbox, csp } })} />);
 
-    await act(async () => {
+    await act(() => {
       onReadyResolve();
     });
 
-    await act(async () => {
+    await act(() => {
       registeredOninitialized?.();
     });
 
@@ -302,6 +302,127 @@ describe('<AppFrame />', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Error: Test error/)).toBeInTheDocument();
+    });
+  });
+
+  describe('lifecycle', () => {
+    it('should preserve iframe across re-renders', async () => {
+      const { rerender } = render(<AppFrame {...getPropsWithBridge()} />);
+
+      await act(() => {
+        onReadyResolve();
+      });
+
+      await act(() => {
+        registeredOninitialized?.();
+      });
+
+      // setupSandboxProxyIframe should be called once on initial mount
+      expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(1);
+
+      // Re-render with same props (simulating React StrictMode remount or parent re-render)
+      rerender(<AppFrame {...getPropsWithBridge()} />);
+
+      // Should NOT call setupSandboxProxyIframe again - iframe is preserved
+      expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recreate iframe when sandbox URL changes', async () => {
+      const { rerender } = render(<AppFrame {...getPropsWithBridge()} />);
+
+      await act(() => {
+        onReadyResolve();
+      });
+
+      await act(() => {
+        registeredOninitialized?.();
+      });
+
+      expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(1);
+
+      // Create new mock for second iframe
+      const secondOnReadyPromise = new Promise<void>((resolve) => {
+        onReadyResolve = resolve;
+      });
+      vi.mocked(appHostUtils.setupSandboxProxyIframe).mockResolvedValue({
+        iframe: mockIframe as HTMLIFrameElement,
+        onReady: secondOnReadyPromise,
+      });
+
+      // Re-render with DIFFERENT sandbox URL
+      const newSandboxUrl = new URL('http://localhost:9999/different-sandbox.html');
+      rerender(<AppFrame {...getPropsWithBridge({ sandbox: { url: newSandboxUrl } })} />);
+
+      // Should call setupSandboxProxyIframe again with new URL
+      await waitFor(() => {
+        expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(2);
+        expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenLastCalledWith(newSandboxUrl);
+      });
+    });
+
+    it('should update HTML content without recreating iframe', async () => {
+      const { rerender } = render(<AppFrame {...getPropsWithBridge()} />);
+
+      await act(() => {
+        onReadyResolve();
+      });
+
+      await act(() => {
+        registeredOninitialized?.();
+      });
+
+      // Initial HTML sent
+      await waitFor(() => {
+        expect(mockAppBridge.sendSandboxResourceReady).toHaveBeenCalledTimes(1);
+        expect(mockAppBridge.sendSandboxResourceReady).toHaveBeenCalledWith({
+          html: defaultProps.html,
+          csp: undefined,
+        });
+      });
+
+      // Re-render with new HTML
+      const newHtml = '<html><body>Updated Content</body></html>';
+      rerender(<AppFrame {...getPropsWithBridge({ html: newHtml })} />);
+
+      // Should send new HTML without recreating iframe
+      await waitFor(() => {
+        expect(mockAppBridge.sendSandboxResourceReady).toHaveBeenCalledTimes(2);
+        expect(mockAppBridge.sendSandboxResourceReady).toHaveBeenLastCalledWith({
+          html: newHtml,
+          csp: undefined,
+        });
+      });
+
+      // Iframe should NOT be recreated
+      expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should update toolInput without recreating iframe', async () => {
+      const { rerender } = render(
+        <AppFrame {...getPropsWithBridge({ toolInput: { initial: true } })} />,
+      );
+
+      await act(() => {
+        onReadyResolve();
+      });
+
+      await act(() => {
+        registeredOninitialized?.();
+      });
+
+      await waitFor(() => {
+        expect(mockAppBridge.sendToolInput).toHaveBeenCalledWith({ arguments: { initial: true } });
+      });
+
+      // Re-render with new toolInput
+      rerender(<AppFrame {...getPropsWithBridge({ toolInput: { updated: true } })} />);
+
+      await waitFor(() => {
+        expect(mockAppBridge.sendToolInput).toHaveBeenCalledWith({ arguments: { updated: true } });
+      });
+
+      // Iframe should NOT be recreated
+      expect(appHostUtils.setupSandboxProxyIframe).toHaveBeenCalledTimes(1);
     });
   });
 });

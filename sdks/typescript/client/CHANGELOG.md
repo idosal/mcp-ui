@@ -10,6 +10,7 @@
 * update MCP Apps adapter mimetype ([#162](https://github.com/MCP-UI-Org/mcp-ui/issues/162)) ([c91e533](https://github.com/MCP-UI-Org/mcp-ui/commit/c91e5331b68c65de2347b16766a5711e05985e68))
 * update ui/message to pass an array ([#167](https://github.com/MCP-UI-Org/mcp-ui/issues/167)) ([80cf222](https://github.com/MCP-UI-Org/mcp-ui/commit/80cf22290ff5e2f981be839f74705454483c21b5))
 
+<<<<<<< HEAD
 
 ### Features
 

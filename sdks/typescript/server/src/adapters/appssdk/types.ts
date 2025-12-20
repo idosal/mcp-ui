@@ -168,4 +168,3 @@ declare global {
     openai?: AppsSdkBridge;
   }
 }
-

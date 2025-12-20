@@ -3,9 +3,11 @@ import type { McpAppsAdapterConfig } from './types.js';
 import { ADAPTER_RUNTIME_SCRIPT } from './adapter-runtime.bundled.ts';
 
 export function getMcpAppsAdapterScript(config?: McpAppsAdapterConfig): string {
-  const serializableConfig = config ? {
-    timeout: config.timeout,
-  } : {};
+  const serializableConfig = config
+    ? {
+        timeout: config.timeout,
+      }
+    : {};
   const configJson = JSON.stringify(serializableConfig);
 
   return `
@@ -35,4 +37,3 @@ export function getMcpAppsAdapterScript(config?: McpAppsAdapterConfig): string {
 </script>
 `.trim();
 }
-

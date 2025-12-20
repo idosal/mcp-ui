@@ -2,7 +2,7 @@ import type { UIActionResult } from '../../types.js';
 
 /**
  * MCP-UI Protocol Messages
- * 
+ *
  * These types define the message format used by MCP-UI widgets.
  * The adapter translates between these and MCP Apps SEP protocol
  * (types defined in @modelcontextprotocol/ext-apps).

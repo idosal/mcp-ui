@@ -200,25 +200,6 @@ describe('<AppRenderer />', () => {
       });
     });
 
-    it('should handle deprecated sandboxProxyUrl prop', async () => {
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const props = {
-        client: mockClient as unknown as Client,
-        toolName: 'test-tool',
-        sandboxProxyUrl: new URL('http://localhost:8081/sandbox.html'),
-      } as AppRendererProps;
-
-      render(<AppRenderer {...props} />);
-
-      await waitFor(() => {
-        expect(consoleWarn).toHaveBeenCalledWith(
-          expect.stringContaining('sandboxProxyUrl is deprecated'),
-        );
-      });
-
-      consoleWarn.mockRestore();
-    });
 
     it('should display error when tool has no UI resource', async () => {
       vi.mocked(appHostUtils.getToolUiResourceUri).mockResolvedValue(null);

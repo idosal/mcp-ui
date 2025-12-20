@@ -23,7 +23,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
   var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
   var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
-  // ../../../node_modules/.pnpm/@remote-dom+core@1.10.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteEvent.mjs
+  // ../../../node_modules/.pnpm/@remote-dom+core@1.8.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteEvent.mjs
   var RemoteEvent = class extends CustomEvent {
     /**
      * The last value received from a \`respondWith()\` call.
@@ -37,7 +37,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     }
   };
 
-  // ../../../node_modules/.pnpm/@remote-dom+core@1.10.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/constants.mjs
+  // ../../../node_modules/.pnpm/@remote-dom+core@1.8.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/constants.mjs
   var MUTATION_TYPE_INSERT_CHILD = 0;
   var MUTATION_TYPE_REMOVE_CHILD = 1;
   var MUTATION_TYPE_UPDATE_TEXT = 2;
@@ -47,7 +47,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
   var UPDATE_PROPERTY_TYPE_EVENT_LISTENER = 3;
   var ROOT_ID = "~";
 
-  // ../../../node_modules/.pnpm/@remote-dom+core@1.10.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/internals.mjs
+  // ../../../node_modules/.pnpm/@remote-dom+core@1.8.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/internals.mjs
   var REMOTE_CONNECTIONS = /* @__PURE__ */ new WeakMap();
   var REMOTE_IDS = /* @__PURE__ */ new WeakMap();
   var id = 0;
@@ -55,12 +55,9 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     let remoteID = REMOTE_IDS.get(node);
     if (remoteID == null) {
       remoteID = String(id++);
-      setRemoteId(node, remoteID);
+      REMOTE_IDS.set(node, remoteID);
     }
     return remoteID;
-  }
-  function setRemoteId(node, id2) {
-    REMOTE_IDS.set(node, id2);
   }
   var REMOTE_PROPERTIES = /* @__PURE__ */ new WeakMap();
   function remoteProperties(node) {
@@ -195,7 +192,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return connection.call(id2, method, ...args);
   }
 
-  // ../../../node_modules/.pnpm/@remote-dom+core@1.10.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteElement.mjs
+  // ../../../node_modules/.pnpm/@remote-dom+core@1.8.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteElement.mjs
   var EMPTY_DEFINITION = Object.freeze({});
   var RemoteElement = class extends HTMLElement {
     static get observedAttributes() {
@@ -551,9 +548,9 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
         property,
         definition,
         listeners: /* @__PURE__ */ new Set(),
-        dispatch: (...args) => {
-          const event = definition?.dispatchEvent?.apply(this, args) ?? new RemoteEvent(type, {
-            detail: args[0],
+        dispatch: (arg) => {
+          const event = definition?.dispatchEvent?.call(this, arg) ?? new RemoteEvent(type, {
+            detail: arg,
             bubbles: definition?.bubbles
           });
           this.dispatchEvent(event);
@@ -674,8 +671,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
   function noopBubblesEventListener() {
   }
 
-  // ../../../node_modules/.pnpm/@remote-dom+core@1.10.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteMutationObserver.mjs
-  var _observed;
+  // ../../../node_modules/.pnpm/@remote-dom+core@1.8.1_@preact+signals-core@1.10.0/node_modules/@remote-dom/core/build/esm/elements/RemoteMutationObserver.mjs
   var RemoteMutationObserver = class extends MutationObserver {
     constructor(connection) {
       super((records) => {
@@ -707,9 +703,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
         }
         connection.mutate(remoteRecords);
       });
-      __privateAdd(this, _observed);
       this.connection = connection;
-      __privateSet(this, _observed, /* @__PURE__ */ new Set());
     }
     /**
      * Starts watching changes to the element, and communicates changes to the
@@ -717,21 +711,15 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
      * children of the element to the host environment.
      */
     observe(target, options) {
-      const id2 = options?.id ?? ROOT_ID;
-      setRemoteId(target, id2);
-      __privateGet(this, _observed).add(target);
+      REMOTE_IDS.set(target, ROOT_ID);
       if (options?.initial !== false && target.childNodes.length > 0) {
-        if (id2 !== ROOT_ID) {
-          this.connection.mutate([[MUTATION_TYPE_INSERT_CHILD, ROOT_ID, serializeRemoteNode(target), __privateGet(this, _observed).size - 1]]);
-        } else if (target.childNodes.length > 0) {
-          const records = [];
-          for (let i = 0; i < target.childNodes.length; i++) {
-            const node = target.childNodes[i];
-            connectRemoteNode(node, this.connection);
-            records.push([MUTATION_TYPE_INSERT_CHILD, ROOT_ID, serializeRemoteNode(node), i]);
-          }
-          this.connection.mutate(records);
+        const records = [];
+        for (let i = 0; i < target.childNodes.length; i++) {
+          const node = target.childNodes[i];
+          connectRemoteNode(node, this.connection);
+          records.push([MUTATION_TYPE_INSERT_CHILD, ROOT_ID, serializeRemoteNode(node), i]);
         }
+        this.connection.mutate(records);
       }
       super.observe(target, {
         subtree: true,
@@ -741,29 +729,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
         ...options
       });
     }
-    disconnect({
-      empty = false
-    } = {}) {
-      if (empty && __privateGet(this, _observed).size > 0) {
-        const records = [];
-        for (const node of __privateGet(this, _observed)) {
-          disconnectRemoteNode(node);
-          const id2 = remoteId(node);
-          if (id2 === ROOT_ID) {
-            for (let i = 0; i < node.childNodes.length; i++) {
-              records.push([MUTATION_TYPE_REMOVE_CHILD, id2, 0]);
-            }
-          } else {
-            records.push([MUTATION_TYPE_REMOVE_CHILD, ROOT_ID, 0]);
-          }
-        }
-        this.connection.mutate(records);
-      }
-      __privateGet(this, _observed).clear();
-      super.disconnect();
-    }
   };
-  _observed = new WeakMap();
   function indexOf(node, list) {
     for (let i = 0; i < list.length; i++) {
       if (list[i] === node) return i;
@@ -771,7 +737,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return -1;
   }
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/constants.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/constants.mjs
   var MESSAGE_CALL = 1;
   var MESSAGE_CALL_RESULT = 2;
   var MESSAGE_FUNCTION_CALL = 3;
@@ -799,14 +765,14 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     }
   };
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/errors.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/errors.mjs
   var ThreadClosedError = class extends Error {
     constructor() {
       super("You attempted to call a function on a closed thread.");
     }
   };
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/nanoid.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/nanoid.mjs
   var a = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
   function nanoid(e = 21) {
     let t = "", r = crypto.getRandomValues(new Uint8Array(e));
@@ -814,7 +780,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return t;
   }
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/functions/ThreadFunctionsAutomatic.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/functions/ThreadFunctionsAutomatic.mjs
   var _functionsToId, _idsToFunction, _idsToProxy, _finalization, _ThreadFunctionsAutomatic_instances, finalizationRegistry_fn;
   var ThreadFunctionsAutomatic = class {
     constructor() {
@@ -879,7 +845,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return finalization;
   };
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/serialization/shared.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/serialization/shared.mjs
   function isIterator(value) {
     return value != null && (Symbol.asyncIterator in value || Symbol.iterator in value) && typeof value.next === "function";
   }
@@ -889,7 +855,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return prototype == null || prototype === Object.prototype;
   }
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/serialization/ThreadSerializationStructuredClone.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/serialization/ThreadSerializationStructuredClone.mjs
   var FUNCTION = "_@f";
   var ASYNC_ITERATOR = "_@i";
   var _customSerializer, _customDeserializer, _ThreadSerializationStructuredClone_instances, serializeInternal_fn, deserializeInternal_fn;
@@ -1031,7 +997,7 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     return value;
   };
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/Thread.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/Thread.mjs
   var _abort, _idsToResolver, _Thread_instances, callLocal_fn, handlerForCall_fn, resolveCall_fn, waitForResult_fn;
   var Thread = class {
     constructor(messages, {
@@ -1250,11 +1216,11 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     throw new Error(\`You attempted to call a function that is not stored. It may have already been released.\`);
   }
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/window/shared.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/window/shared.mjs
   var CHECK_MESSAGE = "quilt.threads.ping";
   var RESPONSE_MESSAGE = "quilt.threads.pong";
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/window/ThreadNestedWindow.mjs
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/window/ThreadNestedWindow.mjs
   function nestedWindowToThreadTarget(parent, {
     targetOrigin = "*"
   } = {}) {
@@ -1295,61 +1261,8 @@ export const IFRAME_SRC_DOC = `<!DOCTYPE html>
     };
   }
 
-  // ../../../node_modules/.pnpm/@quilted+threads@3.3.1_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/ThreadNestedIframe.mjs
-  var ThreadNestedIframe = class _ThreadNestedIframe extends Thread {
-    /**
-     * Starts a thread wrapped around a parent window, and returns the imports
-     * of the thread.
-     *
-     * @example
-     * \`\`\`ts
-     * import {ThreadNestedIframe} from '@quilted/threads';
-     *
-     * const {getMessage} = ThreadNestedIframe.import();
-     * const message = await getMessage(); // 'Hello, world!'
-     *
-     * // In the parent window:
-     *
-     * import {ThreadIframe} from '@quilted/threads';
-     *
-     * ThreadIframe.export(iframe, {
-     *   async getMessage() {
-     *     return 'Hello, world!';
-     *   },
-     * });
-     * \`\`\`
-     */
-    static import(options) {
-      return new _ThreadNestedIframe(options).imports;
-    }
-    /**
-     * Starts a thread wrapped around a parent window, providing the second
-     * argument as the exports of the thread.
-     *
-     * @example
-     * \`\`\`ts
-     * import {ThreadNestedIframe} from '@quilted/threads';
-     *
-     * ThreadNestedIframe.export({
-     *   async getMessage() {
-     *     return 'Hello, world!';
-     *   },
-     * });
-     *
-     * // In the parent window:
-     *
-     * import {ThreadIframe} from '@quilted/threads';
-     *
-     * const {getMessage} = ThreadIframe.import(iframe);
-     * const message = await getMessage(); // 'Hello, world!'
-     * \`\`\`
-     */
-    static export(exports, options) {
-      new _ThreadNestedIframe({
-        ...options,
-        exports
-      });
-    }
+  // ../../../node_modules/.pnpm/@quilted+threads@3.1.3_@preact+signals-core@1.10.0/node_modules/@quilted/threads/build/esm/threads/ThreadNestedIframe.mjs
+  var ThreadNestedIframe = class extends Thread {
     constructor({
       parent = globalThis.parent,
       targetOrigin = "*",

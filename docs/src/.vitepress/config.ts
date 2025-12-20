@@ -5,8 +5,7 @@ export default withMermaid(
   defineConfig({
     lang: 'en-US',
     title: 'MCP-UI',
-    description:
-      'Interactive UI for MCP - Build rich, dynamic interfaces with MCP-UI',
+    description: 'Interactive UI for MCP - Build rich, dynamic interfaces with MCP-UI',
     base: '/',
     cleanUrls: true,
 
@@ -28,16 +27,12 @@ export default withMermaid(
       ['meta', { name: 'twitter:site', content: '@idosal1' }],
       ['meta', { name: 'twitter:url', content: 'https://mcpui.dev/' }],
       ['meta', { name: 'twitter:domain', content: 'mcpui.dev' }],
-      [
-        'meta',
-        { name: 'twitter:image', content: 'https://mcpui.dev/og-image.png' },
-      ],
+      ['meta', { name: 'twitter:image', content: 'https://mcpui.dev/og-image.png' }],
       [
         'meta',
         {
           name: 'twitter:description',
-          content:
-            'Interactive UI for MCP - Build rich, dynamic interfaces with MCP-UI',
+          content: 'Interactive UI for MCP - Build rich, dynamic interfaces with MCP-UI',
         },
       ],
       ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
@@ -45,7 +40,7 @@ export default withMermaid(
       [
         'style',
         {},
-        `.VPNavBar .VPNavBarSocialLinks a[href*="npmjs.com/package/@mcp-ui/server"] { border-left: 1px solid var(--vp-c-divider); margin-left: 8px; padding-left: 12px; }`
+        `.VPNavBar .VPNavBarSocialLinks a[href*="npmjs.com/package/@mcp-ui/server"] { border-left: 1px solid var(--vp-c-divider); margin-left: 8px; padding-left: 12px; }`,
       ],
     ],
 
@@ -63,66 +58,66 @@ export default withMermaid(
         alt: 'MCP-UI Logo',
       },
 
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/introduction' },
-      { text: 'Team', link: '/team' },
-      {
-        text: 'Examples',
-        items: [
-          {
-            text: 'Live Demo',
-            link: 'https://scira-mcp-chat-git-main-idosals-projects.vercel.app/',
-          },
-          {
-            text: 'UI Inspector',
-            link: 'https://github.com/idosal/ui-inspector',
-          },
-          {
-            text: 'Server Examples',
-            items: [
-              {
-                text: 'TypeScript',
-                link: '/guide/server/typescript/usage-examples',
-              },
-              { text: 'Ruby', link: '/guide/server/ruby/usage-examples' },
-              { text: 'Python', link: '/guide/server/python/usage-examples' },
-            ],
-          },
-          {
-            text: 'Client Examples',
-            items: [
-              { text: 'React', link: '/guide/client/react-usage-examples' },
-              {
-                text: 'Web Components',
-                link: '/guide/client/wc-usage-examples',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Packages',
-        items: [
-          {
-            text: '@mcp-ui/client',
-            link: 'https://www.npmjs.com/package/@mcp-ui/client',
-          },
-          {
-            text: '@mcp-ui/server',
-            link: 'https://www.npmjs.com/package/@mcp-ui/server',
-          },
-          {
-            text: 'mcp_ui_server Gem',
-            link: 'https://rubygems.org/gems/mcp_ui_server',
-          },
-          {
-            text: 'mcp-ui-server (PyPI)',
-            link: 'https://pypi.org/project/mcp-ui-server/',
-          },
-        ],
-      },
-    ],
+      nav: [
+        { text: 'Home', link: '/' },
+        { text: 'Guide', link: '/guide/introduction' },
+        { text: 'Team', link: '/team' },
+        {
+          text: 'Examples',
+          items: [
+            {
+              text: 'Live Demo',
+              link: 'https://scira-mcp-chat-git-main-idosals-projects.vercel.app/',
+            },
+            {
+              text: 'UI Inspector',
+              link: 'https://github.com/idosal/ui-inspector',
+            },
+            {
+              text: 'Server Examples',
+              items: [
+                {
+                  text: 'TypeScript',
+                  link: '/guide/server/typescript/usage-examples',
+                },
+                { text: 'Ruby', link: '/guide/server/ruby/usage-examples' },
+                { text: 'Python', link: '/guide/server/python/usage-examples' },
+              ],
+            },
+            {
+              text: 'Client Examples',
+              items: [
+                { text: 'React', link: '/guide/client/react-usage-examples' },
+                {
+                  text: 'Web Components',
+                  link: '/guide/client/wc-usage-examples',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          text: 'Packages',
+          items: [
+            {
+              text: '@mcp-ui/client',
+              link: 'https://www.npmjs.com/package/@mcp-ui/client',
+            },
+            {
+              text: '@mcp-ui/server',
+              link: 'https://www.npmjs.com/package/@mcp-ui/server',
+            },
+            {
+              text: 'mcp_ui_server Gem',
+              link: 'https://rubygems.org/gems/mcp_ui_server',
+            },
+            {
+              text: 'mcp-ui-server (PyPI)',
+              link: 'https://pypi.org/project/mcp-ui-server/',
+            },
+          ],
+        },
+      ],
 
       sidebar: {
         '/guide/': [
@@ -281,8 +276,7 @@ export default withMermaid(
       footer: {
         message:
           'Released under the <a href="https://github.com/idosal/mcp-ui/blob/main/LICENSE">Apache 2.0 License</a>.',
-        copyright:
-          'Copyright © 2025-present <a href="https://github.com/idosal">Ido Salomon</a>',
+        copyright: 'Copyright © 2025-present <a href="https://github.com/idosal">Ido Salomon</a>',
       },
 
       lastUpdated: {
@@ -335,7 +329,7 @@ export default withMermaid(
     },
     // Optional plugin configuration
     mermaidPlugin: {
-      class: 'mermaid', // Set additional CSS classes for parent container 
+      class: 'mermaid', // Set additional CSS classes for parent container
     },
   }),
 );
