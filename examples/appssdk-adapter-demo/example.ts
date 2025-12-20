@@ -1,6 +1,6 @@
 /**
  * Platform Adapters Example
- * 
+ *
  * This example demonstrates how to create MCP-UI resources that work
  * seamlessly across multiple platforms using adapters. The Apps SDK adapter
  * enables compatibility with environments like ChatGPT.
@@ -101,7 +101,7 @@ export const simpleButtonExample = createUIResource({
         </script>
       </body>
       </html>
-    `
+    `,
   },
   encoding: 'text',
   // Enable adapters
@@ -110,10 +110,10 @@ export const simpleButtonExample = createUIResource({
       enabled: true,
       config: {
         intentHandling: 'prompt',
-        timeout: 30000
-      }
-    }
-  }
+        timeout: 30000,
+      },
+    },
+  },
 });
 
 // Example 2: Accessing Apps SDK render data
@@ -216,14 +216,14 @@ export const renderDataExample = createUIResource({
         </script>
       </body>
       </html>
-    `
+    `,
   },
   encoding: 'text',
   adapters: {
     appsSdk: {
-      enabled: true
-    }
-  }
+      enabled: true,
+    },
+  },
 });
 
 // Example 3: Interactive form with multiple action types
@@ -385,24 +385,23 @@ export const interactiveFormExample = createUIResource({
         </script>
       </body>
       </html>
-    `
+    `,
   },
   encoding: 'text',
   adapters: {
     appsSdk: {
       enabled: true,
       config: {
-        intentHandling: 'prompt',  // Intents will be converted to prompts
-        timeout: 30000
-      }
-    }
-  }
+        intentHandling: 'prompt', // Intents will be converted to prompts
+        timeout: 30000,
+      },
+    },
+  },
 });
 
 // Export all examples
 export const appsSdkAdapterExamples = {
   simpleButton: simpleButtonExample,
   renderData: renderDataExample,
-  interactiveForm: interactiveFormExample
+  interactiveForm: interactiveFormExample,
 };
-

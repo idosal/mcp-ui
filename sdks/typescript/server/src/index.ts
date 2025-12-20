@@ -27,13 +27,11 @@ export type UIResource = {
 /**
  * Creates a UIResource.
  * This is the object that should be included in the 'content' array of a toolResult.
- * 
+ *
  * @param options Configuration for the interactive resource.
  * @returns a UIResource
  */
-export function createUIResource(
-  options: CreateUIResourceOptions,
-): UIResource {
+export function createUIResource(options: CreateUIResourceOptions): UIResource {
   let actualContentString: string;
   let mimeType: MimeType;
 
@@ -149,7 +147,7 @@ export const InternalMessageType = {
 
   UI_LIFECYCLE_IFRAME_READY: 'ui-lifecycle-iframe-ready',
   UI_LIFECYCLE_IFRAME_RENDER_DATA: 'ui-lifecycle-iframe-render-data',
-  
+
   UI_RAWHTML_CONTENT: 'ui-html-content',
 };
 

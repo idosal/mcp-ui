@@ -69,17 +69,40 @@ export const UIResourceRendererWCWrapper: FC<UIResourceRendererWCProps> = (props
   );
 };
 
-customElements.define(
-  'ui-resource-renderer',
-  r2wc(UIResourceRendererWCWrapper, {
-    props: {
-      resource: 'json',
-      supportedContentTypes: 'json',
-      htmlProps: 'json',
-      remoteDomProps: 'json',
-      /* `onUIAction` is intentionally omitted as the WC implements its own event dispatching mechanism for UI actions.
-       * Consumers should listen for the `onUIAction` CustomEvent on the element instead of passing an `onUIAction` prop.
-       */
-    },
-  }),
-);
+// Get the base web component class from r2wc
+const BaseUIResourceRendererWC = r2wc(UIResourceRendererWCWrapper, {
+  props: {
+    resource: 'json',
+    supportedContentTypes: 'json',
+    htmlProps: 'json',
+    remoteDomProps: 'json',
+    /* `onUIAction` is intentionally omitted as the WC implements its own event dispatching mechanism for UI actions.
+     * Consumers should listen for the `onUIAction` CustomEvent on the element instead of passing an `onUIAction` prop.
+     */
+  },
+});
+
+/**
+ * Extended web component class that implements connectedMoveCallback.
+ *
+ * When an element is moved in the DOM using moveBefore(), browsers that support
+ * the "atomic move" feature (https://developer.chrome.com/blog/movebefore-api)
+ * will call connectedMoveCallback instead of disconnectedCallback/connectedCallback.
+ *
+ * By implementing an empty connectedMoveCallback, we signal that the component
+ * should preserve its internal state (including iframe content) when moved,
+ * rather than being fully torn down and recreated.
+ */
+class UIResourceRendererWC extends BaseUIResourceRendererWC {
+  /**
+   * Called when the element is moved via moveBefore() in browsers that support atomic moves.
+   * By implementing this method (even as a no-op), we prevent the element from being
+   * disconnected and reconnected, which would cause iframes to reload and lose state.
+   */
+  connectedMoveCallback() {
+    // Intentionally empty - by implementing this callback, we opt into atomic move behavior
+    // and prevent the iframe from reloading when the element is repositioned in the DOM.
+  }
+}
+
+customElements.define('ui-resource-renderer', UIResourceRendererWC);

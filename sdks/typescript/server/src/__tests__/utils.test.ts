@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getAdditionalResourceProps, utf8ToBase64, wrapHtmlWithAdapters, getAdapterMimeType } from '../utils.js';
+import {
+  getAdditionalResourceProps,
+  utf8ToBase64,
+  wrapHtmlWithAdapters,
+  getAdapterMimeType,
+} from '../utils.js';
 import { UI_METADATA_PREFIX, RESOURCE_MIME_TYPE } from '../types.js';
 import { RESOURCE_MIME_TYPE as EXT_APPS_RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps';
 

@@ -9,11 +9,13 @@ import { randomUUID } from 'crypto';
 const app = express();
 const port = 3000;
 
-app.use(cors({
-  origin: '*',
-  exposedHeaders: ['Mcp-Session-Id'],
-  allowedHeaders: ['Content-Type', 'mcp-session-id'],
-}));
+app.use(
+  cors({
+    origin: '*',
+    exposedHeaders: ['Mcp-Session-Id'],
+    allowedHeaders: ['Content-Type', 'mcp-session-id'],
+  }),
+);
 app.use(express.json());
 
 // Map to store transports by session ID, as shown in the documentation.
@@ -44,73 +46,85 @@ app.post('/mcp', async (req, res) => {
         delete transports[transport.sessionId];
       }
     };
-    
+
     // Create a new server instance for this specific session.
     const server = new McpServer({
-      name: "typescript-server-demo",
-      version: "1.0.0"
+      name: 'typescript-server-demo',
+      version: '1.0.0',
     });
 
     // Register our tools on the new server instance.
-    server.registerTool('showExternalUrl', {
-      title: 'Show External URL',
-      description: 'Creates a UI resource displaying an external URL (example.com).',
-      inputSchema: {},
-    }, async () => {
-      // Create the UI resource to be returned to the client
-      // This is the only MCP-UI specific code in this example
-      const uiResource = createUIResource({
-        uri: 'ui://greeting',
-        content: { type: 'externalUrl', iframeUrl: 'https://example.com' },
-        encoding: 'text',
-      });
+    server.registerTool(
+      'showExternalUrl',
+      {
+        title: 'Show External URL',
+        description: 'Creates a UI resource displaying an external URL (example.com).',
+        inputSchema: {},
+      },
+      async () => {
+        // Create the UI resource to be returned to the client
+        // This is the only MCP-UI specific code in this example
+        const uiResource = createUIResource({
+          uri: 'ui://greeting',
+          content: { type: 'externalUrl', iframeUrl: 'https://example.com' },
+          encoding: 'text',
+        });
 
-      return {
-        content: [uiResource],
-      };
-    });
+        return {
+          content: [uiResource],
+        };
+      },
+    );
 
-    server.registerTool('showRawHtml', {
-      title: 'Show Raw HTML',
-      description: 'Creates a UI resource displaying raw HTML.',
-      inputSchema: {},
-    }, async () => {
-      const uiResource = createUIResource({
-        uri: 'ui://raw-html-demo',
-        content: { type: 'rawHtml', htmlString: '<h1>Hello from Raw HTML</h1>' },
-        encoding: 'text',
-      });
+    server.registerTool(
+      'showRawHtml',
+      {
+        title: 'Show Raw HTML',
+        description: 'Creates a UI resource displaying raw HTML.',
+        inputSchema: {},
+      },
+      async () => {
+        const uiResource = createUIResource({
+          uri: 'ui://raw-html-demo',
+          content: { type: 'rawHtml', htmlString: '<h1>Hello from Raw HTML</h1>' },
+          encoding: 'text',
+        });
 
-      return {
-        content: [uiResource],
-      };
-    });
+        return {
+          content: [uiResource],
+        };
+      },
+    );
 
-    server.registerTool('showRemoteDom', {
-      title: 'Show Remote DOM',
-      description: 'Creates a UI resource displaying a remote DOM script.',
-      inputSchema: {},
-    }, async () => {
-      const remoteDomScript = `
+    server.registerTool(
+      'showRemoteDom',
+      {
+        title: 'Show Remote DOM',
+        description: 'Creates a UI resource displaying a remote DOM script.',
+        inputSchema: {},
+      },
+      async () => {
+        const remoteDomScript = `
         const p = document.createElement('ui-text');
         p.textContent = 'This is a remote DOM element from the server.';
         root.appendChild(p);
       `;
-      const uiResource = createUIResource({
-        uri: 'ui://remote-dom-demo',
-        content: {
-          type: 'remoteDom',
-          script: remoteDomScript,
-          framework: 'react',
-        },
-        encoding: 'text',
-      });
+        const uiResource = createUIResource({
+          uri: 'ui://remote-dom-demo',
+          content: {
+            type: 'remoteDom',
+            script: remoteDomScript,
+            framework: 'react',
+          },
+          encoding: 'text',
+        });
 
-      return {
-        content: [uiResource],
-      };
-    });
-  
+        return {
+          content: [uiResource],
+        };
+      },
+    );
+
     // Connect the server instance to the transport for this session.
     await server.connect(transport);
   } else {
@@ -130,7 +144,7 @@ const handleSessionRequest = async (req: express.Request, res: express.Response)
   if (!sessionId || !transports[sessionId]) {
     return res.status(404).send('Session not found');
   }
-  
+
   const transport = transports[sessionId];
   await transport.handleRequest(req, res);
 };
