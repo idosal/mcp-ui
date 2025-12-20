@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
@@ -31,7 +31,6 @@ import {
 
 import { AppFrame, type SandboxConfig } from './AppFrame';
 import { getToolUiResourceUri, readToolUiResourceHtml } from '../utils/app-host-utils';
-import { UIActionResult } from '..';
 
 /**
  * Extra metadata passed to request handlers (from AppBridge).
@@ -65,9 +64,6 @@ export interface AppRendererProps {
 
   /** Sandbox configuration */
   sandbox: SandboxConfig;
-
-  /** @deprecated Use `sandbox.url` instead */
-  sandboxProxyUrl?: URL;
 
   /** Optional pre-fetched resource URI. If not provided, will be fetched via getToolUiResourceUri() */
   toolResourceUri?: string;
@@ -107,12 +103,6 @@ export interface AppRendererProps {
 
   /** Handler for size change notifications from the guest UI */
   onSizeChanged?: (params: McpUiSizeChangedNotification['params']) => void;
-
-  /**
-   * @deprecated Use individual handlers instead: `onOpenLink`, `onMessage`, `onLoggingMessage`
-   * Callback invoked when the tool UI requests an action (link, prompt, notify)
-   */
-  onUIAction?: (result: UIActionResult) => Promise<unknown>;
 
   /** Callback invoked when an error occurs during setup or message handling */
   onError?: (error: Error) => void;
@@ -238,8 +228,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   const {
     client,
     toolName,
-    sandbox: sandboxProp,
-    sandboxProxyUrl,
+    sandbox,
     toolResourceUri,
     html: htmlProp,
     toolInput,
@@ -251,7 +240,6 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     onOpenLink,
     onLoggingMessage,
     onSizeChanged,
-    onUIAction,
     onError,
     onCallTool,
     onListResources,
@@ -259,18 +247,6 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     onReadResource,
     onListPrompts,
   } = props;
-
-  // Handle deprecated sandboxProxyUrl prop
-  const sandbox = useMemo<SandboxConfig>(() => {
-    if (sandboxProp) return sandboxProp;
-    if (sandboxProxyUrl) {
-      console.warn(
-        '[AppRenderer] sandboxProxyUrl is deprecated, use sandbox={{ url: ... }} instead',
-      );
-      return { url: sandboxProxyUrl };
-    }
-    throw new Error('AppRenderer requires sandbox.url or sandboxProxyUrl');
-  }, [sandboxProp, sandboxProxyUrl]);
 
   // State
   const [appBridge, setAppBridge] = useState<AppBridge | null>(null);
@@ -282,7 +258,6 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
   const onOpenLinkRef = useRef(onOpenLink);
   const onLoggingMessageRef = useRef(onLoggingMessage);
   const onSizeChangedRef = useRef(onSizeChanged);
-  const onUIActionRef = useRef(onUIAction);
   const onErrorRef = useRef(onError);
   const onCallToolRef = useRef(onCallTool);
   const onListResourcesRef = useRef(onListResources);
@@ -295,7 +270,6 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
     onOpenLinkRef.current = onOpenLink;
     onLoggingMessageRef.current = onLoggingMessage;
     onSizeChangedRef.current = onSizeChanged;
-    onUIActionRef.current = onUIAction;
     onErrorRef.current = onError;
     onCallToolRef.current = onCallTool;
     onListResourcesRef.current = onListResources;
@@ -338,24 +312,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
 
         // Register message handler
         bridge.onmessage = async (params, extra) => {
-          if (onUIActionRef.current) {
-            try {
-              await onUIActionRef.current({
-                type: 'prompt',
-                payload: {
-                  prompt: params.content
-                    .map((c: { type: string; text?: string }) => (c.type === 'text' ? c.text : ''))
-                    .join('\n'),
-                },
-              });
-              return { isError: false };
-            } catch (e) {
-              console.error('[AppRenderer] Message handler error:', e);
-              const error = e instanceof Error ? e : new Error(String(e));
-              onErrorRef.current?.(error);
-              return { isError: true };
-            }
-          } else if (onMessageRef.current) {
+          if (onMessageRef.current) {
             return onMessageRef.current(params, extra);
           } else {
             throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
@@ -364,20 +321,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
 
         // Register open-link handler
         bridge.onopenlink = async (params, extra) => {
-          if (onUIActionRef.current) {
-            try {
-              await onUIActionRef.current({
-                type: 'link',
-                payload: { url: params.url },
-              });
-              return { isError: false };
-            } catch (e) {
-              console.error('[AppRenderer] Open link handler error:', e);
-              const error = e instanceof Error ? e : new Error(String(e));
-              onErrorRef.current?.(error);
-              return { isError: true };
-            }
-          } else if (onOpenLinkRef.current) {
+          if (onOpenLinkRef.current) {
             return onOpenLinkRef.current(params, extra);
           } else {
             throw new McpError(ErrorCode.MethodNotFound, 'Method not found');
@@ -386,14 +330,7 @@ export const AppRenderer = forwardRef<AppRendererHandle, AppRendererProps>((prop
 
         // Register logging handler
         bridge.onloggingmessage = (params) => {
-          if (onUIActionRef.current) {
-            onUIActionRef.current({
-              type: 'notify',
-              payload: {
-                message: String(params.data),
-              },
-            });
-          } else if (onLoggingMessageRef.current) {
+          if (onLoggingMessageRef.current) {
             onLoggingMessageRef.current(params);
           }
         };
