@@ -22,7 +22,8 @@ export default async function globalSetup(): Promise<void> {
   }
 
   if (result.status !== 0) {
-    throw new Error(`Bundling Apps SDK adapter runtime failed with exit code ${result.status ?? 'unknown'}.`);
+    throw new Error(
+      `Bundling Apps SDK adapter runtime failed with exit code ${result.status ?? 'unknown'}.`,
+    );
   }
 }
-

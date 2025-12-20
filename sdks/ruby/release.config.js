@@ -21,7 +21,7 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "sed -i 's/VERSION = \".*\"/VERSION = \"${nextRelease.version}\"/' lib/mcp_ui_server/version.rb && bundle install && gem build mcp_ui_server.gemspec",
+          'sed -i \'s/VERSION = ".*"/VERSION = "${nextRelease.version}"/\' lib/mcp_ui_server/version.rb && bundle install && gem build mcp_ui_server.gemspec',
         publishCmd: 'gem push *.gem',
       },
     ],
@@ -35,9 +35,8 @@ module.exports = {
       '@semantic-release/git',
       {
         assets: ['CHANGELOG.md', 'lib/mcp_ui_server/version.rb', 'Gemfile.lock'],
-        message:
-          'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
   ],
-}; 
+};

@@ -3,10 +3,7 @@ import type { McpAppsAdapterConfig } from './adapters/mcp-apps/types.js';
 
 // Re-export constants from the official ext-apps SDK for convenience
 // This ensures we stay in sync with the MCP Apps specification
-export {
-  RESOURCE_URI_META_KEY,
-  RESOURCE_MIME_TYPE,
-} from '@modelcontextprotocol/ext-apps';
+export { RESOURCE_URI_META_KEY, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps';
 
 // Primary identifier for the resource. Starts with ui://`
 export type URI = `ui://${string}`;
@@ -64,23 +61,23 @@ export interface CreateUIResourceOptions {
 /**
  * Configuration for adapters - only ONE adapter can be enabled at a time.
  * Each adapter produces a different MIME type, and resources can only have one MIME type.
- * 
+ *
  * Use one of these configurations:
  * - `{ appsSdk: { enabled: true, ... } }` for ChatGPT/Apps SDK hosts
  * - `{ mcpApps: { enabled: true, ... } }` for MCP Apps SEP hosts
- * 
+ *
  * @example Valid configurations
  * ```ts
  * // ✓ Apps SDK adapter only
  * const config1: AdaptersConfig = { appsSdk: { enabled: true } };
- * 
+ *
  * // ✓ MCP Apps adapter only
  * const config2: AdaptersConfig = { mcpApps: { enabled: true } };
- * 
+ *
  * // ✓ No adapters
  * const config3: AdaptersConfig = {};
  * ```
- * 
+ *
  * @example Invalid configuration (TypeScript error)
  * ```ts
  * // ✗ Both adapters specified - compile-time error:

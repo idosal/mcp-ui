@@ -5,12 +5,7 @@
  * by intercepting MCP-UI protocol messages and translating them to the Apps SDK API (e.g., window.openai).
  */
 
-import type {
-  AppsSdkAdapterConfig,
-  MCPUIMessage,
-  PendingRequest,
-  RenderData,
-} from './types.js';
+import type { AppsSdkAdapterConfig, MCPUIMessage, PendingRequest, RenderData } from './types.js';
 import type { UIActionResult } from '../../types.js';
 
 type ParentPostMessage = Window['postMessage'];
@@ -38,7 +33,9 @@ class MCPUIAppsSdkAdapter {
    */
   install(): boolean {
     if (!window.openai) {
-      this.config.logger.warn('[MCPUI-Apps SDK Adapter] window.openai not detected. Adapter will not activate.');
+      this.config.logger.warn(
+        '[MCPUI-Apps SDK Adapter] window.openai not detected. Adapter will not activate.',
+      );
       return false;
     }
 
@@ -77,7 +74,10 @@ class MCPUIAppsSdkAdapter {
         }
         this.config.logger.log('[MCPUI-Apps SDK Adapter] Restored original parent.postMessage');
       } catch (error) {
-        this.config.logger.error('[MCPUI-Apps SDK Adapter] Failed to restore original postMessage:', error);
+        this.config.logger.error(
+          '[MCPUI-Apps SDK Adapter] Failed to restore original postMessage:',
+          error,
+        );
       }
     }
 
@@ -95,26 +95,35 @@ class MCPUIAppsSdkAdapter {
     this.originalPostMessage = parentWindow?.postMessage?.bind(parentWindow) ?? null;
 
     if (!this.originalPostMessage) {
-      this.config.logger.debug('[MCPUI-Apps SDK Adapter] parent.postMessage does not exist, installing shim only');
+      this.config.logger.debug(
+        '[MCPUI-Apps SDK Adapter] parent.postMessage does not exist, installing shim only',
+      );
     } else {
-      this.config.logger.debug('[MCPUI-Apps SDK Adapter] Monkey-patching parent.postMessage to intercept MCP-UI messages');
+      this.config.logger.debug(
+        '[MCPUI-Apps SDK Adapter] Monkey-patching parent.postMessage to intercept MCP-UI messages',
+      );
     }
 
     // Create the interceptor function
     const postMessageInterceptor: ParentPostMessage = (
       message: unknown,
       targetOriginOrOptions?: string | WindowPostMessageOptions,
-      transfer?: Transferable[]
+      transfer?: Transferable[],
     ): void => {
       // Check if this is an MCP-UI message
       if (this.isMCPUIMessage(message)) {
         const mcpMessage = message as MCPUIMessage;
-        this.config.logger.debug('[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:', mcpMessage.type);
+        this.config.logger.debug(
+          '[MCPUI-Apps SDK Adapter] Intercepted MCP-UI message:',
+          mcpMessage.type,
+        );
         this.handleMCPUIMessage(mcpMessage);
       } else {
         // Forward non-MCP-UI messages to the original postMessage if it exists
         if (this.originalPostMessage) {
-          this.config.logger.debug('[MCPUI-Apps SDK Adapter] Forwarding non-MCP-UI message to original postMessage');
+          this.config.logger.debug(
+            '[MCPUI-Apps SDK Adapter] Forwarding non-MCP-UI message to original postMessage',
+          );
           if (typeof targetOriginOrOptions === 'string' || targetOriginOrOptions === undefined) {
             const targetOrigin = targetOriginOrOptions ?? '*';
             this.originalPostMessage(message, targetOrigin, transfer);
@@ -122,7 +131,10 @@ class MCPUIAppsSdkAdapter {
             this.originalPostMessage(message, targetOriginOrOptions);
           }
         } else {
-          this.config.logger.warn('[MCPUI-Apps SDK Adapter] No original postMessage to forward to, ignoring message:', message);
+          this.config.logger.warn(
+            '[MCPUI-Apps SDK Adapter] No original postMessage to forward to, ignoring message:',
+            message,
+          );
         }
       }
     };
@@ -133,7 +145,10 @@ class MCPUIAppsSdkAdapter {
         parentWindow.postMessage = postMessageInterceptor;
       }
     } catch (error) {
-      this.config.logger.error('[MCPUI-Apps SDK Adapter] Failed to monkey-patch parent.postMessage:', error);
+      this.config.logger.error(
+        '[MCPUI-Apps SDK Adapter] Failed to monkey-patch parent.postMessage:',
+        error,
+      );
     }
   }
 
@@ -146,9 +161,11 @@ class MCPUIAppsSdkAdapter {
     }
 
     const msg = message as Record<string, unknown>;
-    return typeof msg.type === 'string' &&
-           (msg.type.startsWith('ui-') ||
-            ['tool', 'prompt', 'intent', 'notify', 'link'].includes(msg.type));
+    return (
+      typeof msg.type === 'string' &&
+      (msg.type.startsWith('ui-') ||
+        ['tool', 'prompt', 'intent', 'notify', 'link'].includes(msg.type))
+    );
   }
 
   /**
@@ -212,10 +229,7 @@ class MCPUIAppsSdkAdapter {
         throw new Error('Tool calling is not supported in this environment');
       }
 
-      const result = await this.withTimeout(
-        window.openai.callTool(toolName, params),
-        messageId
-      );
+      const result = await this.withTimeout(window.openai.callTool(toolName, params), messageId);
 
       this.sendSuccessResponse(messageId, result);
     } catch (error) {
@@ -238,10 +252,7 @@ class MCPUIAppsSdkAdapter {
         throw new Error('Followup turns are not supported in this environment');
       }
 
-      await this.withTimeout(
-        window.openai.sendFollowUpMessage({ prompt }),
-        messageId
-      );
+      await this.withTimeout(window.openai.sendFollowUpMessage({ prompt }), messageId);
 
       this.sendSuccessResponse(messageId, { success: true });
     } catch (error) {
@@ -272,10 +283,7 @@ class MCPUIAppsSdkAdapter {
         throw new Error('Followup turns are not supported in this environment');
       }
 
-      await this.withTimeout(
-        window.openai.sendFollowUpMessage({ prompt }),
-        messageId
-      );
+      await this.withTimeout(window.openai.sendFollowUpMessage({ prompt }), messageId);
 
       this.sendSuccessResponse(messageId, { success: true });
     } catch (error) {
@@ -301,14 +309,20 @@ class MCPUIAppsSdkAdapter {
     if (message.type !== 'link') return;
     const messageId = message.messageId || this.generateMessageId();
     this.sendAcknowledgment(messageId);
-    this.sendErrorResponse(messageId, new Error('Navigation is not supported in Apps SDK environment'));
+    this.sendErrorResponse(
+      messageId,
+      new Error('Navigation is not supported in Apps SDK environment'),
+    );
   }
 
   /**
    * Handle size change - no-op in Apps SDK environment
    */
   private handleSizeChange(message: MCPUIMessage): void {
-    this.config.logger.debug('[MCPUI-Apps SDK Adapter] Size change requested (no-op in Apps SDK):', message.payload);
+    this.config.logger.debug(
+      '[MCPUI-Apps SDK Adapter] Size change requested (no-op in Apps SDK):',
+      message.payload,
+    );
   }
 
   /**
@@ -324,10 +338,10 @@ class MCPUIAppsSdkAdapter {
    * Setup listeners for Apps SDK events
    */
   private setupAppsSdkEventListeners(): void {
-    window.addEventListener('openai:set_globals', (() => {
+    window.addEventListener('openai:set_globals', () => {
       this.config.logger.debug('[MCPUI-Apps SDK Adapter] Globals updated');
       this.sendRenderData();
-    }));
+    });
   }
 
   /**
@@ -377,9 +391,10 @@ class MCPUIAppsSdkAdapter {
    * Send error response
    */
   private sendErrorResponse(messageId: string, error: unknown): void {
-    const errorObj = error instanceof Error
-      ? { message: error.message, name: error.name }
-      : { message: String(error) };
+    const errorObj =
+      error instanceof Error
+        ? { message: error.message, name: error.name }
+        : { message: String(error) };
 
     this.dispatchMessageToIframe({
       type: 'ui-message-response',
