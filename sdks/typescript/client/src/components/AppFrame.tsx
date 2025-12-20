@@ -110,6 +110,10 @@ export const AppFrame = (props: AppFrameProps) => {
   const [error, setError] = useState<Error | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  // Track the current sandbox URL to detect when it changes
+  const currentSandboxUrlRef = useRef<string | null>(null);
+  // Track the current appBridge to detect when it changes (for isolation)
+  const currentAppBridgeRef = useRef<AppBridge | null>(null);
 
   // Refs for callbacks to avoid effect re-runs
   const onSizeChangedRef = useRef(onSizeChanged);
@@ -126,15 +130,44 @@ export const AppFrame = (props: AppFrameProps) => {
 
   // Effect 1: Set up sandbox iframe and connect AppBridge
   useEffect(() => {
+    const sandboxUrlString = sandbox.url.href;
+
+    // If we already have an iframe set up for this sandbox URL AND the same appBridge, skip setup
+    // This preserves the iframe state across React re-renders (including StrictMode)
+    // but ensures isolation when switching to a different app/resource (different appBridge)
+    if (
+      currentSandboxUrlRef.current === sandboxUrlString &&
+      currentAppBridgeRef.current === appBridge &&
+      iframeRef.current
+    ) {
+      return;
+    }
+
+    // Reset state when setting up a new iframe/bridge to ensure isolation
+    // between different apps/resources
+    setIframeReady(false);
+    setBridgeConnected(false);
+    setError(null);
+
     let mounted = true;
 
     const setup = async () => {
       try {
+        // If switching to a different sandbox URL or appBridge, clean up the old iframe first
+        if (iframeRef.current && containerRef.current?.contains(iframeRef.current)) {
+          containerRef.current.removeChild(iframeRef.current);
+          iframeRef.current = null;
+          currentSandboxUrlRef.current = null;
+          currentAppBridgeRef.current = null;
+        }
+
         const { iframe, onReady } = await setupSandboxProxyIframe(sandbox.url);
 
         if (!mounted) return;
 
         iframeRef.current = iframe;
+        currentSandboxUrlRef.current = sandboxUrlString;
+        currentAppBridgeRef.current = appBridge;
         if (containerRef.current) {
           containerRef.current.appendChild(iframe);
         }
@@ -194,15 +227,14 @@ export const AppFrame = (props: AppFrameProps) => {
 
     return () => {
       mounted = false;
-      if (iframeRef.current && containerRef.current?.contains(iframeRef.current)) {
-        containerRef.current.removeChild(iframeRef.current);
-      }
     };
   }, [sandbox.url, appBridge]);
 
   // Effect 2: Send HTML to sandbox when bridge is connected
   useEffect(() => {
-    if (!bridgeConnected || !html) return;
+    // Ensure we only send HTML to the correct appBridge that's currently connected
+    // This prevents race conditions when switching between apps
+    if (!bridgeConnected || !html || currentAppBridgeRef.current !== appBridge) return;
 
     const sendHtml = async () => {
       try {
@@ -223,7 +255,8 @@ export const AppFrame = (props: AppFrameProps) => {
 
   // Effect 3: Send tool input when ready
   useEffect(() => {
-    if (bridgeConnected && iframeReady && toolInput) {
+    // Ensure we only send to the correct appBridge that's currently connected
+    if (bridgeConnected && iframeReady && toolInput && currentAppBridgeRef.current === appBridge) {
       console.log('[AppFrame] Sending tool input:', toolInput);
       appBridge.sendToolInput({ arguments: toolInput });
     }
@@ -231,7 +264,8 @@ export const AppFrame = (props: AppFrameProps) => {
 
   // Effect 4: Send tool result when ready
   useEffect(() => {
-    if (bridgeConnected && iframeReady && toolResult) {
+    // Ensure we only send to the correct appBridge that's currently connected
+    if (bridgeConnected && iframeReady && toolResult && currentAppBridgeRef.current === appBridge) {
       console.log('[AppFrame] Sending tool result:', toolResult);
       appBridge.sendToolResult(toolResult);
     }
