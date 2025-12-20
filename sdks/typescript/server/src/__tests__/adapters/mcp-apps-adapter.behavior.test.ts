@@ -1,6 +1,6 @@
 /**
  * Behavioral tests for the MCP Apps Adapter Runtime
- * 
+ *
  * These tests verify the actual message translation behavior by:
  * 1. Setting up a simulated browser environment
  * 2. Running the adapter code
@@ -65,11 +65,13 @@ function createTestEnvironment() {
   const originalWindow = globalThis.window;
 
   // Create mock parent window
-  const mockParentPostMessage = vi.fn((message: unknown, _targetOrigin?: string, _transfer?: Transferable[]) => {
-    if (message && typeof message === 'object' && 'jsonrpc' in message) {
-      sentToHost.push(message as JsonRpcRequest | JsonRpcNotification);
-    }
-  });
+  const mockParentPostMessage = vi.fn(
+    (message: unknown, _targetOrigin?: string, _transfer?: Transferable[]) => {
+      if (message && typeof message === 'object' && 'jsonrpc' in message) {
+        sentToHost.push(message as JsonRpcRequest | JsonRpcNotification);
+      }
+    },
+  );
 
   // Create mock window object
   const mockWindow = {
@@ -79,7 +81,8 @@ function createTestEnvironment() {
     location: { origin: 'https://test.example.com' },
     addEventListener: vi.fn((event: string, handler: (e: MessageEvent) => void) => {
       if (event === 'message') {
-        (mockWindow as unknown as { _messageHandler: (e: MessageEvent) => void })._messageHandler = handler;
+        (mockWindow as unknown as { _messageHandler: (e: MessageEvent) => void })._messageHandler =
+          handler;
       }
     }),
     removeEventListener: vi.fn(),
@@ -109,7 +112,7 @@ function createTestEnvironment() {
     sentToHost,
     dispatchedToIframe,
     mockParentPostMessage,
-    
+
     /** Simulate sending an MCP-UI message (like widget would) */
     sendMcpUiMessage(message: McpUiMessage) {
       // The adapter patches parent.postMessage, so we need to call it
@@ -148,11 +151,11 @@ function createTestEnvironment() {
 function initializeAdapter(env: ReturnType<typeof createTestEnvironment>, config = {}) {
   const script = getMcpAppsAdapterScript(config);
   const jsCode = script.replace(/<\/?script>/gi, '');
-  
+
   // Execute the adapter code
   const fn = new Function(jsCode);
   fn();
-  
+
   // The adapter should have sent ui/initialize request
   return env;
 }
@@ -174,11 +177,11 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
   describe('Initialization', () => {
     it('should send ui/initialize request on startup', () => {
       initializeAdapter(env);
-      
+
       const initRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize',
       );
-      
+
       expect(initRequest).toBeDefined();
       expect(initRequest?.jsonrpc).toBe('2.0');
       expect(initRequest?.params).toMatchObject({
@@ -190,12 +193,12 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
 
     it('should send ui/notifications/initialized after receiving init response', () => {
       initializeAdapter(env);
-      
+
       // Find the init request to get its ID
       const initRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize',
       );
-      
+
       // Simulate host responding to initialization
       env.receiveFromHost({
         jsonrpc: '2.0',
@@ -209,9 +212,10 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       });
 
       const initializedNotification = env.sentToHost.find(
-        (msg): msg is JsonRpcNotification => !('id' in msg) && msg.method === 'ui/notifications/initialized'
+        (msg): msg is JsonRpcNotification =>
+          !('id' in msg) && msg.method === 'ui/notifications/initialized',
       );
-      
+
       expect(initializedNotification).toBeDefined();
     });
   });
@@ -231,7 +235,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const messageRequest = env.sentToHost.find(
-          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/message'
+          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/message',
         );
 
         expect(messageRequest).toBeDefined();
@@ -248,9 +252,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
           payload: { prompt: 'Test prompt' },
         });
 
-        const ack = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-message-received'
-        );
+        const ack = env.dispatchedToIframe.find((msg) => msg.type === 'ui-message-received');
 
         expect(ack).toBeDefined();
         expect(ack?.payload?.messageId).toBe('test-prompt-1');
@@ -262,14 +264,14 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         env.sendMcpUiMessage({
           type: 'tool',
           messageId: 'test-2',
-          payload: { 
+          payload: {
             toolName: 'get_weather',
             params: { city: 'San Francisco' },
           },
         });
 
         const toolRequest = env.sentToHost.find(
-          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'tools/call'
+          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'tools/call',
         );
 
         expect(toolRequest).toBeDefined();
@@ -285,24 +287,28 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         env.sendMcpUiMessage({
           type: 'intent',
           messageId: 'test-3',
-          payload: { 
+          payload: {
             intent: 'navigate',
             params: { destination: 'home' },
           },
         });
 
         const messageRequest = env.sentToHost.find(
-          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/message'
+          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/message',
         );
 
         expect(messageRequest).toBeDefined();
         expect(messageRequest?.params?.role).toBe('user');
         expect(messageRequest?.params?.content).toBeInstanceOf(Array);
-        expect((messageRequest?.params?.content as Array<{type: string; text: string}>)[0]).toMatchObject({
+        expect(
+          (messageRequest?.params?.content as Array<{ type: string; text: string }>)[0],
+        ).toMatchObject({
           type: 'text',
         });
         // Content should include intent info
-        expect((messageRequest?.params?.content as Array<{type: string; text: string}>)[0].text).toContain('navigate');
+        expect(
+          (messageRequest?.params?.content as Array<{ type: string; text: string }>)[0].text,
+        ).toContain('navigate');
       });
     });
 
@@ -315,7 +321,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const linkRequest = env.sentToHost.find(
-          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/open-link'
+          (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/open-link',
         );
 
         expect(linkRequest).toBeDefined();
@@ -332,7 +338,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const notifyRequest = env.sentToHost.find(
-          (msg): msg is JsonRpcNotification => msg.method === 'notifications/message'
+          (msg): msg is JsonRpcNotification => msg.method === 'notifications/message',
         );
 
         expect(notifyRequest).toBeDefined();
@@ -351,7 +357,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const sizeNotification = env.sentToHost.find(
-          (msg): msg is JsonRpcNotification => msg.method === 'ui/notifications/size-changed'
+          (msg): msg is JsonRpcNotification => msg.method === 'ui/notifications/size-changed',
         );
 
         expect(sizeNotification).toBeDefined();
@@ -365,7 +371,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
       // Complete initialization
       const initRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize',
       );
       env.receiveFromHost({
         jsonrpc: '2.0',
@@ -389,7 +395,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const renderData = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-iframe-render-data'
+          (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
         );
 
         expect(renderData).toBeDefined();
@@ -408,7 +414,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const renderData = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-iframe-render-data'
+          (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
         );
 
         expect(renderData).toBeDefined();
@@ -425,7 +431,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const renderData = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-iframe-render-data'
+          (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
         );
 
         expect(renderData).toBeDefined();
@@ -446,14 +452,12 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         // Should dispatch teardown to iframe
-        const teardown = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-teardown'
-        );
+        const teardown = env.dispatchedToIframe.find((msg) => msg.type === 'ui-lifecycle-teardown');
         expect(teardown).toBeDefined();
 
         // Should send response back to host
         const response = env.sentToHost.find(
-          (msg): msg is JsonRpcRequest => 'id' in msg && msg.id === 999
+          (msg): msg is JsonRpcRequest => 'id' in msg && msg.id === 999,
         );
         expect(response).toBeDefined();
       });
@@ -468,7 +472,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         });
 
         const cancelled = env.dispatchedToIframe.find(
-          msg => msg.type === 'ui-lifecycle-tool-cancelled'
+          (msg) => msg.type === 'ui-lifecycle-tool-cancelled',
         );
 
         expect(cancelled).toBeDefined();
@@ -482,7 +486,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
       // Complete initialization
       const initRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize',
       );
       env.receiveFromHost({
         jsonrpc: '2.0',
@@ -506,9 +510,9 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       });
 
       const toolRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'tools/call'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'tools/call',
       );
-      
+
       env.dispatchedToIframe.length = 0;
 
       // Host sends success response
@@ -518,9 +522,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         result: { data: 'success' },
       });
 
-      const response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response'
-      );
+      const response = env.dispatchedToIframe.find((msg) => msg.type === 'ui-message-response');
 
       expect(response).toBeDefined();
       expect(response?.payload?.messageId).toBe('tool-req-1');
@@ -535,9 +537,9 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       });
 
       const linkRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/open-link'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/open-link',
       );
-      
+
       env.dispatchedToIframe.length = 0;
 
       // Host sends error response
@@ -547,9 +549,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         error: { code: -32000, message: 'URL blocked by policy' },
       });
 
-      const response = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-message-response'
-      );
+      const response = env.dispatchedToIframe.find((msg) => msg.type === 'ui-message-response');
 
       expect(response).toBeDefined();
       expect(response?.payload?.messageId).toBe('link-req-1');
@@ -562,7 +562,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       initializeAdapter(env);
       // Complete initialization with context
       const initRequest = env.sentToHost.find(
-        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize'
+        (msg): msg is JsonRpcRequest => 'id' in msg && msg.method === 'ui/initialize',
       );
       env.receiveFromHost({
         jsonrpc: '2.0',
@@ -584,7 +584,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
         method: 'ui/notifications/tool-input',
         params: { arguments: { query: 'search term' } },
       });
-      
+
       env.dispatchedToIframe.length = 0;
 
       // Now request render data
@@ -594,7 +594,7 @@ describe('MCP Apps Adapter - Behavioral Tests', () => {
       });
 
       const renderData = env.dispatchedToIframe.find(
-        msg => msg.type === 'ui-lifecycle-iframe-render-data'
+        (msg) => msg.type === 'ui-lifecycle-iframe-render-data',
       );
 
       expect(renderData).toBeDefined();

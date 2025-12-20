@@ -97,10 +97,7 @@ export function getAdapterMimeType(adaptersConfig?: AdaptersConfig): string | un
  * @param adaptersConfig - Configuration for all adapters
  * @returns The wrapped HTML content with adapter scripts injected
  */
-export function wrapHtmlWithAdapters(
-  htmlContent: string,
-  adaptersConfig?: AdaptersConfig,
-): string {
+export function wrapHtmlWithAdapters(htmlContent: string, adaptersConfig?: AdaptersConfig): string {
   if (!adaptersConfig) {
     return htmlContent;
   }
@@ -146,4 +143,3 @@ export function wrapHtmlWithAdapters(
 
   return finalHtmlContent;
 }
-

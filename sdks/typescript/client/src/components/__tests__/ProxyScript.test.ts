@@ -40,7 +40,7 @@ describe('Proxy script', () => {
     const outerDoc = window.document;
     const innerIframe = outerDoc.querySelector('iframe');
     expect(innerIframe).toBeTruthy();
-    
+
     // Verify the iframe has id="root" and src="about:blank" as per the new implementation
     expect(innerIframe?.getAttribute('id')).toBe('root');
     expect(innerIframe?.getAttribute('src')).toBe('about:blank');
@@ -65,7 +65,7 @@ describe('Proxy script', () => {
     // CSP base-uri issues. In a real browser, the contentDocument would contain the HTML.
     // Here we just verify the iframe structure is correct.
     expect(innerIframe).toBeTruthy();
-    
+
     // The new implementation doesn't use sandbox attributes from payload since
     // allow-same-origin is required for document.write to work. The sandbox
     // attribute is not set on the inner iframe anymore.

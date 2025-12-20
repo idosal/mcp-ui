@@ -27,7 +27,10 @@ async function bundleAdapter(adapterName) {
 export const ADAPTER_RUNTIME_SCRIPT = ${serializedCode};
 `;
 
-    const outputTsPath = join(__dirname, `../src/adapters/${adapterName}/adapter-runtime.bundled.ts`);
+    const outputTsPath = join(
+      __dirname,
+      `../src/adapters/${adapterName}/adapter-runtime.bundled.ts`,
+    );
     writeFileSync(outputTsPath, outputContent);
     console.log(`✅ Successfully bundled ${adapterName} adapter runtime`);
   } catch (error) {

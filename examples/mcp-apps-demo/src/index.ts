@@ -10,11 +10,13 @@ import { z } from 'zod';
 const app = express();
 const port = 3001;
 
-app.use(cors({
-  origin: '*',
-  exposedHeaders: ['Mcp-Session-Id'],
-  allowedHeaders: ['*'],
-}));
+app.use(
+  cors({
+    origin: '*',
+    exposedHeaders: ['Mcp-Session-Id'],
+    allowedHeaders: ['*'],
+  }),
+);
 app.use(express.json());
 
 // Map to store transports by session ID, as shown in the documentation.
@@ -45,11 +47,11 @@ app.post('/mcp', async (req, res) => {
         delete transports[transport.sessionId];
       }
     };
-    
+
     // Create a new server instance for this specific session.
     const server = new McpServer({
-      name: "mcp-apps-demo",
-      version: "1.0.0"
+      name: 'mcp-apps-demo',
+      version: '1.0.0',
     });
 
     // Register a tool with a UI interface using the MCP Apps adapter
@@ -368,8 +370,8 @@ app.post('/mcp', async (req, res) => {
       weatherDashboardUI.resource.uri,
       {},
       async () => ({
-        contents: [weatherDashboardUI.resource]
-      })
+        contents: [weatherDashboardUI.resource],
+      }),
     );
 
     // Register the tool with _meta linking to the UI resource
@@ -382,17 +384,17 @@ app.post('/mcp', async (req, res) => {
         },
         // This tells MCP Apps hosts where to find the UI
         _meta: {
-          [RESOURCE_URI_META_KEY]: weatherDashboardUI.resource.uri
-        }
+          [RESOURCE_URI_META_KEY]: weatherDashboardUI.resource.uri,
+        },
       },
       async ({ location }) => {
         // In a real app, we might fetch data here
         return {
           content: [{ type: 'text', text: `Weather dashboard for ${location}` }],
         };
-      }
+      },
     );
-  
+
     // Connect the server instance to the transport for this session.
     await server.connect(transport);
   } else {
@@ -412,7 +414,7 @@ const handleSessionRequest = async (req: express.Request, res: express.Response)
   if (!sessionId || !transports[sessionId]) {
     return res.status(404).send('Session not found');
   }
-  
+
   const transport = transports[sessionId];
   await transport.handleRequest(req, res);
 };

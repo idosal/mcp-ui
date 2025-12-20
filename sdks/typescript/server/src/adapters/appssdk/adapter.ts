@@ -3,7 +3,7 @@
  *
  * This module enables MCP-UI embeddable widgets to run in Apps SDK environments (e.g., ChatGPT)
  * by intercepting postMessage calls and translating them to the Apps SDK API (e.g., window.openai).
- * 
+ *
  * The actual implementation is in adapter-runtime.ts (with full TypeScript support).
  * This file imports the pre-bundled version and injects it with configuration.
  */
