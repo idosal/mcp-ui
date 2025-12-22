@@ -1,7 +1,7 @@
 import {
-  McpUiSandboxProxyReadyNotificationSchema,
   RESOURCE_URI_META_KEY,
   RESOURCE_MIME_TYPE,
+  SANDBOX_PROXY_READY_METHOD,
 } from '@modelcontextprotocol/ext-apps/app-bridge';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
@@ -39,7 +39,7 @@ export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
       if (event.source === iframe.contentWindow) {
         if (
           event.data &&
-          event.data.method === McpUiSandboxProxyReadyNotificationSchema.shape.method._def.value
+          event.data.method === SANDBOX_PROXY_READY_METHOD
         ) {
           if (!settled) {
             settled = true;
