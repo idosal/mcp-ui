@@ -1,3 +1,10 @@
+# [5.18.0-alpha.3](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.18.0-alpha.2...client/v5.18.0-alpha.3) (2025-12-22)
+
+
+### Bug Fixes
+
+* trigger release ([cfcbf06](https://github.com/MCP-UI-Org/mcp-ui/commit/cfcbf06dc7782304006961116f4e1f057a492459))
+
 # [5.18.0-alpha.2](https://github.com/MCP-UI-Org/mcp-ui/compare/client/v5.18.0-alpha.1...client/v5.18.0-alpha.2) (2025-12-20)
 
 
