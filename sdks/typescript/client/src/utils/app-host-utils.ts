@@ -6,7 +6,7 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
-const DEFAULT_SANDBOX_TIMEOUT_MS = 10000;
+const DEFAULT_SANDBOX_TIMEOUT_MS = 10001;
 
 export async function setupSandboxProxyIframe(sandboxProxyUrl: URL): Promise<{
   iframe: HTMLIFrameElement;
