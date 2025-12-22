@@ -440,6 +440,113 @@ The adapter logs debug information to the browser console. Look for messages pre
 [MCP Apps Adapter] Intercepted MCP-UI message: prompt
 ```
 
+## Host-Side Rendering (Client SDK)
+
+The `@mcp-ui/client` package provides React components for rendering MCP Apps tool UIs in your host application.
+
+### AppRenderer Component
+
+`AppRenderer` is the high-level component that handles the complete lifecycle of rendering an MCP tool's UI:
+
+```tsx
+import { AppRenderer, type AppRendererHandle } from '@mcp-ui/client';
+
+function ToolUI({ client, toolName, toolInput, toolResult }) {
+  const appRef = useRef<AppRendererHandle>(null);
+
+  return (
+    <AppRenderer
+      ref={appRef}
+      client={client}
+      toolName={toolName}
+      sandbox={{ url: new URL('http://localhost:8765/sandbox_proxy.html') }}
+      toolInput={toolInput}
+      toolResult={toolResult}
+      hostContext={{ theme: 'dark' }}
+      onOpenLink={async ({ url }) => window.open(url)}
+      onMessage={async (params) => {
+        console.log('Message from tool UI:', params);
+        return { isError: false };
+      }}
+      onError={(error) => console.error('Tool UI error:', error)}
+    />
+  );
+}
+```
+
+**Key Props:**
+- `client` - Optional MCP client for automatic resource fetching and MCP request forwarding
+- `toolName` - Name of the tool to render UI for
+- `sandbox` - Sandbox configuration with the sandbox proxy URL
+- `html` - Optional pre-fetched HTML (skips resource fetching)
+- `toolResourceUri` - Optional pre-fetched resource URI
+- `toolInput` / `toolResult` - Tool arguments and results to pass to the UI
+- `hostContext` - Theme, locale, viewport info for the guest UI
+- `onOpenLink` / `onMessage` / `onLoggingMessage` - Handlers for guest UI requests
+
+**Ref Methods:**
+- `sendToolListChanged()` - Notify guest when tools change
+- `sendResourceListChanged()` - Notify guest when resources change
+- `sendPromptListChanged()` - Notify guest when prompts change
+- `teardownResource()` - Clean up before unmounting
+
+### Using Without an MCP Client
+
+You can use `AppRenderer` without a full MCP client by providing custom handlers:
+
+```tsx
+<AppRenderer
+  // No client - use callbacks instead
+  toolName="my-tool"
+  toolResourceUri="ui://my-server/my-tool"
+  sandbox={{ url: sandboxUrl }}
+  onReadResource={async ({ uri }) => {
+    // Proxy to your MCP client in a different context
+    return myMcpProxy.readResource({ uri });
+  }}
+  onCallTool={async (params) => {
+    return myMcpProxy.callTool(params);
+  }}
+/>
+```
+
+Or provide pre-fetched HTML directly:
+
+```tsx
+<AppRenderer
+  toolName="my-tool"
+  sandbox={{ url: sandboxUrl }}
+  html={preloadedHtml}  // Skip all resource fetching
+  toolInput={args}
+/>
+```
+
+### AppFrame Component
+
+`AppFrame` is the lower-level component for when you already have the HTML content and an `AppBridge` instance:
+
+```tsx
+import { AppFrame, AppBridge } from '@mcp-ui/client';
+
+function LowLevelToolUI({ html, client }) {
+  const bridge = useMemo(() => new AppBridge(client, hostInfo, capabilities), [client]);
+
+  return (
+    <AppFrame
+      html={html}
+      sandbox={{ url: sandboxUrl }}
+      appBridge={bridge}
+      toolInput={{ query: 'test' }}
+      onSizeChanged={(size) => console.log('Size changed:', size)}
+    />
+  );
+}
+```
+
+### Sandbox Proxy
+
+Both components require a sandbox proxy HTML file to be served. This provides security isolation for the guest UI. The sandbox proxy URL should point to a page that loads the MCP Apps sandbox proxy script.
+
 ## Related Resources
 
 - [MCP Apps SEP Specification](https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/draft/apps.mdx)

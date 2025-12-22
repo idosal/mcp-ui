@@ -188,10 +188,10 @@ importers:
         version: link:../../sdks/typescript/server
       '@modelcontextprotocol/ext-apps':
         specifier: ^0.2.2
-        version: 0.2.2(@modelcontextprotocol/sdk@1.23.0(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
-        version: 1.23.0(zod@3.25.67)
+        specifier: ^1.25.1
+        version: 1.25.1(hono@4.11.1)(zod@3.25.67)
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -428,9 +428,12 @@ importers:
 
   sdks/typescript/client:
     dependencies:
+      '@modelcontextprotocol/ext-apps':
+        specifier: https://pkg.pr.new/modelcontextprotocol/ext-apps/@modelcontextprotocol/ext-apps@ff79336
+        version: https://pkg.pr.new/modelcontextprotocol/ext-apps/@modelcontextprotocol/ext-apps@ff79336(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.25.67)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.22.0
-        version: 1.22.0
+        specifier: ^1.24.0
+        version: 1.25.1(hono@4.11.1)(zod@3.25.67)
       '@quilted/threads':
         specifier: ^3.1.3
         version: 3.1.3(@preact/signals-core@1.10.0)
@@ -443,6 +446,9 @@ importers:
       '@remote-dom/react':
         specifier: ^1.2.2
         version: 1.2.2(@preact/signals-core@1.10.0)(react@18.3.1)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.67
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.0.0
@@ -2095,21 +2101,25 @@ packages:
       react-dom:
         optional: true
 
+  '@modelcontextprotocol/ext-apps@https://pkg.pr.new/modelcontextprotocol/ext-apps/@modelcontextprotocol/ext-apps@ff79336':
+    resolution: {tarball: https://pkg.pr.new/modelcontextprotocol/ext-apps/@modelcontextprotocol/ext-apps@ff79336}
+    version: 0.2.2
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.24.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   '@modelcontextprotocol/sdk@1.22.0':
     resolution: {integrity: sha512-VUpl106XVTCpDmTBil2ehgJZjhyLY2QZikzF8NvTXtLRF1CvO5iEE2UNZdVIUer35vFOwMKYeUGbjJtvPWan3g==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
-    peerDependenciesMeta:
-      '@cfworker/json-schema':
-        optional: true
-
-  '@modelcontextprotocol/sdk@1.23.0':
-    resolution: {integrity: sha512-MCGd4K9aZKvuSqdoBkdMvZNcYXCkZRYVs/Gh92mdV5IHbctX9H9uIvd4X93+9g8tBbXv08sxc/QHXTzf8y65bA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      '@cfworker/json-schema': ^4.1.1
-      zod: ^3.25 || ^4.0
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -10458,9 +10468,10 @@ snapshots:
 
   '@mcp-ui/server@5.2.0(zod@3.25.67)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.1)(zod@3.25.67)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
+      - hono
       - supports-color
       - zod
 
@@ -10580,31 +10591,6 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.6.1': {}
 
-  '@modelcontextprotocol/ext-apps@0.2.2(@modelcontextprotocol/sdk@1.23.0(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
-      prettier: 3.7.4
-      zod: 3.25.67
-    optionalDependencies:
-      '@oven/bun-darwin-aarch64': 1.3.3
-      '@oven/bun-darwin-x64': 1.3.3
-      '@oven/bun-darwin-x64-baseline': 1.3.3
-      '@oven/bun-linux-aarch64': 1.3.3
-      '@oven/bun-linux-aarch64-musl': 1.3.3
-      '@oven/bun-linux-x64': 1.3.3
-      '@oven/bun-linux-x64-baseline': 1.3.3
-      '@oven/bun-linux-x64-musl': 1.3.3
-      '@oven/bun-linux-x64-musl-baseline': 1.3.3
-      '@oven/bun-windows-x64': 1.3.3
-      '@oven/bun-windows-x64-baseline': 1.3.3
-      '@rollup/rollup-darwin-arm64': 4.53.3
-      '@rollup/rollup-darwin-x64': 4.53.3
-      '@rollup/rollup-linux-arm64-gnu': 4.53.3
-      '@rollup/rollup-linux-x64-gnu': 4.53.3
-      '@rollup/rollup-win32-x64-msvc': 4.53.3
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-
   '@modelcontextprotocol/ext-apps@0.2.2(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(zod@3.25.67)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.1)(zod@3.25.67)
@@ -10630,25 +10616,31 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@modelcontextprotocol/sdk@1.22.0':
+  '@modelcontextprotocol/ext-apps@https://pkg.pr.new/modelcontextprotocol/ext-apps/@modelcontextprotocol/ext-apps@ff79336(@modelcontextprotocol/sdk@1.25.1(hono@4.11.1)(zod@3.25.67))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.25.67)':
     dependencies:
-      ajv: 8.17.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
-      content-type: 1.0.5
-      cors: 2.8.5
-      cross-spawn: 7.0.6
-      eventsource: 3.0.7
-      eventsource-parser: 3.0.6
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
-      pkce-challenge: 5.0.0
-      raw-body: 3.0.2
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.1)(zod@3.25.67)
       zod: 3.25.67
-      zod-to-json-schema: 3.25.0(zod@3.25.67)
-    transitivePeerDependencies:
-      - supports-color
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.3.3
+      '@oven/bun-darwin-x64': 1.3.3
+      '@oven/bun-darwin-x64-baseline': 1.3.3
+      '@oven/bun-linux-aarch64': 1.3.3
+      '@oven/bun-linux-aarch64-musl': 1.3.3
+      '@oven/bun-linux-x64': 1.3.3
+      '@oven/bun-linux-x64-baseline': 1.3.3
+      '@oven/bun-linux-x64-musl': 1.3.3
+      '@oven/bun-linux-x64-musl-baseline': 1.3.3
+      '@oven/bun-windows-x64': 1.3.3
+      '@oven/bun-windows-x64-baseline': 1.3.3
+      '@rollup/rollup-darwin-arm64': 4.53.3
+      '@rollup/rollup-darwin-x64': 4.53.3
+      '@rollup/rollup-linux-arm64-gnu': 4.53.3
+      '@rollup/rollup-linux-x64-gnu': 4.53.3
+      '@rollup/rollup-win32-x64-msvc': 4.53.3
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  '@modelcontextprotocol/sdk@1.23.0(zod@3.25.67)':
+  '@modelcontextprotocol/sdk@1.22.0':
     dependencies:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
@@ -12837,7 +12829,7 @@ snapshots:
 
   agents@0.0.80(@cloudflare/workers-types@4.20250620.0)(react@19.1.0):
     dependencies:
-      '@modelcontextprotocol/sdk': 1.23.0(zod@3.25.67)
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.1)(zod@3.25.67)
       ai: 4.3.16(react@19.1.0)(zod@3.25.67)
       cron-schedule: 5.0.4
       nanoid: 5.1.5
@@ -12848,6 +12840,7 @@ snapshots:
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@cloudflare/workers-types'
+      - hono
       - supports-color
 
   aggregate-error@3.1.0:
